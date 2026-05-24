@@ -38,7 +38,9 @@
   <article class="prose">
 
     <h2># the problem</h2>
-    <p>Every pump.fun token is a fungible $TOKEN with the same trade as bag mechanic: buy on the bonding curve, hope someone else buys higher. There's no scarcity tier, no onchain identity, no reason for a top holder to feel different from any other wallet on the chart.</p>
+    <p>The pump.fun standard is Token2022, not classic SPL Token. They share the same wire shape but diverge at the account layout, the transfer ABI (<code>transfer_checked</code> instead of <code>transfer</code>), and the extension model: metadataPointer, tokenMetadata, transferHook, permanentDelegate, transferFee. Most NFT infrastructure on Solana, including Metaplex Token Metadata, the Metaplex Certified Collection flow, escrow programs, ATA helpers, and the Magic Eden / Tensor wrap contracts, was specified against classic SPL Token. Token2022 support is partial in most of it, and critical extensions like transferHook will fail outright in any program that deserializes accounts with <code>Account&lt;TokenAccount&gt;</code> instead of Anchor's <code>InterfaceAccount&lt;TokenInterface&gt;</code>.</p>
+
+    <p>So there is no prebuilt NFT layer for a pump standard token. You cannot escrow $WBULL into a generic wrap contract because those contracts assume classic SPL Token semantics. The pump model gives you a fungible $TOKEN on a bonding curve and stops there. No scarcity tier, no onchain identity, no marketplace floor.</p>
 
     <h2># the proposal</h2>
     <p>WrappedBulls adds a permissionless layer on top of $WBULL: lock 1,000,000 tokens, mint a bull NFT. The 1M tokens stay locked in a vault PDA whose authority is derived from the NFT mint. Trade the NFT on Magic Eden / Tensor, the vault tokens follow atomically.</p>
@@ -57,9 +59,6 @@
 
     <h2># why bulls</h2>
     <p>Bulls are the canonical "we go up" symbol of every market. The collection's pixel art bulls inherit that energy. The trait system makes each one identifiable. Top wallets will hold the rare ones (holo body, fire_aura, halo_stars) and signal that on social. The collection becomes a status surface for $WBULL holders.</p>
-
-    <h2># why repacked, not new</h2>
-    <p>The wrap mechanic and the art were built and tested under a prior project. The contracts compiled cleanly, the simulation passed, the art is polished, but the token never reached real users. WrappedBulls is the same engineering, repacked with a name that telegraphs the mechanic: this is a wrapping primitive, not just another memecoin.</p>
 
     <h2># what we are not</h2>
     <ul>
@@ -84,7 +83,7 @@
   <div class="wrap">
     <div class="row">
       <div>$ wrappedbulls: built on solana, permissionless wrap + unwrap.</div>
-      <div><a href="https://x.com/wrappedbulls" target="_blank" rel="noopener">[ X ]</a> &nbsp; <a href="thesis.html">[ THESIS ]</a></div>
+      <div><a href="https://x.com/wrappedbulls" target="_blank" rel="noopener">[ X ]</a> &nbsp; <a href="https://github.com/wrappedbulls/wrappedbulls" target="_blank" rel="noopener">[ GH ]</a> &nbsp; <a href="thesis.html">[ THESIS ]</a></div>
     </div>
   </div>
 </footer>
