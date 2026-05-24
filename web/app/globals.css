@@ -3,19 +3,27 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
-  --bull-bg: #0a0a0c;
-  --bull-card: #15151a;
-  --bull-card-hi: #1c1c24;
-  --bull-accent: #f0d028;
-  --bull-accent-hi: #fff0a0;
-  --bull-ink: #e8e4dc;
-  --bull-dim: #8a8a92;
+  color-scheme: light;
+  /* Terminal/paper palette. Identical to wrappedbulls-preview/styles.css.
+     Kept under the --bull-* names so existing components don't need
+     refactoring for the foundational port; they'll just render
+     monochrome until each page is restyled to match the preview. */
+  --bull-bg: #f8f7f2;       /* paper */
+  --bull-card: #f8f7f2;     /* paper (card differentiated via 2px border) */
+  --bull-card-hi: #ececec;
+  --bull-accent: #0a0a0a;   /* ink (no chromatic accent: bulls supply color) */
+  --bull-accent-hi: #0a0a0a;
+  --bull-ink: #0a0a0a;
+  --bull-dim: #6a6a6a;
   --bull-brown: #7a4a2a;
   --bull-pasture-top: #a8d878;
   --bull-pasture-bot: #6c9844;
-  --bull-success: #3acf6b;
-  --bull-danger: #e84848;
+  --bull-success: #0a0a0a;
+  --bull-danger: #0a0a0a;
+  --bull-paper: #f8f7f2;
+  --bull-soft: #cfcec7;
+  --bull-very-soft: #ececec;
+  --bull-rule: #0a0a0a;
 }
 
 * { box-sizing: border-box; }
@@ -23,90 +31,71 @@
 html, body {
   background: var(--bull-bg);
   color: var(--bull-ink);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
 
-a { color: inherit; text-decoration: none; }
+a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+a:hover { background: var(--bull-ink); color: var(--bull-paper); text-decoration: none; }
 
-/* Pixel-art image rendering */
+img { image-rendering: pixelated; }
 .pixelated { image-rendering: pixelated; image-rendering: -moz-crisp-edges; }
-
-/* Subtle grain to break up flat darks */
-body::before {
-  content: "";
-  position: fixed; inset: 0;
-  pointer-events: none;
-  background-image:
-    radial-gradient(circle at 25% 10%, rgba(240,208,40,0.04) 0, transparent 40%),
-    radial-gradient(circle at 80% 70%, rgba(122,74,42,0.04) 0, transparent 40%);
-  z-index: 0;
-}
 
 main, header, footer { position: relative; z-index: 1; }
 
-/* Buttons */
+/* Buttons (terminal style: 2px border, uppercase, hover invert) */
 .btn {
   display: inline-flex; align-items: center; justify-content: center;
   gap: 8px;
   padding: 10px 18px;
-  min-height: 44px; /* WCAG AAA / Apple HIG touch target */
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 14px;
-  letter-spacing: 0.02em;
-  transition: all 0.15s ease;
+  min-height: 44px;
+  border-radius: 0;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: background 0.1s ease, color 0.1s ease;
   cursor: pointer;
-  border: 1px solid transparent;
-  white-space: nowrap;
-}
-/* Long button labels can overflow narrow phones; allow wrapping. */
-@media (max-width: 480px) {
-  .btn {
-    white-space: normal;
-    text-align: center;
-    padding: 10px 14px;
-    font-size: 13px;
-  }
-}
-.btn-primary {
-  background: var(--bull-accent);
-  color: #1a1a00;
-}
-.btn-primary:hover { background: var(--bull-accent-hi); transform: translateY(-1px); }
-.btn-primary:disabled { background: #555; color: #999; cursor: not-allowed; transform: none; }
-.btn-secondary {
-  background: transparent;
+  border: 2px solid var(--bull-ink);
+  background: var(--bull-paper);
   color: var(--bull-ink);
-  border-color: #2a2a32;
+  white-space: nowrap;
+  text-decoration: none;
 }
-.btn-secondary:hover { border-color: var(--bull-accent); color: var(--bull-accent); }
-.btn-ghost {
-  background: transparent;
-  color: var(--bull-dim);
+@media (max-width: 480px) {
+  .btn { white-space: normal; text-align: center; padding: 10px 14px; font-size: 12px; }
 }
-.btn-ghost:hover { color: var(--bull-ink); }
+.btn:hover { background: var(--bull-ink); color: var(--bull-paper); }
+.btn-primary { background: var(--bull-ink); color: var(--bull-paper); }
+.btn-primary:hover { background: var(--bull-paper); color: var(--bull-ink); }
+.btn-primary:disabled { background: transparent; color: var(--bull-dim); border-color: var(--bull-dim); cursor: not-allowed; }
+.btn-secondary { background: transparent; }
+.btn-secondary:hover { background: var(--bull-ink); color: var(--bull-paper); }
+.btn-ghost { background: transparent; border-color: transparent; }
+.btn-ghost:hover { background: transparent; color: var(--bull-ink); border-color: transparent; text-decoration: underline; }
 
-/* Cards */
+/* Cards (2px ink border, paper fill) */
 .card {
-  background: var(--bull-card);
-  border-radius: 12px;
+  background: var(--bull-paper);
+  border-radius: 0;
   padding: 20px;
-  border: 1px solid #1f1f28;
+  border: 2px solid var(--bull-ink);
 }
-.card-hover:hover { border-color: var(--bull-accent); }
+.card-hover:hover { background: var(--bull-very-soft); }
 
 /* Section spacing */
-.section { padding: 64px 0; }
-@media (min-width: 768px) { .section { padding: 96px 0; } }
+.section { padding: 48px 0; }
+@media (min-width: 768px) { .section { padding: 72px 0; } }
 
 /* Typography helpers */
-.h1 { font-size: 40px; font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; }
-.h2 { font-size: 28px; font-weight: 800; line-height: 1.1; letter-spacing: -0.01em; }
-.h3 { font-size: 18px; font-weight: 700; }
-@media (min-width: 768px) { .h1 { font-size: 64px; } .h2 { font-size: 40px; } }
+.h1 { font-size: 28px; font-weight: 800; line-height: 1.1; letter-spacing: 0.02em; text-transform: uppercase; }
+.h2 { font-size: 20px; font-weight: 800; line-height: 1.15; letter-spacing: 0.04em; text-transform: uppercase; }
+.h3 { font-size: 16px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+@media (min-width: 768px) { .h1 { font-size: 40px; } .h2 { font-size: 28px; } }
 
-/* Ticker animation */
+/* Ticker animation (retained for backward compat) */
 @keyframes ticker {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }

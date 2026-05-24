@@ -1,9 +1,17 @@
 import type { Metadata } from "next";
+import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import WalletProviders from "./components/WalletProviders";
 import { getBrand } from "@/lib/brand";
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "700", "800"],
+  variable: "--font-jetbrains-mono",
+  display: "swap",
+});
 
 const brand = getBrand();
 const siteUrl = `https://${brand.domain}`;
@@ -20,7 +28,7 @@ if (githubUrl) otherMeta["dapp:source"] = githubUrl;
 if (twitterHandle) otherMeta["dapp:twitter"] = brand.social.twitter_url ?? "";
 
 export const metadata: Metadata = {
-  title: `${brand.name} — ${brand.copy.tagline}`,
+  title: `${brand.name} · ${brand.copy.tagline}`,
   description: brand.copy.description,
   metadataBase: new URL(siteUrl),
   applicationName: brand.name,
@@ -53,7 +61,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={jetbrainsMono.variable}>
       <body>
         <WalletProviders>
           <Header />
