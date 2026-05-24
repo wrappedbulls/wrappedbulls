@@ -155,9 +155,12 @@ section { padding: 56px 0; }
 .card.link:hover .meta .traits { color: var(--paper); }
 
 /* ---------- stats / terminal-style key/value ---------- */
-pre.kvblock { font-size: 14px; line-height: 1.85; }
+pre.kvblock { font-size: 14px; line-height: 1.85; overflow-x: auto; }
 pre.kvblock .lbl { color: var(--dim); }
 pre.kvblock .ok  { font-weight: 800; }
+
+/* mobile alt logo (hidden on desktop, shown via small-screen media query) */
+.logo-mobile { display: none; }
 
 /* ---------- wrap / unwrap form ---------- */
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
@@ -195,4 +198,34 @@ footer .row { display: flex; justify-content: space-between; flex-wrap: wrap; ga
   .hero pre.logo { font-size: 8px; }
   .box .kv { grid-template-columns: 1fr; row-gap: 2px; }
   .box .kv .lbl { font-weight: 700; }
+}
+
+@media (max-width: 600px) {
+  html, body { font-size: 13px; }
+  .wrap, .wrap-narrow { padding: 0 16px; }
+  section { padding: 36px 0; }
+  .topnav { padding: 0 16px; font-size: 12px; gap: 8px; }
+  .topnav .brand { padding: 12px 0; }
+  .topnav .links { gap: 12px; padding: 0 0 12px; }
+  .topnav .meta { padding: 0 0 12px; }
+  .hero { padding: 32px 16px 16px; }
+  .hero pre.logo { display: none; }
+  .logo-mobile {
+    display: block; text-align: center; font-size: 28px; font-weight: 800;
+    letter-spacing: 0.04em; margin: 8px 0 0; text-transform: uppercase;
+  }
+  .hero .tagline { margin-top: 24px; font-size: 16px; }
+  .hero .ctas { gap: 10px; }
+  .banner { margin-top: 28px; padding: 0 16px; }
+  .page-head { padding: 32px 0 8px; }
+  .page-head h1 { font-size: 24px; }
+  .page-head .lede { font-size: 14px; }
+  .section-head .title { font-size: 18px; }
+  .box { padding: 16px; }
+  .stat-cell { padding: 12px; }
+  .stat-cell .val { font-size: 22px; }
+  pre.kvblock { font-size: 12px; line-height: 1.7; }
+  pre.steps, pre.block { font-size: 12px; }
+  article.prose h2 { font-size: 16px; }
+  .btn { padding: 12px 18px; font-size: 12px; }
 }
