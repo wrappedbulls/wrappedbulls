@@ -6,7 +6,7 @@ import Link from "next/link";
 export const metadata = {
   title: "Art - WrappedBulls",
   description:
-    "Every CryptoBull is a 24×24 pixel art portrait rendered deterministically " +
+    "Every Bull is a 24×24 pixel art portrait rendered deterministically " +
     "from its NFT mint address. 7 trait categories, over 2.8 million possible " +
     "combinations, only 1,000 bulls in existence at a time.",
 };
@@ -54,7 +54,7 @@ export default function ArtPage() {
           </span>
         </h1>
         <p className="text-lg text-[var(--bull-dim)] leading-relaxed max-w-3xl">
-          Each CryptoBull is a deterministic pixel-art portrait. The seed is
+          Each Bull is a deterministic pixel-art portrait. The seed is
           the NFT mint address - locked at wrap time, follows the NFT through
           every transfer, and re-renders byte-identically from any Solana
           RPC. Open the renderer, point it at a mint, you get the same bull
@@ -79,7 +79,7 @@ export default function ArtPage() {
               <div className="aspect-square rounded-md overflow-hidden bg-[#0a0a0c]">
                 <img
                   src={`/art/${slug}.png`}
-                  alt={`Sample CryptoBull ${slug}`}
+                  alt={`Sample Bull ${slug}`}
                   className="w-full h-full pixelated"
                   loading="lazy"
                 />
@@ -185,10 +185,10 @@ export default function ArtPage() {
         </p>
         <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
           {[
-            { tier: "Common",    pct: "22–68%",  color: "#9a9aa6" },
-            { tier: "Uncommon",  pct: "5–18%",   color: "#7aff7a" },
-            { tier: "Rare",      pct: "2.7–12%", color: "#7acaff" },
-            { tier: "Epic",      pct: "1.8–4%",  color: "#c97aff" },
+            { tier: "Common",    pct: "22 to 68%",  color: "#9a9aa6" },
+            { tier: "Uncommon",  pct: "5 to 18%",   color: "#7aff7a" },
+            { tier: "Rare",      pct: "2.7 to 12%", color: "#7acaff" },
+            { tier: "Epic",      pct: "1.8 to 4%",  color: "#c97aff" },
             { tier: "Legendary", pct: "~1%",     color: "#ffaa3a" },
           ].map((r) => (
             <div key={r.tier} className="card text-center py-5">
@@ -204,7 +204,7 @@ export default function ArtPage() {
           {" "}(1/100), <strong>ski_mask eyes</strong> (1/99), and{" "}
           <strong>halo_stars accessory</strong> (1/110). Across 1,000 bulls
           you'd statistically expect 9-10 of each. Some categories (mouth,
-          horn) intentionally have no Legendary or Epic tier — they're
+          horn) intentionally have no Legendary or Epic tier. they're
           flatter by design.
         </p>
       </section>

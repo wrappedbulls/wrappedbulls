@@ -49,7 +49,7 @@ export async function GET(req: NextRequest, ctx: RouteContext) {
   }
 
   // CACHE POLICY (fixed 2026-05-15): the visual is deterministic from
-  // nft_mint, but tier NUMBERS are reused — unwrap #42 then re-wrap #42
+  // nft_mint, but tier NUMBERS are reused. unwrap #42 then re-wrap #42
   // mints a fresh nft_mint and a DIFFERENT bull. Caching `immutable` by
   // tier served stale art for up to 24h on every re-rolled bull and broke
   // the core tier-reuse mechanic. Instead: short browser cache + a longer
@@ -59,7 +59,7 @@ export async function GET(req: NextRequest, ctx: RouteContext) {
   // a day, and NEVER serves a permanently-frozen wrong image.
   const POSITIVE_CACHE =
     "public, max-age=60, s-maxage=300, stale-while-revalidate=600";
-  // Unwrapped tiers can become wrapped at any moment — keep the negative
+  // Unwrapped tiers can become wrapped at any moment. keep the negative
   // cache short so a freshly-wrapped bull shows up fast, but non-zero so
   // marketplaces probing all 1000 tiers don't cause 1000 uncached RPC
   // reads per crawl.

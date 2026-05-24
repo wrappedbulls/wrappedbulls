@@ -105,20 +105,20 @@ export default function TechPage() {
 
       <Section title="6. Trait & rarity model">
         <p>Every bull's visual is a deterministic projection of <code>sha256(nft_mint_pubkey)</code> into seven trait slots.</p>
-        <p className="mt-2 text-sm text-[var(--bull-dim)]">Per-item drop rates below are ranges across all categories — each category has its own weight sum, so the exact rate of a Rare body item differs from a Rare accessory item. The tier labels reflect design intent and visual impact, not a single fixed percentage.</p>
+        <p className="mt-2 text-sm text-[var(--bull-dim)]">Per-item drop rates below are ranges across all categories. each category has its own weight sum, so the exact rate of a Rare body item differs from a Rare accessory item. The tier labels reflect design intent and visual impact, not a single fixed percentage.</p>
         <table className="w-full mt-4 text-sm">
           <thead className="text-left text-[var(--bull-dim)] border-b border-[#2a2a32]">
             <tr><th className="py-2">Tier</th><th>Per-item rate</th><th>Examples</th></tr>
           </thead>
           <tbody className="divide-y divide-[#1a1a22]">
-            <tr><td className="py-2 font-bold">Common</td><td>22–68%</td><td className="text-[var(--bull-dim)]">brown/black body, ivory horns, normal eyes, pasture/sand bg, &quot;none&quot; for accessory / eyewear / mouth</td></tr>
-            <tr><td className="py-2 font-bold">Uncommon</td><td>5–18%</td><td className="text-[var(--bull-dim)]">white/red body, dark/gold horns, closed/angry eyes, sky/sunset bg, bell, gold_chain, cowboy_hat, sunglasses, 3d_glasses, frown, cigarette</td></tr>
-            <tr><td className="py-2 font-bold">Rare</td><td>2.7–12%</td><td className="text-[var(--bull-dim)]">golden/cyan/pink body, crimson/silver horns, crying eyes, chart/crimson bg, top_hat, mohawk, tiara, Pump, Phantom, mog, thug_life</td></tr>
-            <tr><td className="py-2 font-bold">Epic</td><td>1.8–4%</td><td className="text-[var(--bull-dim)]">zombie body, void/gold/green eyes, void bg, fire_aura, diamond_aura, halo, scar, dubai_hat, lasers, grill</td></tr>
+            <tr><td className="py-2 font-bold">Common</td><td>22 to 68%</td><td className="text-[var(--bull-dim)]">brown/black body, ivory horns, normal eyes, pasture/sand bg, &quot;none&quot; for accessory / eyewear / mouth</td></tr>
+            <tr><td className="py-2 font-bold">Uncommon</td><td>5 to 18%</td><td className="text-[var(--bull-dim)]">white/red body, dark/gold horns, closed/angry eyes, sky/sunset bg, bell, gold_chain, cowboy_hat, sunglasses, 3d_glasses, frown, cigarette</td></tr>
+            <tr><td className="py-2 font-bold">Rare</td><td>2.7 to 12%</td><td className="text-[var(--bull-dim)]">golden/cyan/pink body, crimson/silver horns, crying eyes, chart/crimson bg, top_hat, mohawk, tiara, Pump, Phantom, mog, thug_life</td></tr>
+            <tr><td className="py-2 font-bold">Epic</td><td>1.8 to 4%</td><td className="text-[var(--bull-dim)]">zombie body, void/gold/green eyes, void bg, fire_aura, diamond_aura, halo, scar, dubai_hat, lasers, grill</td></tr>
             <tr><td className="py-2 font-bold" style={{ color: "var(--bull-accent)" }}>Legendary</td><td>~1% (1/99 to 1/110)</td><td className="text-[var(--bull-dim)]">holo body, ski_mask eyes, halo_stars accessory</td></tr>
           </tbody>
         </table>
-        <p className="mt-3 text-xs text-[var(--bull-dim)]">Mouth and horn categories intentionally cap at Rare — they have no Epic or Legendary tier, so the bull's facial expression and horn color stay readable at a glance.</p>
+        <p className="mt-3 text-xs text-[var(--bull-dim)]">Mouth and horn categories intentionally cap at Rare. they have no Epic or Legendary tier, so the bull's facial expression and horn color stay readable at a glance.</p>
       </Section>
 
       <Section title="7. Lifecycle of a single bull">

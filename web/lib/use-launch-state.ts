@@ -1,14 +1,14 @@
 "use client";
 
-// useLaunchState — client-side hook for runtime launch state.
+// useLaunchState. client-side hook for runtime launch state.
 //
 // Client components cannot read the server-side state file, so this
 // hook fetches /api/launch-state. While the request is in flight,
-// `loading` is true and `state` is null — callers should render a
+// `loading` is true and `state` is null. callers should render a
 // neutral loading state, NOT flash pre-launch then live (or vice
 // versa).
 //
-// On fetch failure the hook resolves to "pre-launch" — the safe
+// On fetch failure the hook resolves to "pre-launch". the safe
 // default. A network blip must not accidentally expose the live wrap
 // UI before the operator intends.
 
@@ -41,7 +41,7 @@ export function useLaunchState(): UseLaunchStateResult {
       })
       .catch(() => {
         if (cancelled) return;
-        // Safe default — never expose the live UI on a fetch error.
+        // Safe default. never expose the live UI on a fetch error.
         setData({ state: "pre-launch", tokenMint: null, updatedAt: null });
       });
     return () => {

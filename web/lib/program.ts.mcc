@@ -107,8 +107,8 @@ export function getProgram(connection: Connection, wallet: WalletLike): Program<
 
 // Reads default to "processed" commitment. Anchor's rpc() returns when the
 // write has reached "processed", so reading at the same level guarantees
-// the just-confirmed write is visible. Reading at "confirmed" can race —
-// the node returning the read may not have finalized to that level yet,
+// the just-confirmed write is visible. Reading at "confirmed" can race.
+// The node returning the read may not have finalized to that level yet,
 // causing post-wrap UI to display stale free_tiers / next_tier.
 export async function fetchBank(
   program: Program<Idl>,
@@ -138,7 +138,7 @@ export async function waitForBankAdvance(
     }
     await new Promise((r) => setTimeout(r, 250));
   }
-  // Don't throw — the UI's refresh() will eventually catch up.
+  // Don't throw; the UI's refresh() will eventually catch up.
 }
 
 export async function fetchUserTokenBalance(

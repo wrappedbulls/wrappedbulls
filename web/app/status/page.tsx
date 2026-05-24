@@ -1,6 +1,6 @@
 "use client";
 
-// /status — operator + public status page. Reads /api/health (chain,
+// /status. operator + public status page. Reads /api/health (chain,
 // process, launch state) and /api/rpc (proxy metrics) and renders them.
 //
 // WHY (docs/POSTMORTEM.md §10): during the last launch's 502 crisis
@@ -125,8 +125,8 @@ export default function StatusPage() {
                 {overallOk ? "All systems operational" : "Degraded"}
               </span>
             </div>
-            <Row label="Launch state" value={health.launchState ?? "—"} />
-            <Row label="Cluster" value={health.cluster ?? "—"} />
+            <Row label="Launch state" value={health.launchState ?? ", "} />
+            <Row label="Cluster" value={health.cluster ?? ", "} />
             <Row label="Build version" value={health.version ?? "unknown"} />
             <Row
               label="Token mint"
@@ -140,8 +140,8 @@ export default function StatusPage() {
               <span className="font-bold">Solana RPC connection</span>
             </div>
             <Row label="Reachable" value={chainOk ? "yes" : "no"} />
-            <Row label="Slot" value={health.chain?.slot ?? "—"} />
-            <Row label="Round-trip" value={`${health.chain?.rttMs ?? "—"} ms`} />
+            <Row label="Slot" value={health.chain?.slot ?? ", "} />
+            <Row label="Round-trip" value={`${health.chain?.rttMs ?? ", "} ms`} />
             {health.chain?.error && (
               <Row label="Error" value={health.chain.error} />
             )}
@@ -162,9 +162,9 @@ export default function StatusPage() {
               <div className="font-bold mb-3">RPC proxy</div>
               <Row label="Requests total" value={rpc.total.toLocaleString()} />
               <Row label="Forwarded" value={rpc.forwarded.toLocaleString()} />
-              <Row label="Rejected — bad method" value={rpc.rejectedMethod.toLocaleString()} />
-              <Row label="Rejected — rate limit" value={rpc.rejectedRate.toLocaleString()} />
-              <Row label="Rejected — bad body" value={rpc.rejectedBadBody.toLocaleString()} />
+              <Row label="Rejected. bad method" value={rpc.rejectedMethod.toLocaleString()} />
+              <Row label="Rejected. rate limit" value={rpc.rejectedRate.toLocaleString()} />
+              <Row label="Rejected. bad body" value={rpc.rejectedBadBody.toLocaleString()} />
               <Row label="Upstream errors" value={rpc.upstreamError.toLocaleString()} />
               <Row label="Active rate buckets" value={rpc.activeRateBuckets.toLocaleString()} />
             </div>

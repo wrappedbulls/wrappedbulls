@@ -11,7 +11,7 @@
       "name": "initialize",
       "docs": [
         "One-time setup: creates the BullBank singleton PDA and locks the",
-        "$TOKEN mint address. The mint is immutable thereafter — switching",
+        "$TOKEN mint address. The mint is immutable thereafter. switching",
         "mints requires a fresh deployment."
       ],
       "discriminator": [
@@ -50,7 +50,7 @@
         {
           "name": "program",
           "docs": [
-            "This program's account — used to locate its ProgramData."
+            "This program's account. used to locate its ProgramData."
           ],
           "address": "A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm"
         },
@@ -114,7 +114,7 @@
         {
           "name": "authority",
           "docs": [
-            "Deployer wallet — pays rent for collection mint, ATA, metadata,",
+            "Deployer wallet. pays rent for collection mint, ATA, metadata,",
             "master edition. Must equal bank.authority."
           ],
           "writable": true,
@@ -354,7 +354,7 @@
         {
           "name": "payer_token_account",
           "docs": [
-            "Caller's $TOKEN account — receives the unwrapped 1M tokens.",
+            "Caller's $TOKEN account. receives the unwrapped 1M tokens.",
             "`InterfaceAccount` for Token-2022 compatibility."
           ],
           "writable": true
@@ -464,7 +464,7 @@
         {
           "name": "payer_nft_account",
           "docs": [
-            "Caller's NFT ATA — must hold 1 of nft_mint (proves ownership).",
+            "Caller's NFT ATA. must hold 1 of nft_mint (proves ownership).",
             "Closed by burn_nft."
           ],
           "writable": true,
@@ -603,14 +603,14 @@
         {
           "name": "collection_metadata",
           "docs": [
-            "Collection NFT's Metaplex metadata account (mut — burn decrements size)."
+            "Collection NFT's Metaplex metadata account (mut. burn decrements size)."
           ],
           "writable": true
         },
         {
           "name": "token_program",
           "docs": [
-            "Classic SPL Token program — used by Metaplex BurnNft (NFT side)."
+            "Classic SPL Token program. used by Metaplex BurnNft (NFT side)."
           ],
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         },
@@ -692,7 +692,7 @@
           "docs": [
             "Caller's $TOKEN account (source of the 1M tokens being locked).",
             "`InterfaceAccount` so this works for BOTH classic SPL Token AND",
-            "Token-2022 mints (pump.fun migrated to Token-2022 in 2026 — the",
+            "Token-2022 mints (pump.fun migrated to Token-2022 in 2026. the",
             "mint at `bank.token_mint` is owned by the Token-2022 program).",
             "Boxed to keep the WrapBull stack frame under Solana's 4096-byte limit."
           ],
@@ -701,7 +701,7 @@
         {
           "name": "token_mint",
           "docs": [
-            "$TOKEN mint (must match bank.token_mint — locked at initialize).",
+            "$TOKEN mint (must match bank.token_mint. locked at initialize).",
             "`InterfaceAccount` so this transparently supports Token-2022."
           ]
         },
@@ -774,7 +774,7 @@
           "name": "vault",
           "docs": [
             "Vault: ATA owned by `nft_mint_authority` PDA, holding the 1M $TOKEN.",
-            "Address is deterministic — anyone can compute it from (nft_mint, $TOKEN).",
+            "Address is deterministic. anyone can compute it from (nft_mint, $TOKEN).",
             "`InterfaceAccount` + `associated_token::token_program` so the ATA is",
             "created with the SAME program (classic SPL or Token-2022) that owns",
             "the $TOKEN mint. For pump.fun Token-2022 mints this derives the",
@@ -838,7 +838,7 @@
         {
           "name": "payer_nft_account",
           "docs": [
-            "Caller's ATA for the new NFT — receives 1 of the freshly minted NFT."
+            "Caller's ATA for the new NFT. receives 1 of the freshly minted NFT."
           ],
           "writable": true,
           "pda": {
@@ -931,7 +931,7 @@
         {
           "name": "bull_asset",
           "docs": [
-            "BullAsset record — created here, closed on unwrap.",
+            "BullAsset record. created here, closed on unwrap.",
             "Seed: [\"bull\", tier_index_le_bytes]. Init failure protects against",
             "race conditions (two simultaneous wraps cannot claim the same tier)."
           ],
@@ -974,7 +974,7 @@
           "docs": [
             "Collection NFT mint (must equal `bank.collection_mint`).",
             "Constraint blocks any wrap before the collection is initialized",
-            "(CollectionNotInitialized — bank.collection_mint == default).",
+            "(CollectionNotInitialized. bank.collection_mint == default).",
             "verify CPI revalidates everything else."
           ]
         },
@@ -1146,7 +1146,7 @@
     {
       "code": 6009,
       "name": "CollectionNotInitialized",
-      "msg": "Metaplex Certified Collection not initialized — call initialize_collection first"
+      "msg": "Metaplex Certified Collection not initialized. call initialize_collection first"
     },
     {
       "code": 6010,
@@ -1244,7 +1244,7 @@
             "docs": [
               "$TOKEN mint address (set at initialize, immutable thereafter).",
               "Pump.fun-launched tokens have null mint authority, so this is always",
-              "safe to lock — the mint can never be inflated/changed."
+              "safe to lock. the mint can never be inflated/changed."
             ],
             "type": "pubkey"
           },
@@ -1294,7 +1294,7 @@
           {
             "name": "authority",
             "docs": [
-              "Admin authority (program upgrade only — token side is pump.fun-immutable)."
+              "Admin authority (program upgrade only. token side is pump.fun-immutable)."
             ],
             "type": "pubkey"
           },

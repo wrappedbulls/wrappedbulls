@@ -115,7 +115,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* STATS / FEED — only when live */}
+      {/* STATS / FEED. only when live */}
       {!preLaunch && (
         <>
           <section className="section">

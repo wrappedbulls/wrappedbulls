@@ -6,7 +6,7 @@
 import { Connection, PublicKey } from "@solana/web3.js";
 import { createHash } from "node:crypto";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore — plain ESM
+// @ts-ignore. plain ESM
 import { selectTraits, deriveSeed } from "@/lib/renderer.mjs";
 import { cacheWrap } from "@/lib/cache";
 

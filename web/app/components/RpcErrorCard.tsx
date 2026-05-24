@@ -1,6 +1,6 @@
 "use client";
 
-// RpcErrorCard — shown when an on-chain read fails (RPC down, network
+// RpcErrorCard. shown when an on-chain read fails (RPC down, network
 // blip, region block). THE LESSON (docs/LESSONS_LEARNED.md L11): the
 // last launch rendered "Need 1M $WBULL" identically for "RPC threw"
 // and "user actually has zero balance". Users holding $WBULL read
@@ -29,7 +29,7 @@ export default function RpcErrorCard({
         Couldn&apos;t reach Solana
       </div>
       <p className="text-[var(--bull-dim)] mb-2 max-w-md mx-auto leading-relaxed">
-        This is a connection problem talking to the blockchain — it is
+        This is a connection problem talking to the blockchain. it is
         not about your wallet or your balance. Your funds are safe.
       </p>
       <p className="text-[var(--bull-dim)] mb-6 max-w-md mx-auto leading-relaxed text-sm">

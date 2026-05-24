@@ -19,7 +19,7 @@ const twitterHandle = brand.social.twitter;
 const githubUrl = brand.social.github;
 const ogImage = brand.art.og_image_path;
 const otherMeta: Record<string, string> = {
-  // Solana ecosystem signals — what wallet/marketplace crawlers look for
+  // Solana ecosystem signals. what wallet/marketplace crawlers look for
   // when deciding whether a dApp is trustworthy enough to allow connect.
   "solana:network": "mainnet-beta",
   "solana:program-id": brand.programId,

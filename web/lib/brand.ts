@@ -1,4 +1,4 @@
-// brand.ts — single getBrand() helper merging shared launch config
+// brand.ts. single getBrand() helper merging shared launch config
 // (config/launch.toml -> launch-config.generated.ts) with web-only
 // brand surface (web/config/brand.json).
 //
@@ -9,9 +9,9 @@
 //
 // USAGE in Client Components: pass the relevant fields as props from
 // the closest Server Component. Do not call getBrand() from
-// "use client" modules — JSON imports work in client bundles, but
+// "use client" modules. JSON imports work in client bundles, but
 // importing this helper accidentally pulls launch-config.generated
-// (which is fine) and brand.json (fine too) — but the convention is
+// (which is fine) and brand.json (fine too). but the convention is
 // "Server reads, props flow down". Keeps the brand surface in one
 // auditable place.
 

@@ -125,7 +125,7 @@ export function getProgram(connection: Connection, wallet: WalletLike): Program<
 
 // Reads default to "processed" commitment. Anchor's rpc() returns when the
 // write has reached "processed", so reading at the same level guarantees
-// the just-confirmed write is visible. Reading at "confirmed" can race —
+// the just-confirmed write is visible. Reading at "confirmed" can race , 
 // the node returning the read may not have finalized to that level yet,
 // causing post-wrap UI to display stale free_tiers / next_tier.
 export async function fetchBank(
@@ -156,7 +156,7 @@ export async function waitForBankAdvance(
     }
     await new Promise((r) => setTimeout(r, 250));
   }
-  // Don't throw — the UI's refresh() will eventually catch up.
+  // Don't throw. the UI's refresh() will eventually catch up.
 }
 
 export async function fetchUserTokenBalance(
@@ -238,7 +238,7 @@ export class SimulationError extends Error {
 //
 // This implements all four mitigations from
 // https://docs.phantom.com/developer-powertools/domain-and-transaction-warnings :
-//   1. Single signer (the payer) — enforced by our IDL.
+//   1. Single signer (the payer). enforced by our IDL.
 //   2. Phantom signs first via signTransaction (not signAndSendTransaction).
 //   3. Tx size logged when NEXT_PUBLIC_DEBUG_TX=1, so size regressions show up.
 //   4. Server-side simulate with sigVerify:false before signing.
@@ -247,7 +247,7 @@ export class SimulationError extends Error {
 //   - LEGACY Transaction (Anchor's .transaction() returns one). No v0.
 //   - `connection.simulateTransaction(tx)` with NO config arg. In
 //     @solana/web3.js the legacy no-config path internally applies
-//     sigVerify:false + replaceRecentBlockhash:true — which is exactly
+//     sigVerify:false + replaceRecentBlockhash:true. which is exactly
 //     what Phantom's snippet shows explicitly. Passing the config object
 //     ourselves is what previously threw "Invalid arguments" (the legacy
 //     overload's 2nd positional is `signers`, not a config). This avoids it.

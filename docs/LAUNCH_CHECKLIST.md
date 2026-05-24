@@ -1,154 +1,115 @@
-# Launch Checklist. Shared Runsheet (You ↔ Claude)
+# Launch Checklist
 
-**Authoritative.** Companion to [`LAUNCH_RUNBOOK.md`](LAUNCH_RUNBOOK.md)
-(exact commands). This is the **who-does-what, in-what-order** runsheet so
-launch is mechanical and nothing is skipped. Decisions locked 2026-05-15:
-**deployer = `GMrJpP7Sa…` (bulls-box keypair); launch = manual runbook
-sequence.** Treasury/creator `FRZJ…TwQ` receives royalties and signs
-nothing.
+Paint by numbers playbook for the day you decide to fire on pump.fun. Each step has a single done criterion. Each phase is reversible until you cross into Phase 2 (program deploy).
 
-Owner tags: **YOU** = Louie · **ME** = Claude. `🔒 GATE` = hard stop;
-do not proceed until verified.
+## Prerequisites (confirm BEFORE launch day)
 
-> ⚠️ **Superseded. DO NOT USE:** `scripts/launch.sh`,
-> `scripts/launch_preflight.sh`, `scripts/web_apply_mcc.sh` and the old
-> Phantom-whitelist-form / "fund FRZJ…TwQ to deploy" model. They encode the
-> wrong deployer and a root-cause theory we disproved. The runbook + this
-> checklist replace them. Treat any other `docs/*.md` that says "fund
-> FRZJ…TwQ with SOL to deploy" or "wait for Phantom whitelist" as stale.
+- [ ] **Treasury wallet pubkey** in [`config/launch.toml`](../config/launch.toml): `8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD`. Seed phrase backed up offline on paper, two copies, two locations.
+- [ ] **Deployer wallet** generated separately from treasury, funded with ≥9 SOL on mainnet, keypair backed up per [`RECOVERY.md`](RECOVERY.md).
+- [ ] **Phantom domain submission** in queue (sent 2026-05-24; awaiting first warning evidence after Phase 3).
+- [ ] **@wrappedbulls X profile** live (banner, pfp, bio, no pinned tweet yet).
+- [ ] **UptimeRobot monitor** green at https://wrappedbulls.com.
+- [ ] **GitHub source** at github.com/wrappedbulls/wrappedbulls. `git status` clean before launch.
+- [ ] **Solana CLI** local: `solana --version` returns 3.1.14 or newer; `anchor --version` returns 1.0.2 or newer.
+- [ ] **Anchor tests passing**: `cargo test --manifest-path programs/wrappedbulls/Cargo.toml --lib` green.
 
----
+## Phase 1. Token launch on pump.fun (T+0)
 
-## Phase 0. Pre-launch (NOW → before $WBULL exists). State: safe.
+Irreversible after this phase. The mint exists forever.
 
-- [x] ME. Program audited; 5% royalty + creator `FRZJ…TwQ` baked in;
-      12/12 anchor tests pass incl. `assertRoyalty` (proven on-chain).
-- [x] ME. Client tx flow, metadata/render API, RPC scaling hardened.
-- [x] ME. Runbook + this checklist + README + memory consistent with code.
-- [ ] ME. Deprecation banners on the superseded scripts (so they can't be
-      run by mistake at launch).
-- [ ] YOU. *(Optional, recommended, zero-risk)* local devnet rehearsal:
-      `cd web && npm run dev` → `localhost:3000/wrap`, Phantom on Devnet,
-      fund test wallet (`solana airdrop 2 <addr> -u devnet`) + devnet
-      $WBULL, click Wrap. Expect clean modal, Advanced shows
-      `wrappedbulls: wrapBull`, console `simulationErr: null`, NFT appears.
-      Clean here → program/tx confirmed; any later mainnet warning is
-      domain-rep only.
-- [ ] YOU. *(Optional)* add a Bash force-push permission rule in Claude
-      Code settings if you want the cosmetic `@` subject of commit
-      `14cfe2e` fixed. No functional impact; skipping is fine.
-- [ ] YOU. Ensure you can fund deployer `GMrJpP7Sa…` with **~9 SOL** on
-      mainnet at launch (verified: 5.82 SOL ProgramData rent + ~5.82
-      transient deploy buffer + IDL/init/fees; ~5 SOL is NOT enough), and
-      that you control treasury `FRZJ…TwQ`.
+- [ ] Open https://pump.fun in browser. Connect the **dev wallet** you want to receive bonding curve creator fees.
+- [ ] Click "Create coin". Fill:
+  - Name: `WrappedBulls`
+  - Ticker: `WBULL`
+  - Description: see X bio for inspiration (132 char version)
+  - Image: `wrapped-bull-favorite.png`
+- [ ] Optional **dev buy**: ~1 SOL of your own SOL to seed the bonding curve. Skips the very thin initial spread for the first wrappers.
+- [ ] Confirm in wallet.
+- [ ] **Copy the new mint address** from pump.fun (base58 string typically ending in `pump`). Save it. This is `$WBULL_MINT` for the rest of the checklist.
 
-🔒 **GATE 0:** Do not start Phase 1 until $WBULL is live on pump.fun and
-you have the real mint address.
+## Phase 2. Program deploy (T+5 to T+15)
 
----
+This is the irreversible deploy step. From here forward, the program lives onchain.
 
-## Phase 1. Token launch + handoff (YOU trigger)
+- [ ] In repo locally, set Solana CLI to mainnet: `solana config set --url mainnet-beta`.
+- [ ] **Build verifiable**:
+  ```bash
+  solana-verify build
+  ```
+  (Not plain `anchor build`. The verifiable build is reproducible and lets `solana-verify verify-from-repo` prove the deployed `.so` matches this exact commit.)
+- [ ] **Deploy**:
+  ```bash
+  solana program deploy \
+    --program-id target/deploy/wrappedbulls-keypair.json \
+    --keypair /path/to/deployer-keypair.json \
+    target/deploy/wrappedbulls.so
+  ```
+- [ ] **Publish the IDL** so block explorers decode txs as `wrappedbulls` not "Unknown program":
+  ```bash
+  anchor idl init <PROGRAM_ID> \
+    --filepath target/idl/wrappedbulls.json \
+    --provider.cluster mainnet
+  ```
+- [ ] **Initialize the bank** (singleton PDA): call `initialize` with `token_mint = $WBULL_MINT`. See `scripts/devnet_initialize.ts` for the script pattern; copy to `scripts/mainnet_initialize.ts` with the mainnet RPC URL.
+- [ ] **Initialize the collection** (MCC parent NFT): call `initialize_collection`. Captures `bank.collection_mint` for later marketplace claims.
+- [ ] **Submit the verifiable build record** (optional, can be done later):
+  ```bash
+  solana-verify verify-from-repo \
+    --commit-hash <CURRENT_COMMIT> \
+    --program-id <PROGRAM_ID> \
+    https://github.com/wrappedbulls/wrappedbulls
+  ```
 
-- [ ] YOU. Launch $WBULL on pump.fun.
-- [ ] YOU. Send me: (a) the **$WBULL mint address**, (b) explicit
-      "it's live, proceed."
-- [ ] ME. Verify on mainnet: real SPL mint, 6 decimals, mint authority
-      null. Report before touching anything.
+## Phase 3. First wrap (the Phantom evidence step, T+15 to T+20)
 
-🔒 **GATE 1:** Mint verified real. A wrong/placeholder mint must NEVER
-reach `initialize`. it locks permanently.
+This is where you generate the tx that Phantom asked for, and prove the mechanic works end to end on mainnet.
 
----
+- [ ] Top up a **test wallet** (NOT deployer, NOT treasury) with:
+  - 1,000,000 $WBULL bought from pump.fun
+  - ~0.05 SOL for tx fees
+- [ ] **Wrap option A (UI):** if the Next.js wrap UI is deployed and styled, open https://wrappedbulls.com/wrap, connect the test wallet, click Wrap.
+- [ ] **Wrap option B (CLI):** if the UI is not ready, run a wrap_bull tx directly via a TS script mirroring `scripts/devnet_wrap_bull.ts` against mainnet RPC.
+- [ ] If Phantom shows "could be malicious" or any warning: click **"Proceed anyway"**, complete the tx, copy the Solscan link.
+- [ ] **Send the Solscan link to Phantom** in the existing support thread. This is the evidence they explicitly asked for; it unblocks domain reputation resolution.
+- [ ] Verify on Solscan:
+  - Program ID matches the deploy
+  - Vault PDA holds 1,000,000 $WBULL
+  - NFT mint exists with metadata pointing at `https://wrappedbulls.com/api/metadata/1`
+  - Collection NFT verified (MCC `verified == true`)
 
-## Phase 2. Mainnet deploy (ME executes, YOU fund)
+## Phase 4. Announce (T+20 to T+30)
 
-- [ ] YOU. Fund deployer `GMrJpP7SaUkfyizsB3b8GeKWgDiqac3g5EaMGnMtkXCj`
-      (= bulls-box `/root/.config/solana/id.json`) with **~9 SOL** mainnet
-      (5.82 ProgramData rent + ~5.82 transient buffer + IDL/fees; ~5 is
-      NOT enough). Tell me when done. *(NOT FRZJ…TwQ.)*
-- [ ] ME. `anchor build` on the box from the royalty-bearing source;
-      confirm `wrappedbulls.so` + `wrappedbulls.json` fresh, 0 errors.
-- [ ] ME. `anchor deploy --provider.cluster mainnet` (Anchor wants `mainnet`, NOT `mainnet-beta`. that's solana CLI; verified 2026-05-20); verify
-      `solana program show` → Executable: true, authority `GMrJpP7Sa…`.
-- [ ] ME. `anchor idl init` on mainnet; verify `anchor idl fetch` returns
-      the wrappedbulls IDL (kills "Unknown program").
-- [ ] ME. `initialize` (locks real $WBULL mint) + `initialize_collection`
-      (MCC). Triple-check the mint string before running `initialize`.
+- [ ] **Pinned launch tweet** from `@wrappedbulls`. Draft options in [`COMMS.md`](COMMS.md) Tweet 1.
+- [ ] **Quote retweet** from your personal handle to amplify.
+- [ ] **First bull wrapped tweet** quoting the Phase 3 Solscan URL (Tweet 2 in COMMS.md).
+- [ ] **Mechanic thread** posted ~30 min after T+0 (Tweet 3 in COMMS.md).
+- [ ] Ready the reply hooks (Tweet 4 in COMMS.md) for the inevitable questions.
 
-🔒 **GATE 2:** Program executable on mainnet, IDL published, bank
-initialized with the correct mint, MCC created. I verify via on-chain reads.
+## Phase 5. Marketplace claims (T+1h to T+2h)
 
----
+After the first wrap is onchain, marketplaces auto index the collection. Then you claim ownership:
 
-## Phase 3. Site flip to live (ME executes)
+- [ ] **Magic Eden Creator Hub**: https://creators.magiceden.io. Connect deployer wallet, find the auto indexed collection, click "Claim Ownership". Fill metadata per [`MARKETPLACE.md`](MARKETPLACE.md).
+- [ ] **Tensor Creator Portal**: https://www.tensor.trade/portal. Connect deployer wallet, find the collection, authorize via @wrappedbulls X for verification.
 
-- [ ] ME. Repoint `web/.env.production` + systemd: `LAUNCH_STATE=live`,
-      mainnet cluster, real program id + token mint, systemd
-      `SOLANA_RPC_URL` → Helius **mainnet** endpoint. Confirm no
-      `.env.local` exists on the build machine (only `.env.development.local`).
-- [ ] ME. Rebuild, redeploy, `daemon-reload`, restart `wrappedbulls-web`.
-- [ ] ME. Verify homepage drops "Launching soon", `/wrap` shows live UI,
-      `/api/metadata/1` + `/api/render/1` return 200 on mainnet.
+## Phase 6. Monitor (ongoing)
 
-🔒 **GATE 3:** Site live on mainnet, serving without errors.
+- [ ] UptimeRobot stays green
+- [ ] Helius webhook subscription for the $WBULL mint (optional, powers a live activity feed)
+- [ ] Daily check on Phantom thread for review status
+- [ ] First 30 days: program upgrade authority stays unlocked for hotfix bugs. After 30 day soak with no critical issues, freeze upgrade authority per [`AUTHORITY.md`](AUTHORITY.md).
 
----
+## Rollback paths
 
-## Phase 4. Private verification (SHARED. the no-errors gate)
+| Phase | Reversible? | If catastrophic |
+|---|---|---|
+| 1 | NO. The pump.fun token exists forever. | Walk away from the launch; the token graduates to PumpSwap regardless. |
+| 2 | Partially. Program can be upgraded (first 30 days). | Deploy a fix as `solana program deploy --program-id <same>` with corrected `.so`. The `BullBank` state survives. |
+| 3 onward | Yes. Failed wraps revert atomically. | Investigate the sim error; fix in code if program bug, or fix in client if UX bug. |
 
-**No public announcement until every item here is green.**
+## Hard rules (do not violate)
 
-- [ ] ME. One private wrap; read the new NFT's on-chain metadata:
-      `sellerFeeBasisPoints == 500`, creator `FRZJ…TwQ` share 100,
-      `collection.verified == true`. (Test-gated already; mainnet re-confirm.)
-- [ ] ME. Open the mint on Magic Eden + Tensor; image, traits,
-      "WrappedBulls" collection grouping resolve.
-- [ ] YOU. **Rehearsal:** with your wallet (≥1,000,000 $WBULL + ≥0.03
-      SOL) do ONE wrap on wrappedbulls.com on **Phantom-mainnet**. Expect:
-      no warning, Advanced shows `wrappedbulls: wrapBull`, tx confirms, NFT in
-      Phantom Collectibles. Screenshot the modal + send the
-      `[wrappedbulls-tx:wrapBull]` console object.
-- [ ] ME. Any warning/error → diagnose from your capture, fix, redeploy,
-      re-test. You do not announce until clean.
-
-🔒 **GATE 4:** Clean private mainnet wrap + royalty on-chain + NFT visible
-on both marketplaces. This is the "no errors at launch" guarantee.
-
----
-
-## Phase 5. Announce (YOU)
-
-- [ ] YOU. Announce only after GATE 4 fully green.
-- [ ] ME. Stand by during announce for live triage.
-
----
-
-## Phase 6. Post-launch monitoring (ME ongoing)
-
-- [ ] ME. Watch Helius RPC health (no `-32429`), metadata/render 200s
-      under marketplace crawl, `wrappedbulls-web` uptime.
-- [ ] ME. Spot-check wrapped bulls on ME/Tensor as volume grows.
-- [ ] ME. Keep README/runbook/this checklist/memory reflecting live state.
-- [ ] YOU. Forward any user-reported wallet warning or mint failure with
-      screenshot + wallet; I triage same-day.
-
----
-
-## Rollback (either of us can trigger)
-
-Set `NEXT_PUBLIC_LAUNCH_STATE=pre-launch` in `web/.env.production` +
-systemd, rebuild, redeploy, restart → wrap/unwrap revert to gated cards,
-no tx possible, no further domain-rep damage. Program is upgradeable
-(authority retained) so logic fixes ship via `anchor upgrade` without
-changing the program ID. Detail: runbook "Rollback".
-
----
-
-## The only things ONLY you can do (rest is mine)
-
-1. **Launch $WBULL, send me the verified mint + "go."** (GATE 1)
-2. **Fund deployer `GMrJpP7Sa…` with mainnet SOL; do the private Phantom
-   rehearsal wrap.** (GATE 2 / GATE 4)
-
-Build, deploy, IDL, initialize, site flip, on-chain royalty + marketplace
-verification, and monitoring are mine to execute and prove.
+- The live website never goes down. All fixes deploy to standby color and atomically swap. See [`DEPLOY.md`](DEPLOY.md).
+- Treasury wallet is never the deployer wallet. They are different keypairs.
+- Never paste the deployer or treasury seed phrase into any tool, website, Discord, or terminal session that gets logged.
+- After Phase 3 success, never reference any prior project. The narrative is that WrappedBulls invented this technology.

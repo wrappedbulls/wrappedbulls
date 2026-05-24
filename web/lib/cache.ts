@@ -2,7 +2,7 @@
 // Used to cache rendered PNG/SVG bytes + chain reads so repeated hits don't
 // re-render or re-RPC.
 //
-// Not LRU — Map of tier -> { entry, expiresAt }. Bounded by MAX_BULLS (1000)
+// Not LRU. Map of tier -> { entry, expiresAt }. Bounded by MAX_BULLS (1000)
 // so the worst-case memory is ~25MB (1000 * ~25KB PNG). Evicts only on TTL.
 
 interface CacheEntry<T> {
@@ -49,7 +49,7 @@ export async function cacheWrap<T>(
 const inflight: Record<string, Map<string, Promise<unknown>>> = {};
 // Last-known value retained past TTL so we can serve it instantly while a
 // background refresh runs (stale-while-revalidate at the in-process layer
-// — there is no CDN in front to do it for us).
+//. there is no CDN in front to do it for us).
 const staleStores: Record<string, Map<string, unknown>> = {};
 
 function singleFlight<T>(
@@ -115,7 +115,7 @@ export async function cacheWrapSWR<T>(
   return value;
 }
 
-// Diagnostic — returns counts per store. Useful for /health.
+// Diagnostic. returns counts per store. Useful for /health.
 export function cacheStats(): Record<string, { size: number; sample?: string[] }> {
   const out: Record<string, { size: number; sample?: string[] }> = {};
   for (const [name, m] of Object.entries(stores)) {

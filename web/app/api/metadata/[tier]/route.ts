@@ -72,7 +72,7 @@ export async function GET(req: NextRequest, ctx: RouteContext) {
       async () => await fetchBullAsset(getConnection(), tier),
     );
   } catch (e) {
-    // RPC blip under marketplace crawl load — controlled 503, not a 500
+    // RPC blip under marketplace crawl load. controlled 503, not a 500
     // storm, and never let a CDN cache the error.
     return NextResponse.json(
       { error: "temporarily unavailable, retry" },

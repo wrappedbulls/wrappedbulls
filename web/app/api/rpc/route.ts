@@ -9,16 +9,16 @@
 //   - The Helius paid key stays server-only (systemd SOLANA_RPC_URL,
 //     never NEXT_PUBLIC, never in the client bundle).
 //
-// HARDENING (P3.4) — the proxy spends our paid Helius credits, so it is
+// HARDENING (P3.4). the proxy spends our paid Helius credits, so it is
 // abuse-attractive. Three guards:
-//   1. Method allowlist — only the JSON-RPC methods the dApp actually
+//   1. Method allowlist. only the JSON-RPC methods the dApp actually
 //      uses are forwarded. Anything else is rejected before it reaches
 //      Helius, so nobody can point our key at expensive calls.
-//   2. Per-IP rate limit — a fixed-window counter in module scope.
+//   2. Per-IP rate limit. a fixed-window counter in module scope.
 //      This works because the route runs under `runtime = "nodejs"`
 //      in a long-lived systemd process (module state persists across
 //      requests). It is a coarse abuse brake, not a precise quota.
-//   3. Body size cap — reject oversized payloads outright.
+//   3. Body size cap. reject oversized payloads outright.
 // Plus lightweight in-memory metrics, exposed via GET for ops.
 
 import { NextRequest, NextResponse } from "next/server";
@@ -42,7 +42,7 @@ const CORS = {
 // Every JSON-RPC method the dApp legitimately needs. A request whose
 // method is not here is rejected without touching Helius. Reads + the
 // two write-ish methods (sendTransaction, simulateTransaction). Notably
-// ABSENT: getBlock(s), getBlockProduction, getLeaderSchedule, etc. —
+// ABSENT: getBlock(s), getBlockProduction, getLeaderSchedule, etc. , 
 // expensive calls we never make and do not want billed to our key.
 const ALLOWED_METHODS = new Set<string>([
   "getAccountInfo",
@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
   // Guard 1: rate limit.
   if (rateLimited(ip)) {
     metrics.rejectedRate += 1;
-    return jsonRpcError(-32029, "rate limit exceeded — slow down", null, 429);
+    return jsonRpcError(-32029, "rate limit exceeded. slow down", null, 429);
   }
 
   // Read + size-cap the body.
@@ -171,7 +171,7 @@ export async function POST(req: NextRequest) {
     payload = JSON.parse(body);
   } catch {
     metrics.rejectedBadBody += 1;
-    return jsonRpcError(-32700, "parse error — body is not valid JSON", null, 400);
+    return jsonRpcError(-32700, "parse error. body is not valid JSON", null, 400);
   }
   const methods = extractMethods(payload);
   if (!methods) {
@@ -180,7 +180,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Guard 2: method allowlist. Reject if ANY method in a batch is
-  // disallowed — a batch is all-or-nothing.
+  // disallowed. a batch is all-or-nothing.
   const bad = methods.find((m) => !ALLOWED_METHODS.has(m));
   if (bad) {
     metrics.rejectedMethod += 1;
@@ -221,7 +221,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// GET — lightweight metrics snapshot for ops / the /status page.
+// GET. lightweight metrics snapshot for ops / the /status page.
 // Not sensitive (counts only) but not cached.
 export async function GET() {
   return NextResponse.json(

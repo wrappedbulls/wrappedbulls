@@ -1,4 +1,4 @@
-// /api/launch-state — runtime launch-state endpoint.
+// /api/launch-state. runtime launch-state endpoint.
 //
 // Client components ("use client" pages like /wrap and /unwrap) cannot
 // read the server-side state file directly, so they fetch this. The
@@ -18,7 +18,7 @@ export async function GET() {
   const data = readLaunchState();
   return NextResponse.json(data, {
     headers: {
-      // Never cache — the whole point is instant rollback.
+      // Never cache. the whole point is instant rollback.
       "Cache-Control": "no-store, no-cache, must-revalidate",
     },
   });

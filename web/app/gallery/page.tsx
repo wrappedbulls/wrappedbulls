@@ -75,7 +75,7 @@ export default async function GalleryPage() {
                 <div className="aspect-square rounded-lg overflow-hidden bg-[#0a0a0c]">
                   <img
                     src={`/art/${slug}.png`}
-                    alt="Sample CryptoBull"
+                    alt="Sample Bull"
                     className="w-full h-full pixelated"
                     loading="lazy"
                   />
@@ -95,7 +95,7 @@ export default async function GalleryPage() {
           <p className="text-[var(--bull-dim)] mb-6">
             {bank && bank.totalWrapped > 0n
               ? "Every wrapped bull has been unwrapped. Wrap one to bring the herd back."
-              : "Be the first holder to mint a CryptoBull."}
+              : "Be the first holder to mint a Bull."}
           </p>
           <Link href="/wrap" className="btn btn-primary">Wrap a bull →</Link>
         </div>

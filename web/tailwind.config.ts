@@ -8,7 +8,7 @@ const config: Config = {
         bull: {
           bg: "#0a0a0c",
           card: "#15151a",
-          accent: "#f0d028", // mog yellow — the accent color of the brand
+          accent: "#f0d028", // mog yellow. the accent color of the brand
           ink: "#e8e4dc",
           dim: "#888",
         },

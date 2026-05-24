@@ -1,26 +1,26 @@
-// launch-state.ts — RUNTIME launch-state, read from a JSON file on
+// launch-state.ts. RUNTIME launch-state, read from a JSON file on
 // every request. Server-side only.
 //
 // WHY THIS EXISTS (the most important lesson from the last launch):
 // `NEXT_PUBLIC_*` env vars are inlined into the client bundle at BUILD
 // time. When the previous launch needed to roll the site back from
 // "live" to "pre-launch", flipping the env var did nothing for
-// browsers that already had the bundle — the only "rollback" was a
+// browsers that already had the bundle. the only "rollback" was a
 // full rebuild, which 502'd the site at the worst possible moment.
 // See docs/POSTMORTEM.md §3 and docs/LESSONS_LEARNED.md L1.
 //
 // The fix: launch state is a RUNTIME fact, read from a file a running
 // process re-reads on every request. Flipping the site is a single
-// atomic file write — no rebuild, no downtime.
+// atomic file write. no rebuild, no downtime.
 //
 // State file resolution order:
-//   1. process.env.LAUNCH_STATE_FILE  (production — systemd sets this
+//   1. process.env.LAUNCH_STATE_FILE  (production. systemd sets this
 //      to /var/lib/<slug>/state.json)
-//   2. <web>/config/launch-state.json (dev — gitignored, optional)
+//   2. <web>/config/launch-state.json (dev. gitignored, optional)
 //   3. built-in safe default: { state: "pre-launch", tokenMint: null }
 //
 // A malformed or unreadable file degrades to the safe default and
-// logs a warning. It NEVER throws — a broken state file must not take
+// logs a warning. It NEVER throws. a broken state file must not take
 // the site down (fail safe, not fail closed).
 //
 // To flip the site live (production):
@@ -83,7 +83,7 @@ export function readLaunchState(): LaunchStateData {
   try {
     raw = fs.readFileSync(filePath, "utf8");
   } catch {
-    // File missing or unreadable — safe default. Not an error worth
+    // File missing or unreadable. safe default. Not an error worth
     // logging on every request; missing-file is a valid dev state.
     return SAFE_DEFAULT;
   }
@@ -93,7 +93,7 @@ export function readLaunchState(): LaunchStateData {
     parsed = JSON.parse(raw);
   } catch {
     console.warn(
-      `[launch-state] ${filePath} is not valid JSON — defaulting to pre-launch`,
+      `[launch-state] ${filePath} is not valid JSON. defaulting to pre-launch`,
     );
     return SAFE_DEFAULT;
   }

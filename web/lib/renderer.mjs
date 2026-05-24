@@ -48,10 +48,10 @@ const HORN_PALETTES = [
 // Variations are kept tight (CryptoPunks/BAYC approach: most identity comes
 // from eyewear, with eyes themselves having a few iconic structural variants).
 //
-// Laser ("red") eye is now CONTAINED — no beam cells extending across the
+// Laser ("red") eye is now CONTAINED. no beam cells extending across the
 // canvas, just red sclera + dark pupil within the 2x2 eye area.
 const EYE_PALETTES = [
-  // Lasers were removed from EYE palettes and moved to the EYEWEAR slot —
+  // Lasers were removed from EYE palettes and moved to the EYEWEAR slot , 
   // that way lasers are mutually exclusive with glasses (no more "beams
   // shooting out from behind goggles" weirdness).
   { name: 'normal',   type: 'default', sclera: '#ffffff', pupil: '#181818' },
@@ -83,7 +83,7 @@ const HORN_WEIGHTS    = [55, 18, 15,  7,  5]; // ivory / dark / gold / crimson /
 const EYE_WEIGHTS     = [ 55,    3,   3,  3,  14,    12,   8,    1]; // ski_mask legendary
 const BG_WEIGHTS      = [28, 22, 14, 12,  4, 16,  4]; // pasture/sand/sky common, void epic
 //                       none ring bell paint chain cowboy dubai strw apple crown halo devil diamond fire beanie tinfoil headband mohawk top_hat sheriff tiara halostars earring mole rosy scar pump phantom
-//  (nose_ring=0, war_paint=0, devil_aura=0, mole=0, rosy_cheeks=0 — REMOVED; indices kept for backward-compat)
+//  (nose_ring=0, war_paint=0, devil_aura=0, mole=0, rosy_cheeks=0. REMOVED; indices kept for backward-compat)
 //  halo_stars legendary; dubai/fire_aura/halo/diamond_aura/scar epic; tiara/top_hat/mohawk/pump/phantom/etc rare; tinfoil/sheriff/cowboy/bell/gold_chain uncommon
 const ACC_WEIGHTS     = [ 36,   0,   6,    0,    6,     6,    2,    3,    3,    3,   2,    0,      2,    2,     3,      6,       3,      3,    3,      6,    3,    1,         3,    0,    0,   2,    3,    3];
 //                       none mog classic clout thug 3d_glasses big_shades(=0) swag(=0) lasers
@@ -121,7 +121,7 @@ const MOUTH_WEIGHTS   = [ 68,   6,        0,    2,        0,      6,         0, 
 const LAYOUT = [
 //  0         1         2
 //  0123456789012345678901234
-   '........................', // 0  (empty — horns shifted down 1 to feel rooted)
+   '........................', // 0  (empty. horns shifted down 1 to feel rooted)
    '......H..........H......', // 1  horn tips
    '.....HH..........HH.....', // 2
    '.....HH..........HH.....', // 3
@@ -151,7 +151,7 @@ const LAYOUT = [
 // Horn variants (override horn cells in rows 2-7)
 // ============================================================
 
-// Horn shape is FIXED across the collection — every bull has the same
+// Horn shape is FIXED across the collection. every bull has the same
 // Spanish-bull horn silhouette baked into LAYOUT. Variation comes only
 // from horn COLOR via HORN_PALETTES (ivory / dark / gold / crimson / silver).
 //
@@ -196,10 +196,10 @@ const ACCESSORIES = {
   nose_ring: [
     // Small 3-cell V-shape septum ring hanging between the nostrils.
     // Two top cells form the ring's body anchored to the septum, and one
-    // bottom cell hangs as the V apex below — reads as a tiny gold ring
+    // bottom cell hangs as the V apex below. reads as a tiny gold ring
     // dangling from the bull's nose.
     //
-    // Position is tight — confined to rows 14-15 cols 11-12, between
+    // Position is tight. confined to rows 14-15 cols 11-12, between
     // the nostrils (row 14 cols 10, 13) and above the mouth (row 16).
     //
     // Palette: gold_dark #a07410 / gold_bright #ffe888
@@ -211,7 +211,7 @@ const ACCESSORIES = {
     // Cowbell: thin black leather strap on row 18, gold trapezoidal bell
     // hanging from a small attach loop, widening from row 20 to row 22 with
     // a dark slot opening at the bottom and the clapper hanging out below.
-    // Bell silhouette dominates — strap is just a thin band.
+    // Bell silhouette dominates. strap is just a thin band.
     //
     // Palette: strap #181818 / gold_dark #a07410 / gold_mid #d4a428
     //          gold_light #f0c850 / gold_bright #ffe888 / opening #0a0a0a
@@ -313,7 +313,7 @@ const ACCESSORIES = {
     { row: 2, col: 14, color: '#fff080' },
   ],
   gold_chain: [
-    // Skinny gold necklace — single-cell-wide chain that drapes from the
+    // Skinny gold necklace. single-cell-wide chain that drapes from the
     // upper neck down the chest in a clean V curve. NOT a thick choker.
     //
     // The chain anchors at row 19 (upper neck edges) and steps diagonally
@@ -322,22 +322,22 @@ const ACCESSORIES = {
     //
     // Palette: gold_dark #a07410 / gold_mid #d4a428 / gold_bright #ffe888
     //
-    // === ANCHOR POINTS — upper neck edges (row 19) ===
+    // === ANCHOR POINTS. upper neck edges (row 19) ===
     { row: 19, col: 7,  color: '#a07410' }, // left anchor
     { row: 19, col: 16, color: '#a07410' }, // right anchor
-    // === DIAGONAL STEPS DOWN — single-cell chain ===
+    // === DIAGONAL STEPS DOWN. single-cell chain ===
     { row: 20, col: 8,  color: '#d4a428' },
     { row: 20, col: 15, color: '#d4a428' },
     { row: 21, col: 9,  color: '#d4a428' },
     { row: 21, col: 14, color: '#d4a428' },
-    // === V-CURVE BOTTOM — chain meets at chest center (row 22) ===
+    // === V-CURVE BOTTOM. chain meets at chest center (row 22) ===
     { row: 22, col: 10, color: '#a07410' },
     { row: 22, col: 11, color: '#d4a428' },
     { row: 22, col: 12, color: '#ffe888' }, // bright pendant highlight
     { row: 22, col: 13, color: '#a07410' },
   ],
   cowboy_hat: [
-    // Brown sheriff cowboy hat — solid brown body matching the reference
+    // Brown sheriff cowboy hat. solid brown body matching the reference
     // photo. Replaces the old black hatband with a thin GOLD ROPE BAND
     // and a bright GOLD STAR badge centered at the front. Brim has
     // dramatic upturned WING TIPS on the sides + wide flat plane +
@@ -348,18 +348,18 @@ const ACCESSORIES = {
     //          brim_shadow #4a2810
 
     // ============================================================
-    // CROWN — cattleman crease (two peaks + V valley), rows 0-3
+    // CROWN. cattleman crease (two peaks + V valley), rows 0-3
     // ============================================================
-    // Row 0 — two peak tips
+    // Row 0. two peak tips
     { row: 0, col: 11, color: '#6a3a20' },
     { row: 0, col: 13, color: '#6a3a20' },
-    // Row 1 — peaks widen + V valley + outer dark edges
+    // Row 1. peaks widen + V valley + outer dark edges
     { row: 1, col: 10, color: '#2a1810' },
     { row: 1, col: 11, color: '#6a3a20' },
     { row: 1, col: 12, color: '#2a1810' }, // V crease valley
     { row: 1, col: 13, color: '#6a3a20' },
     { row: 1, col: 14, color: '#2a1810' },
-    // Row 2 — crown body widens (cols 9-15)
+    // Row 2. crown body widens (cols 9-15)
     { row: 2, col: 9,  color: '#2a1810' },
     { row: 2, col: 10, color: '#6a3a20' },
     { row: 2, col: 11, color: '#6a3a20' },
@@ -367,7 +367,7 @@ const ACCESSORIES = {
     { row: 2, col: 13, color: '#6a3a20' },
     { row: 2, col: 14, color: '#6a3a20' },
     { row: 2, col: 15, color: '#2a1810' },
-    // Row 3 — crown body bottom (just above the band)
+    // Row 3. crown body bottom (just above the band)
     { row: 3, col: 9,  color: '#2a1810' },
     { row: 3, col: 10, color: '#6a3a20' },
     { row: 3, col: 11, color: '#6a3a20' },
@@ -377,7 +377,7 @@ const ACCESSORIES = {
     { row: 3, col: 15, color: '#2a1810' },
 
     // ============================================================
-    // GOLD ROPE BAND + STAR BADGE (row 4) — replaces black hatband
+    // GOLD ROPE BAND + STAR BADGE (row 4). replaces black hatband
     // Thin gold rope runs across the crown base, brightest at the
     // center where the sheriff star sits.
     // ============================================================
@@ -394,19 +394,19 @@ const ACCESSORIES = {
     // The wings curl up at the outer sides at row 4 (one cell each),
     // widen at row 5, and merge into the wide flat plane at row 6.
     // ============================================================
-    // Row 4 — wing tips at the far outer sides (cols 5-6 left, 17-18 right)
+    // Row 4. wing tips at the far outer sides (cols 5-6 left, 17-18 right)
     { row: 4, col: 5,  color: '#2a1810' }, // outer dark edge
     { row: 4, col: 6,  color: '#6a3a20' },
     { row: 4, col: 17, color: '#6a3a20' },
     { row: 4, col: 18, color: '#2a1810' }, // outer dark edge
-    // Row 5 — wings widen as they descend toward the brim plane
+    // Row 5. wings widen as they descend toward the brim plane
     { row: 5, col: 4,  color: '#2a1810' },
     { row: 5, col: 5,  color: '#6a3a20' },
     { row: 5, col: 6,  color: '#6a3a20' },
     { row: 5, col: 17, color: '#6a3a20' },
     { row: 5, col: 18, color: '#6a3a20' },
     { row: 5, col: 19, color: '#2a1810' },
-    // Row 6 — full brim plane (wide, cols 3-20)
+    // Row 6. full brim plane (wide, cols 3-20)
     { row: 6, col: 3,  color: '#2a1810' },
     { row: 6, col: 4,  color: '#6a3a20' },
     { row: 6, col: 5,  color: '#6a3a20' },
@@ -425,7 +425,7 @@ const ACCESSORIES = {
     { row: 6, col: 18, color: '#6a3a20' },
     { row: 6, col: 19, color: '#6a3a20' },
     { row: 6, col: 20, color: '#2a1810' },
-    // Row 7 — front-center underside drop (medium-dark shadow)
+    // Row 7. front-center underside drop (medium-dark shadow)
     { row: 7, col: 7,  color: '#2a1810' }, // outline cap
     { row: 7, col: 8,  color: '#4a2810' },
     { row: 7, col: 9,  color: '#4a2810' },
@@ -457,7 +457,7 @@ const ACCESSORIES = {
     { row: 8, col: 12, color: '#ff4040' },
   ],
   dubai_hat: [
-    // Keffiyeh (ghutra) — sits ON the bull's head between the horns, with
+    // Keffiyeh (ghutra). sits ON the bull's head between the horns, with
     // the horns sticking up above/around it (horns remain visible, drawn
     // BEFORE this overlay so the hat doesn't paint over them on rows 0-3).
     //
@@ -493,7 +493,7 @@ const ACCESSORIES = {
     { row: 5, col: 14, color: '#3a3a3a' },
     { row: 5, col: 15, color: '#181818' },
     { row: 5, col: 16, color: '#3a3a3a' },
-    // Row 6: cloth band — wider, wraps around horn at col 5 and col 18 (paints over them)
+    // Row 6: cloth band. wider, wraps around horn at col 5 and col 18 (paints over them)
     { row: 6, col: 6,  color: '#b8b2a8' },
     { row: 6, col: 7,  color: '#ffffff' },
     { row: 6, col: 8,  color: '#e8e4dc' },
@@ -521,7 +521,7 @@ const ACCESSORIES = {
     { row: 7, col: 16, color: '#e8e4dc' },
     { row: 7, col: 17, color: '#ffffff' },
     { row: 7, col: 18, color: '#b8b2a8' },
-    // Row 8: cloth tapering — only side fringe (forehead detail visible at center)
+    // Row 8: cloth tapering. only side fringe (forehead detail visible at center)
     { row: 8, col: 4,  color: '#b8b2a8' },
     { row: 8, col: 5,  color: '#e8e4dc' },
     { row: 8, col: 18, color: '#e8e4dc' },
@@ -549,7 +549,7 @@ const ACCESSORIES = {
   diamond_aura: [
     // Small round-brilliant cut diamond perfectly centered between the
     // horns. Max width 6 cells (cols 9-14), 5 rows tall. Closest cells
-    // are at col 9 / col 14 — horns are at cols 4-6 / 17-19, leaving a
+    // are at col 9 / col 14. horns are at cols 4-6 / 17-19, leaving a
     // 3-cell gap on each side so the diamond never touches any horn.
     //
     // Shape (symmetric around col 11.5):
@@ -563,13 +563,13 @@ const ACCESSORIES = {
     //   outline #205070 / facet_dark #4080a0 / facet_mid #80d8ff
     //   facet_light #a8e8ff / shine #ffffff
 
-    // === TABLE — flat top (row 1, cols 10-13) ===
+    // === TABLE. flat top (row 1, cols 10-13) ===
     { row: 1, col: 10, color: '#205070' }, // outline corner
     { row: 1, col: 11, color: '#ffffff' }, // bright shine
     { row: 1, col: 12, color: '#a8e8ff' },
     { row: 1, col: 13, color: '#205070' }, // outline corner
 
-    // === CROWN — sloping sides angle outward (row 2, cols 9-14) ===
+    // === CROWN. sloping sides angle outward (row 2, cols 9-14) ===
     { row: 2, col: 9,  color: '#205070' },
     { row: 2, col: 10, color: '#a8e8ff' },
     { row: 2, col: 11, color: '#ffffff' },
@@ -577,7 +577,7 @@ const ACCESSORIES = {
     { row: 2, col: 13, color: '#4080a0' },
     { row: 2, col: 14, color: '#205070' },
 
-    // === GIRDLE — widest part (row 3, cols 9-14) ===
+    // === GIRDLE. widest part (row 3, cols 9-14) ===
     { row: 3, col: 9,  color: '#205070' },
     { row: 3, col: 10, color: '#80d8ff' },
     { row: 3, col: 11, color: '#80d8ff' },
@@ -585,17 +585,17 @@ const ACCESSORIES = {
     { row: 3, col: 13, color: '#4080a0' },
     { row: 3, col: 14, color: '#205070' },
 
-    // === PAVILION — tapers down (row 4, cols 10-13) ===
+    // === PAVILION. tapers down (row 4, cols 10-13) ===
     { row: 4, col: 10, color: '#205070' },
     { row: 4, col: 11, color: '#4080a0' },
     { row: 4, col: 12, color: '#4080a0' },
     { row: 4, col: 13, color: '#205070' },
 
-    // === CULET — bottom point (row 5, cols 11-12) ===
+    // === CULET. bottom point (row 5, cols 11-12) ===
     { row: 5, col: 11, color: '#205070' },
     { row: 5, col: 12, color: '#205070' },
 
-    // === SPARKLES — small bright dots above the table (row 0) ===
+    // === SPARKLES. small bright dots above the table (row 0) ===
     { row: 0, col: 11, color: '#ffffff' },
     { row: 0, col: 12, color: '#ffffff' },
   ],
@@ -616,7 +616,7 @@ const ACCESSORIES = {
     { row: 2, col: 10, color: '#d82020' },
     { row: 2, col: 13, color: '#d82020' },
     { row: 2, col: 14, color: '#a01010' },
-    // Row 3 — upper red body
+    // Row 3. upper red body
     { row: 3, col: 8,  color: '#a01010' },
     { row: 3, col: 9,  color: '#d82020' },
     { row: 3, col: 10, color: '#181818' }, // seed
@@ -625,7 +625,7 @@ const ACCESSORIES = {
     { row: 3, col: 13, color: '#181818' }, // seed
     { row: 3, col: 14, color: '#d82020' },
     { row: 3, col: 15, color: '#a01010' },
-    // Row 4 — widest red body (cols 8-15, no extra side bumps)
+    // Row 4. widest red body (cols 8-15, no extra side bumps)
     { row: 4, col: 8,  color: '#a01010' },
     { row: 4, col: 9,  color: '#181818' }, // seed
     { row: 4, col: 10, color: '#d82020' },
@@ -634,7 +634,7 @@ const ACCESSORIES = {
     { row: 4, col: 13, color: '#181818' }, // seed
     { row: 4, col: 14, color: '#d82020' },
     { row: 4, col: 15, color: '#a01010' },
-    // Row 5 — second wide row
+    // Row 5. second wide row
     { row: 5, col: 8,  color: '#a01010' },
     { row: 5, col: 9,  color: '#d82020' },
     { row: 5, col: 10, color: '#d82020' },
@@ -643,20 +643,20 @@ const ACCESSORIES = {
     { row: 5, col: 13, color: '#d82020' },
     { row: 5, col: 14, color: '#181818' }, // seed
     { row: 5, col: 15, color: '#a01010' },
-    // Row 6 — taper
+    // Row 6. taper
     { row: 6, col: 9,  color: '#a01010' },
     { row: 6, col: 10, color: '#d82020' },
     { row: 6, col: 11, color: '#d82020' },
     { row: 6, col: 12, color: '#d82020' },
     { row: 6, col: 13, color: '#d82020' },
     { row: 6, col: 14, color: '#a01010' },
-    // Row 7 — pointed strawberry tip
+    // Row 7. pointed strawberry tip
     { row: 7, col: 11, color: '#a01010' },
     { row: 7, col: 12, color: '#a01010' },
   ],
   apple: [
     // Classic round apple sitting on top of the bull's head.
-    // Silhouette is wider in the upper-middle and tapers to a small base —
+    // Silhouette is wider in the upper-middle and tapers to a small base , 
     // the iconic apple shape, not just a circle.
     //
     // Layout features:
@@ -676,14 +676,14 @@ const ACCESSORIES = {
     { row: 1, col: 11, color: '#5a3520' },        // stem dimple
     { row: 1, col: 12, color: '#a01010' },        // right shoulder
     { row: 1, col: 13, color: '#28a83c' },        // leaf bottom
-    // Row 2 — apple top widens (cols 9-14, 6 cells)
+    // Row 2. apple top widens (cols 9-14, 6 cells)
     { row: 2, col: 9,  color: '#a01010' },
     { row: 2, col: 10, color: '#d82020' },
     { row: 2, col: 11, color: '#d82020' },
     { row: 2, col: 12, color: '#d82020' },
     { row: 2, col: 13, color: '#d82020' },
     { row: 2, col: 14, color: '#a01010' },
-    // Row 3 — widest (cols 8-15, 8 cells) with shine glint
+    // Row 3. widest (cols 8-15, 8 cells) with shine glint
     { row: 3, col: 8,  color: '#a01010' },
     { row: 3, col: 9,  color: '#ff5050' }, // highlight glint
     { row: 3, col: 10, color: '#d82020' },
@@ -692,7 +692,7 @@ const ACCESSORIES = {
     { row: 3, col: 13, color: '#d82020' },
     { row: 3, col: 14, color: '#d82020' },
     { row: 3, col: 15, color: '#a01010' },
-    // Row 4 — widest continues (sits on head's top curve)
+    // Row 4. widest continues (sits on head's top curve)
     { row: 4, col: 8,  color: '#a01010' },
     { row: 4, col: 9,  color: '#d82020' },
     { row: 4, col: 10, color: '#d82020' },
@@ -701,19 +701,19 @@ const ACCESSORIES = {
     { row: 4, col: 13, color: '#d82020' },
     { row: 4, col: 14, color: '#d82020' },
     { row: 4, col: 15, color: '#a01010' },
-    // Row 5 — narrows back in (cols 9-14, 6 cells)
+    // Row 5. narrows back in (cols 9-14, 6 cells)
     { row: 5, col: 9,  color: '#a01010' },
     { row: 5, col: 10, color: '#d82020' },
     { row: 5, col: 11, color: '#d82020' },
     { row: 5, col: 12, color: '#d82020' },
     { row: 5, col: 13, color: '#d82020' },
     { row: 5, col: 14, color: '#a01010' },
-    // Row 6 — small base (cols 11-12) — apple's bottom dimple
+    // Row 6. small base (cols 11-12). apple's bottom dimple
     { row: 6, col: 11, color: '#a01010' },
     { row: 6, col: 12, color: '#a01010' },
   ],
   scar: [
-    // Battle scar — diagonal slash across the right side of the face with
+    // Battle scar. diagonal slash across the right side of the face with
     // small stitched crossing lines. Goes from forehead down to mid-cheek.
     // Distinct from war_paint (which is multi-stroke red on the LEFT cheek).
     //
@@ -748,7 +748,7 @@ const ACCESSORIES = {
     { row: 12, col: 18, color: '#c86090' },
   ],
   mole: [
-    // Tiny mole on the left cheek — Punks-style face mark.
+    // Tiny mole on the left cheek. Punks-style face mark.
     // Single dark dot with a 1-pixel shadow below for definition.
     //
     // Palette: mole_dark #3a1810 / mole_shadow #1a0808
@@ -758,12 +758,12 @@ const ACCESSORIES = {
   ],
   earring: [
     // Tiny gold hoop earring on the right side of the head (where the ear
-    // would be on a real bull — bulls have ears at the side near the horn
+    // would be on a real bull. bulls have ears at the side near the horn
     // base). 3-cell hoop + bright glint pixel.
     //
     // Palette: gold #f0c850 / gold_shade #a07410 / gold_bright #ffe888
     //
-    // Right-side earring (cols 17-18, rows 10-11) — sits just below
+    // Right-side earring (cols 17-18, rows 10-11). sits just below
     // the right horn base, on the side of the head.
     { row: 10, col: 18, color: '#a07410' }, // top of hoop
     { row: 11, col: 17, color: '#f0c850' }, // hoop left
@@ -773,7 +773,7 @@ const ACCESSORIES = {
   ],
   halo_stars: [
     // Arc of 4-point stars above the head. Each star is a plus-shape (5
-    // cells: center bright + 4 surrounding dim arms) — reads clearly as
+    // cells: center bright + 4 surrounding dim arms). reads clearly as
     // a star at this resolution. 3 stars total in a curved arc.
     //
     // Palette: star_bright #ffe858 / star_arm #ffc020 / star_dim #a07410
@@ -785,7 +785,7 @@ const ACCESSORIES = {
     { row: 2, col: 8,  color: '#ffc020' }, // right arm
     { row: 3, col: 7,  color: '#ffc020' }, // bottom arm
 
-    // === CENTER STAR (cols 10-12 rows 0-2) — biggest, peak of arc ===
+    // === CENTER STAR (cols 10-12 rows 0-2). biggest, peak of arc ===
     { row: 0, col: 11, color: '#ffc020' }, // top arm
     { row: 0, col: 12, color: '#ffc020' }, // top arm (extra cell for big center star)
     { row: 1, col: 10, color: '#ffc020' }, // left arm
@@ -803,7 +803,7 @@ const ACCESSORIES = {
     { row: 3, col: 16, color: '#ffc020' }, // bottom arm
   ],
   tiara: [
-    // CryptoPunks-style fitted tiara — gold center diamond/jewel at the
+    // CryptoPunks-style fitted tiara. gold center diamond/jewel at the
     // top, two thin gold chains running diagonally down and outward,
     // ending in small blue jewel drops on either side of the head.
     // Compact and fitted to the bull's head silhouette (no peaks/spires).
@@ -811,14 +811,14 @@ const ACCESSORIES = {
     // Palette: gold_main #f0c850 / gold_bright #ffe888
     //          drop_blue #2860ff / drop_blue_dark #1838c8
 
-    // === CENTER DIAMOND (rows 2-4, cols 11-13) — 5-cell ◇ shape ===
+    // === CENTER DIAMOND (rows 2-4, cols 11-13). 5-cell ◇ shape ===
     { row: 2, col: 12, color: '#ffe888' }, // top point (brightest)
     { row: 3, col: 11, color: '#f0c850' }, // left point
     { row: 3, col: 12, color: '#ffe888' }, // center shine
     { row: 3, col: 13, color: '#f0c850' }, // right point
     { row: 4, col: 12, color: '#f0c850' }, // bottom point
 
-    // === DIAGONAL CHAINS — gold lines going outward from diamond ===
+    // === DIAGONAL CHAINS. gold lines going outward from diamond ===
     // Left chain (down-left from diamond's left point at row 3 col 11)
     { row: 4, col: 10, color: '#f0c850' },
     { row: 5, col: 9,  color: '#f0c850' },
@@ -826,7 +826,7 @@ const ACCESSORIES = {
     { row: 4, col: 14, color: '#f0c850' },
     { row: 5, col: 15, color: '#f0c850' },
 
-    // === BLUE JEWEL DROPS — 2-cell dangles hanging from chain ends ===
+    // === BLUE JEWEL DROPS. 2-cell dangles hanging from chain ends ===
     // Left drop (rows 6-7 col 9)
     { row: 6, col: 9,  color: '#2860ff' },
     { row: 7, col: 9,  color: '#1838c8' }, // darker shade at drop bottom
@@ -835,24 +835,24 @@ const ACCESSORIES = {
     { row: 7, col: 15, color: '#1838c8' },
   ],
   sheriff_hat: [
-    // Iconic black cowboy hat — TRUE cattleman silhouette with all the
+    // Iconic black cowboy hat. TRUE cattleman silhouette with all the
     // recognizable features:
     //   - "Cattleman crease" crown: two peaks with a V-valley between them
     //   - Brown leather hatband with a silver sheriff star at center
     //   - Wide curved brim: outer edges curl UP (row 5), main plane spans
-    //     full head width (row 6), front center dips DOWN (row 7) — this
+    //     full head width (row 6), front center dips DOWN (row 7). this
     //     creates the classic "U" smile silhouette of a real cowboy hat
     //
     // Palette: crown_main #181818 / crown_shade #0a0a0a / crown_light #383838
     //          band_brown #2a1810 / star_silver #c8c8d0 / brim_edge #050505
 
     // ============================================================
-    // CROWN — cattleman crease (two peaks + V valley)
+    // CROWN. cattleman crease (two peaks + V valley)
     // ============================================================
-    // Row 0 — two narrow peak tips
+    // Row 0. two narrow peak tips
     { row: 0, col: 11, color: '#181818' }, // left peak tip
     { row: 0, col: 13, color: '#181818' }, // right peak tip
-    // Row 1 — peaks widen, V valley at col 12 (darker)
+    // Row 1. peaks widen, V valley at col 12 (darker)
     { row: 1, col: 10, color: '#0a0a0a' },
     { row: 1, col: 11, color: '#181818' },
     { row: 1, col: 12, color: '#0a0a0a' }, // V crease valley
@@ -860,12 +860,12 @@ const ACCESSORIES = {
     { row: 1, col: 14, color: '#0a0a0a' },
 
     // ============================================================
-    // CROWN BODY (rows 2-3) — with 5-POINT SHERIFF STAR centered
+    // CROWN BODY (rows 2-3). with 5-POINT SHERIFF STAR centered
     // on col 12. The star is a 3-row × 3-col silhouette spanning
     // rows 2-4: top point on row 2, middle 3 cells on row 3, bottom
     // 2 legs on row 4 (poking through the hatband).
     // ============================================================
-    // Row 2 — crown body + STAR TOP POINT at col 12
+    // Row 2. crown body + STAR TOP POINT at col 12
     { row: 2, col: 9,  color: '#0a0a0a' },
     { row: 2, col: 10, color: '#181818' },
     { row: 2, col: 11, color: '#181818' },
@@ -873,7 +873,7 @@ const ACCESSORIES = {
     { row: 2, col: 13, color: '#181818' },
     { row: 2, col: 14, color: '#181818' },
     { row: 2, col: 15, color: '#0a0a0a' },
-    // Row 3 — crown body + STAR MIDDLE ROW (cols 11-13)
+    // Row 3. crown body + STAR MIDDLE ROW (cols 11-13)
     { row: 3, col: 9,  color: '#0a0a0a' },
     { row: 3, col: 10, color: '#181818' },
     { row: 3, col: 11, color: '#c8c8d0' }, // ★ STAR left point
@@ -883,7 +883,7 @@ const ACCESSORIES = {
     { row: 3, col: 15, color: '#0a0a0a' },
 
     // ============================================================
-    // HATBAND (row 4) — brown leather strap with the STAR's bottom
+    // HATBAND (row 4). brown leather strap with the STAR's bottom
     // 2 legs at cols 11 and 13. The leather band fills the rest
     // (cols 9, 10, 12, 14, 15) including the gap between the legs.
     // ============================================================
@@ -896,20 +896,20 @@ const ACCESSORIES = {
     { row: 4, col: 15, color: '#2a1810' },
 
     // ============================================================
-    // BRIM ROW 5 — UPTURNED OUTER EDGES (curl-up sides)
+    // BRIM ROW 5. UPTURNED OUTER EDGES (curl-up sides)
     // Only the outer tips of the brim show at this row; the main plane
     // is below at row 6. This creates the iconic "smile" curve.
     // ============================================================
     { row: 5, col: 4,  color: '#0a0a0a' },
     { row: 5, col: 5,  color: '#181818' },
     { row: 5, col: 6,  color: '#181818' },
-    // (cols 7-16 stay empty — brim center dips below)
+    // (cols 7-16 stay empty. brim center dips below)
     { row: 5, col: 17, color: '#181818' },
     { row: 5, col: 18, color: '#181818' },
     { row: 5, col: 19, color: '#0a0a0a' },
 
     // ============================================================
-    // BRIM ROW 6 — main plane spanning full head width (cols 3-20)
+    // BRIM ROW 6. main plane spanning full head width (cols 3-20)
     // ============================================================
     { row: 6, col: 3,  color: '#050505' }, // brim outer edge left
     { row: 6, col: 4,  color: '#181818' },
@@ -931,7 +931,7 @@ const ACCESSORIES = {
     { row: 6, col: 20, color: '#050505' }, // brim outer edge right
 
     // ============================================================
-    // BRIM ROW 7 — front-center dip (brim drapes lowest at front)
+    // BRIM ROW 7. front-center dip (brim drapes lowest at front)
     // The center of the brim hangs lower than the upturned sides,
     // completing the "U" curve. Horns at cols 5 and 17 still show
     // through because the horn-on-top pass repaints them last.
@@ -948,7 +948,7 @@ const ACCESSORIES = {
     { row: 7, col: 16, color: '#0a0a0a' },
   ],
   top_hat: [
-    // Tall black formal top hat — crown rises from rows 0-3, hatband at
+    // Tall black formal top hat. crown rises from rows 0-3, hatband at
     // row 4, and a STRAIGHT FITTED BRIM at row 5 extending evenly across
     // the top of the bull's head.
     //
@@ -979,16 +979,16 @@ const ACCESSORIES = {
     { row: 3, col: 12, color: '#181818' },
     { row: 3, col: 13, color: '#181818' },
     { row: 3, col: 14, color: '#0a0a0a' },
-    // === HATBAND (row 4) — gray stripe matching crown width ===
+    // === HATBAND (row 4). gray stripe matching crown width ===
     { row: 4, col: 9,  color: '#2a2a2a' },
     { row: 4, col: 10, color: '#5a5a5a' },
     { row: 4, col: 11, color: '#5a5a5a' },
     { row: 4, col: 12, color: '#5a5a5a' },
     { row: 4, col: 13, color: '#5a5a5a' },
     { row: 4, col: 14, color: '#2a2a2a' },
-    // === STRAIGHT BRIM (row 5) — single horizontal line, fitted to head ===
+    // === STRAIGHT BRIM (row 5). single horizontal line, fitted to head ===
     // Extends 2 cells beyond crown on each side (cols 7-16, 10 cells)
-    // Sits flat across the top of the head — no sagging corners or tiers.
+    // Sits flat across the top of the head. no sagging corners or tiers.
     { row: 5, col: 7,  color: '#0a0a0a' },
     { row: 5, col: 8,  color: '#181818' },
     { row: 5, col: 9,  color: '#181818' },
@@ -1001,25 +1001,25 @@ const ACCESSORIES = {
     { row: 5, col: 16, color: '#0a0a0a' },
   ],
   mohawk: [
-    // CryptoPunks-style fitted black mohawk — tall narrow fin running
+    // CryptoPunks-style fitted black mohawk. tall narrow fin running
     // straight up from the top of the bull's head. Sharp 1-cell tip,
     // 3-cell body, and a 5-cell base where it attaches to the head top.
     // Solid black color, symmetric around col 12.
     //
     // Shape:
-    //         X       row 0 — tip (1 cell)
-    //       X X X     rows 1-3 — fin body (3 cells)
+    //         X       row 0. tip (1 cell)
+    //       X X X     rows 1-3. fin body (3 cells)
     //       X X X
     //       X X X
-    //     X X X X X   rows 4-5 — base (5 cells, attaches to head)
+    //     X X X X X   rows 4-5. base (5 cells, attaches to head)
     //     X X X X X
     //
     // Palette: black #181818
 
-    // === TIP (row 0, col 12) — sharp 1-cell point ===
+    // === TIP (row 0, col 12). sharp 1-cell point ===
     { row: 0, col: 12, color: '#181818' },
 
-    // === BODY (rows 1-3, cols 11-13) — 3 cells wide ===
+    // === BODY (rows 1-3, cols 11-13). 3 cells wide ===
     { row: 1, col: 11, color: '#181818' },
     { row: 1, col: 12, color: '#181818' },
     { row: 1, col: 13, color: '#181818' },
@@ -1030,7 +1030,7 @@ const ACCESSORIES = {
     { row: 3, col: 12, color: '#181818' },
     { row: 3, col: 13, color: '#181818' },
 
-    // === BASE (rows 4-5, cols 10-14) — 5 cells wide, attaches to head top ===
+    // === BASE (rows 4-5, cols 10-14). 5 cells wide, attaches to head top ===
     { row: 4, col: 10, color: '#181818' },
     { row: 4, col: 11, color: '#181818' },
     { row: 4, col: 12, color: '#181818' },
@@ -1048,7 +1048,7 @@ const ACCESSORIES = {
     //
     // Palette: white #ffffff / red_stripe #c81818 / blue_stripe #2870d0
     //
-    // Top stripe row (row 6) — white with stripes
+    // Top stripe row (row 6). white with stripes
     { row: 6, col: 6,  color: '#c81818' },  // red edge
     { row: 6, col: 7,  color: '#ffffff' },
     { row: 6, col: 8,  color: '#ffffff' },
@@ -1061,7 +1061,7 @@ const ACCESSORIES = {
     { row: 6, col: 15, color: '#ffffff' },
     { row: 6, col: 16, color: '#ffffff' },
     { row: 6, col: 17, color: '#c81818' },  // red edge
-    // Bottom stripe row (row 7) — same pattern with shading
+    // Bottom stripe row (row 7). same pattern with shading
     { row: 7, col: 6,  color: '#8a1010' },  // shaded edge
     { row: 7, col: 7,  color: '#d8d8d8' },
     { row: 7, col: 8,  color: '#d8d8d8' },
@@ -1076,10 +1076,10 @@ const ACCESSORIES = {
     { row: 7, col: 17, color: '#8a1010' },
   ],
   tinfoil: [
-    // Metallic silver tinfoil head wrap — paranoid bull aesthetic.
+    // Metallic silver tinfoil head wrap. paranoid bull aesthetic.
     // Snug fit on the head with a single crinkled peak at the top
     // (offset right, suggesting the foil is bunched/folded). No hanging
-    // tail — tinfoil holds its shape rigidly.
+    // tail. tinfoil holds its shape rigidly.
     //
     // Palette mimics polished foil:
     //   foil_dark   #6a6e74  (shadow / wrinkle creases)
@@ -1088,7 +1088,7 @@ const ACCESSORIES = {
     //   foil_glint  #ffffff  (specular reflection)
 
     // ============================================================
-    // CRINKLED PEAK (rows 2-3) — single bunched bump, offset right
+    // CRINKLED PEAK (rows 2-3). single bunched bump, offset right
     // ============================================================
     { row: 2, col: 13, color: '#6a6e74' }, // shadow edge
     { row: 2, col: 14, color: '#e8eaf0' }, // bright crinkle highlight
@@ -1098,17 +1098,17 @@ const ACCESSORIES = {
     { row: 3, col: 15, color: '#6a6e74' }, // shadow edge
 
     // ============================================================
-    // BODY (rows 4-7) — snug fit to head silhouette
+    // BODY (rows 4-7). snug fit to head silhouette
     // Specular highlights scattered for that crumpled-foil shimmer
     // ============================================================
-    // Row 4 — cols 9-14 (matches head's narrowest top, 6 cells)
+    // Row 4. cols 9-14 (matches head's narrowest top, 6 cells)
     { row: 4, col: 9,  color: '#6a6e74' },
     { row: 4, col: 10, color: '#b8bcc4' },
     { row: 4, col: 11, color: '#e8eaf0' }, // foil highlight
     { row: 4, col: 12, color: '#b8bcc4' },
     { row: 4, col: 13, color: '#b8bcc4' },
     { row: 4, col: 14, color: '#6a6e74' },
-    // Row 5 — cols 8-15 (matches head, 8 cells)
+    // Row 5. cols 8-15 (matches head, 8 cells)
     { row: 5, col: 8,  color: '#6a6e74' },
     { row: 5, col: 9,  color: '#b8bcc4' },
     { row: 5, col: 10, color: '#e8eaf0' },
@@ -1117,7 +1117,7 @@ const ACCESSORIES = {
     { row: 5, col: 13, color: '#b8bcc4' },
     { row: 5, col: 14, color: '#e8eaf0' },
     { row: 5, col: 15, color: '#6a6e74' },
-    // Row 6 — cols 7-16 (matches head, 10 cells)
+    // Row 6. cols 7-16 (matches head, 10 cells)
     { row: 6, col: 7,  color: '#6a6e74' },
     { row: 6, col: 8,  color: '#b8bcc4' },
     { row: 6, col: 9,  color: '#b8bcc4' },
@@ -1128,7 +1128,7 @@ const ACCESSORIES = {
     { row: 6, col: 14, color: '#b8bcc4' },
     { row: 6, col: 15, color: '#b8bcc4' },
     { row: 6, col: 16, color: '#6a6e74' },
-    // Row 7 — cols 7-16 (bottom edge, snug fit above eyes)
+    // Row 7. cols 7-16 (bottom edge, snug fit above eyes)
     { row: 7, col: 7,  color: '#6a6e74' },
     { row: 7, col: 8,  color: '#b8bcc4' },
     { row: 7, col: 9,  color: '#b8bcc4' },
@@ -1141,15 +1141,15 @@ const ACCESSORIES = {
     { row: 7, col: 16, color: '#6a6e74' },
   ],
   beanie: [
-    // Compact fitted orange knit beanie — 5 rows total. Outline uses
+    // Compact fitted orange knit beanie. 5 rows total. Outline uses
     // deep burnt-orange (#8a3808) so the border blends with the beanie
     // color scheme instead of clashing as a black ring.
     //
     // Layout:
-    //   Row 1 — top outline (cap dome edge)
-    //   Rows 2-3 — cap body (narrower upper tier)
-    //   Row 4 — knit band with horizontal dashes (wider lower tier)
-    //   Row 5 — bottom outline (defines the brim line)
+    //   Row 1. top outline (cap dome edge)
+    //   Rows 2-3. cap body (narrower upper tier)
+    //   Row 4. knit band with horizontal dashes (wider lower tier)
+    //   Row 5. bottom outline (defines the brim line)
     //
     // Palette: knit_main #ff8020 / knit_shade #c05010 / outline #8a3808
     //
@@ -1160,7 +1160,7 @@ const ACCESSORIES = {
     { row: 1, col: 12, color: '#8a3808' },
     { row: 1, col: 13, color: '#8a3808' },
     { row: 1, col: 14, color: '#8a3808' },
-    // === CAP BODY (rows 2-3) — solid orange with side outlines ===
+    // === CAP BODY (rows 2-3). solid orange with side outlines ===
     { row: 2, col: 8,  color: '#8a3808' },
     { row: 2, col: 9,  color: '#ff8020' },
     { row: 2, col: 10, color: '#ff8020' },
@@ -1177,7 +1177,7 @@ const ACCESSORIES = {
     { row: 3, col: 13, color: '#ff8020' },
     { row: 3, col: 14, color: '#ff8020' },
     { row: 3, col: 15, color: '#8a3808' },
-    // === KNIT BAND (row 4) — wider, with horizontal knit dashes ===
+    // === KNIT BAND (row 4). wider, with horizontal knit dashes ===
     { row: 4, col: 7,  color: '#8a3808' }, // outline left
     { row: 4, col: 8,  color: '#c05010' }, // dash
     { row: 4, col: 9,  color: '#ff8020' },
@@ -1188,7 +1188,7 @@ const ACCESSORIES = {
     { row: 4, col: 14, color: '#c05010' }, // dash
     { row: 4, col: 15, color: '#ff8020' },
     { row: 4, col: 16, color: '#8a3808' }, // outline right
-    // === BOTTOM OUTLINE (row 5) — defines the brim line ===
+    // === BOTTOM OUTLINE (row 5). defines the brim line ===
     { row: 5, col: 7,  color: '#8a3808' },
     { row: 5, col: 8,  color: '#8a3808' },
     { row: 5, col: 9,  color: '#8a3808' },
@@ -1219,11 +1219,11 @@ const ACCESSORIES = {
 
     // === ROW 1: tongues continue, gaps preserved + 1 ember spark ===
     { row: 1, col: 9,  color: '#ff8020' },  // left tongue
-    // (col 10 GAP — negative space between left and center tongue)
+    // (col 10 GAP. negative space between left and center tongue)
     { row: 1, col: 11, color: '#ff8020' },  // center tongue left edge
     { row: 1, col: 12, color: '#ffffff' },  // white-hot core
     { row: 1, col: 13, color: '#ff8020' },  // center tongue right edge
-    // (cols 14 GAP — negative space)
+    // (cols 14 GAP. negative space)
     { row: 1, col: 14, color: '#c02020' },
     { row: 1, col: 16, color: '#ff5028' },  // floating spark on right
 
@@ -1231,7 +1231,7 @@ const ACCESSORIES = {
     { row: 2, col: 8,  color: '#c02020' },
     { row: 2, col: 9,  color: '#ff5028' },
     { row: 2, col: 10, color: '#ff8020' },
-    // (col 10.5 valley — but using col 10 dim orange)
+    // (col 10.5 valley. but using col 10 dim orange)
     { row: 2, col: 11, color: '#ffc020' },
     { row: 2, col: 12, color: '#ffe858' },
     { row: 2, col: 13, color: '#ffc020' },
@@ -1266,7 +1266,7 @@ const ACCESSORIES = {
     { row: 5, col: 13, color: '#ff5028' },
   ],
   pump: [
-    // "Pump" — horizontal capsule pill floating above the head, centered
+    // "Pump". horizontal capsule pill floating above the head, centered
     // between the horn tips. Named for the pump.fun origin. 6 cells wide x
     // 4 rows tall (rows 0-3, cols 9-14). Cols 9 and 14 in rows 0/3 stay
     // empty so the caps read as rounded.
@@ -1278,7 +1278,7 @@ const ACCESSORIES = {
     //          green_dark #2ab85a / white_bright #ffffff / white #f0f0f0 /
     //          white_shade #d0d0d0
 
-    // === ROW 0: top arc (outline only — caps at 9/14 empty for rounding) ===
+    // === ROW 0: top arc (outline only. caps at 9/14 empty for rounding) ===
     { row: 0, col: 10, color: '#1a3a2a' },
     { row: 0, col: 11, color: '#1a3a2a' },
     { row: 0, col: 12, color: '#1a3a2a' },
@@ -1300,16 +1300,16 @@ const ACCESSORIES = {
     { row: 2, col: 13, color: '#d0d0d0' }, // white bottom-shadow
     { row: 2, col: 14, color: '#1a3a2a' }, // right cap
 
-    // === ROW 3: bottom arc (outline only — caps at 9/14 empty for rounding) ===
+    // === ROW 3: bottom arc (outline only. caps at 9/14 empty for rounding) ===
     { row: 3, col: 10, color: '#1a3a2a' },
     { row: 3, col: 11, color: '#1a3a2a' },
     { row: 3, col: 12, color: '#1a3a2a' },
     { row: 3, col: 13, color: '#1a3a2a' },
   ],
   phantom: [
-    // "Phantom" — sheet ghost shaped to match the Phantom wallet logo. 8
+    // "Phantom". sheet ghost shaped to match the Phantom wallet logo. 8
     // wide x 5 tall at LAYOUT rows 1-5, cols 8-15. Allowed to overlap the
-    // bull's forehead (rows 4-5 head cells at cols 8-15) — the ghost
+    // bull's forehead (rows 4-5 head cells at cols 8-15). the ghost
     // visually "sits on" the head, which matches the reference's tilted
     // floating-over feel. Stays well clear of the bull's eyes (rows 9-10),
     // mouth (rows 12-17), and horns (cols 5-6 / 17-18). No inter-trait
@@ -1317,13 +1317,13 @@ const ACCESSORIES = {
     //
     // Shape (mirrors the Phantom logo):
     //   . W W W W W . .       row 1: top dome (cols 9-13)
-    //   W W W W W W W .       row 2: widens (cols 8-14) — covers ABOVE both eyes
+    //   W W W W W W W .       row 2: widens (cols 8-14). covers ABOVE both eyes
     //   W W W W E W E W       row 3: eyes at cols 12 & 14 (upper-right)
     //   W W W W W W W W       row 4: widest body (cols 8-15)
     //   W . W W . W W .       row 5: scalloped tail, 3 humps + right curl
     //
     // Row 1-2 must extend to col 14 so the right eye at col 14 row 3 has
-    // body cells directly above it — otherwise the eye looks cut off at
+    // body cells directly above it. otherwise the eye looks cut off at
     // the top of the ghost.
     //
     // Palette: ghost_body #ffffff / ghost_eye #181818
@@ -1335,7 +1335,7 @@ const ACCESSORIES = {
     { row: 1, col: 12, color: '#ffffff' },
     { row: 1, col: 13, color: '#ffffff' },
 
-    // === ROW 2: widening (cols 8-14) — covers above both eyes ===
+    // === ROW 2: widening (cols 8-14). covers above both eyes ===
     { row: 2, col: 8,  color: '#ffffff' },
     { row: 2, col: 9,  color: '#ffffff' },
     { row: 2, col: 10, color: '#ffffff' },
@@ -1344,7 +1344,7 @@ const ACCESSORIES = {
     { row: 2, col: 13, color: '#ffffff' },
     { row: 2, col: 14, color: '#ffffff' },
 
-    // === ROW 3: eye row — eyes at cols 12 & 14, body wraps around them ===
+    // === ROW 3: eye row. eyes at cols 12 & 14, body wraps around them ===
     { row: 3, col: 8,  color: '#ffffff' },
     { row: 3, col: 9,  color: '#ffffff' },
     { row: 3, col: 10, color: '#ffffff' },
@@ -1354,7 +1354,7 @@ const ACCESSORIES = {
     { row: 3, col: 14, color: '#181818' }, // right eye
     { row: 3, col: 15, color: '#ffffff' }, // body cell to right of right eye
 
-    // === ROW 4: widest body (cols 8-15) — full 8 cells ===
+    // === ROW 4: widest body (cols 8-15). full 8 cells ===
     { row: 4, col: 8,  color: '#ffffff' },
     { row: 4, col: 9,  color: '#ffffff' },
     { row: 4, col: 10, color: '#ffffff' },
@@ -1364,7 +1364,7 @@ const ACCESSORIES = {
     { row: 4, col: 14, color: '#ffffff' },
     { row: 4, col: 15, color: '#ffffff' },
 
-    // === ROW 5: scalloped tail — 3 humps with gaps (cols 8, 10-11, 13-14) ===
+    // === ROW 5: scalloped tail. 3 humps with gaps (cols 8, 10-11, 13-14) ===
     { row: 5, col: 8,  color: '#ffffff' }, // left foot
     { row: 5, col: 10, color: '#ffffff' }, // center hump left
     { row: 5, col: 11, color: '#ffffff' }, // center hump right
@@ -1383,12 +1383,12 @@ function buildEyewearOverlay(eyewearName) {
   if (eyewearName === 'none') return [];
 
   if (eyewearName === 'lasers') {
-    // Laser eyes — bright red horizontal beams shooting outward from
+    // Laser eyes. bright red horizontal beams shooting outward from
     // white-hot eye cores. Lives in the EYEWEAR slot (not eye palette) so
     // it's mutually exclusive with glasses. Beams cover the eye area +
     // extend across the canvas.
     return [
-      // === EYE CORES (sclera + white-hot pupils) — paint over default eyes ===
+      // === EYE CORES (sclera + white-hot pupils). paint over default eyes ===
       { row: 9, col: 9,  color: '#ff4040' },
       { row: 9, col: 10, color: '#ff2020' },
       { row: 9, col: 13, color: '#ff2020' },
@@ -1451,10 +1451,10 @@ function buildEyewearOverlay(eyewearName) {
     const f = '#181818'; // black frame
     const cells = [];
 
-    // === TOP FRAME (row 8) — clean flat top, full width ===
+    // === TOP FRAME (row 8). clean flat top, full width ===
     for (let c = 4; c <= 19; c++) cells.push({ row: 8, col: c, color: f });
 
-    // === RAINBOW LENS GRADIENT (row 9) — single continuous surface ===
+    // === RAINBOW LENS GRADIENT (row 9). single continuous surface ===
     const stripes = {
       4:  '#c81818',
       5:  '#ff2828',
@@ -1480,7 +1480,7 @@ function buildEyewearOverlay(eyewearName) {
     // === ROW 10: lens continues but with bridge NOTCH cutout at cols 11-12 ===
     for (let c = 4; c <= 10; c++) cells.push({ row: 10, col: c, color: stripes[c] });
     for (let c = 13; c <= 19; c++) cells.push({ row: 10, col: c, color: stripes[c] });
-    // Bridge notch (cols 11-12) at row 10 — black, this is where the nose goes
+    // Bridge notch (cols 11-12) at row 10. black, this is where the nose goes
     cells.push({ row: 10, col: 11, color: f });
     cells.push({ row: 10, col: 12, color: f });
 
@@ -1508,8 +1508,8 @@ function buildEyewearOverlay(eyewearName) {
     //          lens_shine #a0a0a0 / lens_glint #ffffff
     const f = '#181818'; // outer frame (matte black)
     return [
-      // === LEFT LENS (cols 7-10, rows 8-11) — 4x4 with rounded corners ===
-      // Top frame (rounded — middle 2 cells)
+      // === LEFT LENS (cols 7-10, rows 8-11). 4x4 with rounded corners ===
+      // Top frame (rounded. middle 2 cells)
       { row: 8, col: 8, color: f },
       { row: 8, col: 9, color: f },
       // Upper lens row
@@ -1526,11 +1526,11 @@ function buildEyewearOverlay(eyewearName) {
       { row: 11, col: 8, color: f },
       { row: 11, col: 9, color: f },
 
-      // === BRIDGE — thin 1-cell connector at row 9 (skin shows above/below) ===
+      // === BRIDGE. thin 1-cell connector at row 9 (skin shows above/below) ===
       { row: 9, col: 11, color: f },
       { row: 9, col: 12, color: f },
 
-      // === RIGHT LENS (cols 13-16, rows 8-11) — 4x4 mirror of left ===
+      // === RIGHT LENS (cols 13-16, rows 8-11). 4x4 mirror of left ===
       { row: 8, col: 14, color: f },
       { row: 8, col: 15, color: f },
       { row: 9, col: 13, color: f },
@@ -1551,7 +1551,7 @@ function buildEyewearOverlay(eyewearName) {
   }
 
   if (eyewearName === 'thug_life') {
-    // Clean "deal with it" pixel-art glasses — single bar with bridge gap.
+    // Clean "deal with it" pixel-art glasses. single bar with bridge gap.
     // No outer wings, no stair-step extensions. Just two rectangular lenses
     // joined by a top frame, with white reflection dots.
     const f = '#0a0a0a'; // pure black
@@ -1579,10 +1579,10 @@ function buildEyewearOverlay(eyewearName) {
   }
 
   if (eyewearName === '3d_glasses') {
-    // CryptoPunks-style 3D glasses (zombie reference) — square BLUE
+    // CryptoPunks-style 3D glasses (zombie reference). square BLUE
     // LEFT lens, RED RIGHT lens, surrounded by a thick WHITE FRAME with
     // a FULL-HEIGHT WHITE BRIDGE between the two lenses. The bridge
-    // covers rows 9-10 cols 11-12 (no nose gap — the bridge is solid
+    // covers rows 9-10 cols 11-12 (no nose gap. the bridge is solid
     // white in the middle, exactly per reference).
     //
     // Palette: frame #ffffff / blue #2860ff / red #e82020
@@ -1590,7 +1590,7 @@ function buildEyewearOverlay(eyewearName) {
     const bl = '#2860ff';
     const rl = '#e82020';
     return [
-      // === TOP FRAME (row 8) — white bar across both lenses ===
+      // === TOP FRAME (row 8). white bar across both lenses ===
       { row: 8, col: 8,  color: fr },
       { row: 8, col: 9,  color: fr },
       { row: 8, col: 10, color: fr },
@@ -1599,7 +1599,7 @@ function buildEyewearOverlay(eyewearName) {
       { row: 8, col: 13, color: fr },
       { row: 8, col: 14, color: fr },
       { row: 8, col: 15, color: fr },
-      // === LENS ROW 1 (row 9) — outer frame + blue lens + WHITE BRIDGE + red lens + outer frame ===
+      // === LENS ROW 1 (row 9). outer frame + blue lens + WHITE BRIDGE + red lens + outer frame ===
       { row: 9, col: 8,  color: fr },  // outer frame left
       { row: 9, col: 9,  color: bl },  // blue lens
       { row: 9, col: 10, color: bl },
@@ -1608,7 +1608,7 @@ function buildEyewearOverlay(eyewearName) {
       { row: 9, col: 13, color: rl },  // red lens
       { row: 9, col: 14, color: rl },
       { row: 9, col: 15, color: fr },  // outer frame right
-      // === LENS ROW 2 (row 10) — same pattern as row 9 ===
+      // === LENS ROW 2 (row 10). same pattern as row 9 ===
       { row: 10, col: 8,  color: fr },
       { row: 10, col: 9,  color: bl },
       { row: 10, col: 10, color: bl },
@@ -1617,7 +1617,7 @@ function buildEyewearOverlay(eyewearName) {
       { row: 10, col: 13, color: rl },
       { row: 10, col: 14, color: rl },
       { row: 10, col: 15, color: fr },
-      // === BOTTOM FRAME (row 11) — white bar across both lenses ===
+      // === BOTTOM FRAME (row 11). white bar across both lenses ===
       { row: 11, col: 8,  color: fr },
       { row: 11, col: 9,  color: fr },
       { row: 11, col: 10, color: fr },
@@ -1626,7 +1626,7 @@ function buildEyewearOverlay(eyewearName) {
       { row: 11, col: 13, color: fr },
       { row: 11, col: 14, color: fr },
       { row: 11, col: 15, color: fr },
-      // === ARMS — temples extending out to head edges (cols 4, 19) ===
+      // === ARMS. temples extending out to head edges (cols 4, 19) ===
       { row: 9, col: 7,  color: fr },
       { row: 9, col: 6,  color: fr },
       { row: 9, col: 5,  color: fr },
@@ -1726,7 +1726,7 @@ function buildEyewearOverlay(eyewearName) {
   }
 
   if (eyewearName === 'clout_shades') {
-    // Round clout shades — two oval lenses with a SMALL rounded bridge
+    // Round clout shades. two oval lenses with a SMALL rounded bridge
     // (only 2 cells at the top center, leaving room for the nose below)
     // and SHORT arms that stop at the bull's head edge instead of floating
     // outside the silhouette.
@@ -1740,15 +1740,15 @@ function buildEyewearOverlay(eyewearName) {
     const l = '#050505';
     return [
       // ============================================================
-      // LEFT LENS (rows 8-11, cols 7-11) — oval shape, 5 wide × 4 tall
+      // LEFT LENS (rows 8-11, cols 7-11). oval shape, 5 wide × 4 tall
       // Lens FILL (cols 8-10 rows 9-10) covers the bull's left eye
       // entirely (eye at cols 9-10 rows 9-10).
       // ============================================================
-      // Top edge (rounded — only middle 3 cells)
+      // Top edge (rounded. only middle 3 cells)
       { row: 8, col: 8,  color: w },
       { row: 8, col: 9,  color: w },
       { row: 8, col: 10, color: w },
-      // Lens row 1 — outer frame + 3 lens fill cells + inner frame
+      // Lens row 1. outer frame + 3 lens fill cells + inner frame
       { row: 9, col: 7,  color: w },     // outer frame
       { row: 9, col: 8,  color: l },
       { row: 9, col: 9,  color: l },
@@ -1766,11 +1766,11 @@ function buildEyewearOverlay(eyewearName) {
       { row: 11, col: 10, color: w },
 
       // ============================================================
-      // RIGHT LENS (rows 8-11, cols 12-16) — mirror of left
+      // RIGHT LENS (rows 8-11, cols 12-16). mirror of left
       // Lens FILL (cols 13-15 rows 9-10) covers the bull's right eye
       // entirely (eye at cols 13-14 rows 9-10).
       // The inner frames of the two lenses meet naturally at cols
-      // 11-12 rows 9-10 — no extra bridge bar needed.
+      // 11-12 rows 9-10. no extra bridge bar needed.
       // ============================================================
       // Top edge (rounded)
       { row: 8, col: 13, color: w },
@@ -1794,7 +1794,7 @@ function buildEyewearOverlay(eyewearName) {
       { row: 11, col: 15, color: w },
 
       // ============================================================
-      // ARMS — temples extending out from outer frames to head edges
+      // ARMS. temples extending out from outer frames to head edges
       // (head row 9 extends from col 4 to col 19)
       // ============================================================
       { row: 9, col: 6,  color: w }, // connect to left lens at col 7
@@ -1826,8 +1826,8 @@ function buildEyewearOverlay(eyewearName) {
   cells.push({ row: 9, col: 13, color: colors.highlight });
   // Bottom frame
   for (let c = 7; c <= 16; c++) cells.push({ row: 11, col: c, color: colors.frame });
-  // Arms — temples extending OUT past the lens edges across the head sides
-  // (left cols 4-6, right cols 17-19) — reads as proper glasses arms,
+  // Arms. temples extending OUT past the lens edges across the head sides
+  // (left cols 4-6, right cols 17-19). reads as proper glasses arms,
   // stops at the head edge (cols 4 and 19 at row 9).
   cells.push({ row: 9,  col: 6,  color: colors.frame });
   cells.push({ row: 9,  col: 5,  color: colors.frame });
@@ -1865,7 +1865,7 @@ function buildMouthOverlay(mouthName, body) {
         // Red ember tip
         { row: 16, col: 19, color: '#ff5020' },
         { row: 16, col: 20, color: '#a02010' },
-        // Smoke trail rising up — starts AT the ember, drifts up and right.
+        // Smoke trail rising up. starts AT the ember, drifts up and right.
         // Now well away from the face since the cigarette is longer.
         { row: 15, col: 20, color: '#ff8040' }, // ember glow above tip
         { row: 14, col: 20, color: '#c8c0b0' },
@@ -1891,7 +1891,7 @@ function buildMouthOverlay(mouthName, body) {
         { row: 12, col: 20, color: '#888888' },
       ];
     case 'grill':
-      // Solid bright gold grill — 4 cells of pure gold at row 16 cols
+      // Solid bright gold grill. 4 cells of pure gold at row 16 cols
       // 10-13, exactly aligned with the bull's mouth. Clean, simple,
       // unmistakably gold.
       return [
@@ -1909,7 +1909,7 @@ function buildMouthOverlay(mouthName, body) {
       // backwards-compat with any tooling that references the index.
       return [];
     case 'pacifier':
-      // Pudgy-Penguins-style baby pacifier — colored guard plate (blue) with
+      // Pudgy-Penguins-style baby pacifier. colored guard plate (blue) with
       // a central nipple (cream/tan) sticking out below. Cute baby bull.
       //
       // Palette: guard_main #2880d8 / guard_dark #1a4890 / guard_light #80c0ff
@@ -1935,7 +1935,7 @@ function buildMouthOverlay(mouthName, body) {
         { row: 18, col: 12, color: '#f0d8b0' },
       ];
     case 'open_shout':
-      // Wide-open shouting mouth — clearly reads as an open mouth at
+      // Wide-open shouting mouth. clearly reads as an open mouth at
       // thumbnail size: top row of WHITE TEETH framed by dark lip
       // corners, with a dark mouth cavity below containing a PINK
       // TONGUE in the center.
@@ -1983,7 +1983,7 @@ function buildMouthOverlay(mouthName, body) {
         { row: 18, col: 13, color: '#c84878' },
       ];
     case 'frown':
-      // Sad downturned mouth: inverse of smile — corners drop, center peaks up.
+      // Sad downturned mouth: inverse of smile. corners drop, center peaks up.
       return [
         // Mouth top center (peak)
         { row: 16, col: 10, color: '#181010' },
@@ -2018,7 +2018,7 @@ function buildMouthOverlay(mouthName, body) {
         { row: 15, col: 17, color: '#ff80b8' },
         { row: 15, col: 18, color: '#ff80b8' },
         { row: 15, col: 19, color: '#c83878' },
-        // Bubble lower body (row 16) — connecting to mouth via a "neck" at col 14
+        // Bubble lower body (row 16). connecting to mouth via a "neck" at col 14
         { row: 16, col: 14, color: '#ff80b8' }, // attach to mouth
         { row: 16, col: 15, color: '#ff80b8' },
         { row: 16, col: 16, color: '#ff80b8' },
@@ -2066,12 +2066,12 @@ const ACC_NAMES = [
   'mole',           // 23  CryptoPunks reference (face mark)
   'rosy_cheeks',    // 24  Cute face mark
   'scar',           // 25  Battle bull face mark
-  'pump',           // 26  Rare — green/white capsule floating between horns
-  'phantom',        // 27  Rare — tiny ghost floating between horns
+  'pump',           // 26  Rare. green/white capsule floating between horns
+  'phantom',        // 27  Rare. tiny ghost floating between horns
 ];
 
 // Eyewear (overlays the eye area, hiding eyes when not "none").
-// One canonical Mog (Pit-Viper-style yellow wraparound) — no color
+// One canonical Mog (Pit-Viper-style yellow wraparound). no color
 // variants, keeping the trait list tight.
 const EYEWEAR_NAMES = [
   'none',                //  0
@@ -2081,7 +2081,7 @@ const EYEWEAR_NAMES = [
   'thug_life',           //  4  iconic black bar
   '3d_glasses',          //  5  red/cyan anaglyph
   'big_shades',          //  6  CryptoPunks reference (oversized square)
-  'swag',                //  7  Pudgy Penguins style — chunky black + diagonal reflections
+  'swag',                //  7  Pudgy Penguins style. chunky black + diagonal reflections
   'lasers',              //  8  red laser beams (mutually exclusive with glasses)
 ];
 
@@ -2129,7 +2129,7 @@ export function selectTraits(seedBytes) {
 
 function buildGrid(traitIdx, accName) {
   // Start from the base layout (fixed horn silhouette).
-  // Horns are NEVER stripped here — they get re-painted on top of every
+  // Horns are NEVER stripped here. they get re-painted on top of every
   // accessory at the very end of renderBullSvg, so cowboy hat / strawberry
   // hat / dubai hat all have horns visibly poking through.
   return LAYOUT.map(row => row.split(''));
@@ -2142,7 +2142,7 @@ function buildGrid(traitIdx, accName) {
 //   Row 9:  cols 9, 10 (left sclera)   cols 13, 14 (right sclera)
 //   Row 10: col 9 (E pupil) col 10 (W) col 13 (W) col 14 (E pupil)
 //
-// All variants stay STRICTLY within rows 9-10 cols 9-10 / 13-14 — no beams
+// All variants stay STRICTLY within rows 9-10 cols 9-10 / 13-14. no beams
 // or extensions outside the eye area.
 function buildEyeCells(eye, body) {
   if (eye.type === 'closed') {
@@ -2166,7 +2166,7 @@ function buildEyeCells(eye, body) {
     // Narrowed/angry eyes: V-shape with single dark cell per eye in the
     // bottom-outer corner, body fill elsewhere. Reads as a downward scowl.
     return [
-      // Top row body fill (no sclera shown — angry brows obscure)
+      // Top row body fill (no sclera shown. angry brows obscure)
       { row: 9, col: 9,  color: body.shade },
       { row: 9, col: 10, color: '#181818' }, // angry brow inner-top
       { row: 9, col: 13, color: '#181818' }, // angry brow inner-top
@@ -2203,27 +2203,27 @@ function buildEyeCells(eye, body) {
   }
 
   if (eye.type === 'ski_mask') {
-    // Black ski mask covering the ENTIRE bull head — from the top of
+    // Black ski mask covering the ENTIRE bull head. from the top of
     // the head between the horns (rows 4-6) all the way down to the
     // chin (row 17). Mask cells follow the head silhouette row-by-row.
     //
     // Two 2x2 eye cutouts at rows 9-10 cols 9-10 (left) and cols 13-14
-    // (right) keep the eyes visible — each shows white sclera with a
+    // (right) keep the eyes visible. each shows white sclera with a
     // black pupil at the outer-bottom corner.
     //
     // Horns are NOT covered: they fall outside the head body cells, and
     // the horn-on-top render pass repaints them last so they always show.
     const m = eye.mask;
     const cells = [];
-    // === TOP OF HEAD between horns (rows 4-6) — matches head body width ===
+    // === TOP OF HEAD between horns (rows 4-6). matches head body width ===
     for (let c = 9;  c <= 14; c++) cells.push({ row: 4, col: c, color: m });
     for (let c = 8;  c <= 15; c++) cells.push({ row: 5, col: c, color: m });
     for (let c = 7;  c <= 16; c++) cells.push({ row: 6, col: c, color: m });
-    // === FOREHEAD (row 7) — between the brow horns at cols 5, 18 ===
+    // === FOREHEAD (row 7). between the brow horns at cols 5, 18 ===
     for (let c = 6;  c <= 17; c++) cells.push({ row: 7, col: c, color: m });
     // === TEMPLE / FACE (row 8) ===
     for (let c = 5;  c <= 18; c++) cells.push({ row: 8, col: c, color: m });
-    // === EYE LEVEL (rows 9-10) — with 2x2 cutouts at cols 9-10 and 13-14 ===
+    // === EYE LEVEL (rows 9-10). with 2x2 cutouts at cols 9-10 and 13-14 ===
     for (const r of [9, 10]) {
       for (let c = 4; c <= 19; c++) {
         if (c >= 9 && c <= 10) continue;   // left eye cutout
@@ -2233,15 +2233,15 @@ function buildEyeCells(eye, body) {
     }
     // === CHEEKBONES (row 11, widest face row) ===
     for (let c = 4; c <= 19; c++) cells.push({ row: 11, col: c, color: m });
-    // === MUZZLE (rows 12-15) — covers nostrils ===
+    // === MUZZLE (rows 12-15). covers nostrils ===
     for (const r of [12, 13, 14, 15]) {
       for (let c = 5; c <= 18; c++) cells.push({ row: r, col: c, color: m });
     }
-    // === MOUTH (row 16) — covers the mouth line ===
+    // === MOUTH (row 16). covers the mouth line ===
     for (let c = 7;  c <= 16; c++) cells.push({ row: 16, col: c, color: m });
     // === CHIN (row 17) ===
     for (let c = 8;  c <= 15; c++) cells.push({ row: 17, col: c, color: m });
-    // === JAW LINE (row 18) — completes "full head" coverage; neck (row 19+) is body, not head ===
+    // === JAW LINE (row 18). completes "full head" coverage; neck (row 19+) is body, not head ===
     for (let c = 8;  c <= 15; c++) cells.push({ row: 18, col: c, color: m });
 
     // === EYES visible through the 2x2 cutouts ===
@@ -2332,7 +2332,7 @@ export function renderBullSvg(seedBytes, scale = 24) {
   );
   parts.push(`<rect width="24" height="24" fill="url(#bg)"/>`);
 
-  // Body / head / horns / nose / mouth (skip W/E cells — handled separately
+  // Body / head / horns / nose / mouth (skip W/E cells. handled separately
   // below so structural eye variants like "closed" and "angry" can override
   // the default 2x2 eye rendering).
   for (let r = 0; r < 24; r++) {
@@ -2381,7 +2381,7 @@ export function renderBullSvg(seedBytes, scale = 24) {
   }
 
   // Holographic body shimmer: subtle sparkle highlights only on the upper-head
-  // corners. (Center body dots removed — they read as random specks.)
+  // corners. (Center body dots removed. they read as random specks.)
   if (body.name === 'holo') {
     parts.push(svgRect(7,  8,  '#ffffff'));
     parts.push(svgRect(16, 8,  '#ffffff'));
@@ -2411,7 +2411,7 @@ export function renderBullSvg(seedBytes, scale = 24) {
 
 // Derive 32-byte deterministic seed from the NFT's mint address.
 //
-// Visuals are locked to the NFT mint, not the owner — so when an NFT
+// Visuals are locked to the NFT mint, not the owner. so when an NFT
 // trades on Magic Eden / Tensor, the bull's art stays consistent. When
 // a tier_index is reused after unwrap, the new wrap creates a fresh NFT
 // mint => a different seed => a different bull (re-roll behavior).

@@ -81,7 +81,7 @@ export default function UnwrapPage() {
       setBulls(owned.sort((a, b) => a.tier - b.tier));
     } catch (e: any) {
       console.error(e);
-      // An on-chain READ failed — RPC/network problem, not "this
+      // An on-chain READ failed. RPC/network problem, not "this
       // wallet owns no bulls". Distinct rpc-error state so the user
       // never sees a misleading empty-wallet message (L11).
       setRpcError(String(e?.message ?? e));

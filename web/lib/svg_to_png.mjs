@@ -195,7 +195,7 @@ if (import.meta.url === `file://${process.argv[1].replaceAll('\\', '/')}`
     fs.writeFileSync(file.replace('.svg', '.png'), png);
   }
 
-  // Contact sheet — scale layout to count.
+  // Contact sheet. scale layout to count.
   // Aim for ~roughly square sheets that fit on screen.
   let cols, cellScale, margin;
   if (svgs.length >= 100) {

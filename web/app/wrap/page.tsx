@@ -17,7 +17,7 @@ import { useLaunchState } from "@/lib/use-launch-state";
 import RpcErrorCard from "@/app/components/RpcErrorCard";
 
 // Launch state is now a RUNTIME fact, fetched from /api/launch-state on
-// mount (see web/lib/launch-state.ts for why — the old build-time
+// mount (see web/lib/launch-state.ts for why. the old build-time
 // `PRE_LAUNCH` constant could not be rolled back without a rebuild).
 
 function PreLaunchCard({ tokenMint }: { tokenMint: string | null }) {
@@ -87,7 +87,7 @@ export default function WrapPage() {
       setBullsBalance(bal);
     } catch (e: any) {
       console.error(e);
-      // An on-chain READ failed — RPC/network problem, not a balance
+      // An on-chain READ failed. RPC/network problem, not a balance
       // problem. Surface it as a distinct rpc-error state so the user
       // never sees a misleading "Need 1M $WBULL" (L11).
       setRpcError(String(e?.message ?? e));
@@ -136,7 +136,7 @@ export default function WrapPage() {
       // HARD SOL GATE (Phantom Advanced view 2026-05-15 showed "you don't
       // have enough SOL for this transaction"). wrap_bull creates nft_mint
       // + vault ATA + payer NFT ATA + Metaplex metadata + master edition +
-      // bull_asset — roughly 0.022 SOL of rent, plus fees + priority fee.
+      // bull_asset. roughly 0.022 SOL of rent, plus fees + priority fee.
       // Require a 0.03 SOL floor so the tx can't revert for lamports and
       // get flagged by Phantom's simulation. Never send a doomed tx.
       const SOL_FLOOR_LAMPORTS = 30_000_000; // 0.03 SOL
@@ -191,7 +191,7 @@ export default function WrapPage() {
     <main className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
       <h1 className="h1 mb-3">Wrap a <span style={{ color: "var(--bull-accent)" }}>Bull</span></h1>
       <p className="text-[var(--bull-dim)] text-lg mb-10">
-        Lock 1,000,000 $WBULL into a fresh CryptoBull NFT. The vault follows the NFT through every transfer.
+        Lock 1,000,000 $WBULL into a fresh Bull NFT. The vault follows the NFT through every transfer.
       </p>
 
       {launchLoading ? (
