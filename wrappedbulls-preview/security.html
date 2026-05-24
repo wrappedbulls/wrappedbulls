@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>WRAPPEDBULLS // security</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand"><span class="dot"></span>WRAPPEDBULLS &nbsp;//&nbsp; <a href="https://wrappedbulls.com" style="text-decoration:none;font-weight:400;">wrappedbulls.com</a></div>
+  <div class="links">
+    <a href="index.html">HOME</a>
+    <a href="wrap.html">WRAP</a>
+    <a href="unwrap.html">UNWRAP</a>
+    <a href="gallery.html">HERD</a>
+    <a href="art.html">ART</a>
+    <a href="thesis.html">THESIS</a>
+    <a href="tech.html">TECH</a>
+    <a href="security.html" class="current">SECURITY</a>
+    <a href="status.html">STATUS</a>
+  </div>
+  <div class="meta">[OK] mainnet</div>
+</nav>
+
+<div class="wrap-narrow">
+
+  <div class="page-head">
+    <div class="crumbs">$ ./security</div>
+    <h1>Security</h1>
+    <p class="lede">What can take your bull, what can't, and what we did to keep the surface small.</p>
+  </div>
+
+  <article class="prose">
+
+    <h2># what cannot happen</h2>
+    <ul>
+      <li><strong>Vault drain.</strong> The vault authority is <code>PDA(["vault", nft_mint])</code>. Only the program, signing as that PDA, can move the locked tokens, and only via <code>unwrap_bull</code>, which requires burning the NFT.</li>
+      <li><strong>Admin seize.</strong> There is no admin instruction that touches your vault. No <code>force_unwrap</code>, no <code>admin_withdraw</code>. The upgrade authority can fix bugs in the code but cannot touch state directly.</li>
+      <li><strong>Supply inflation.</strong> $WBULL is launched via pump.fun with mint authority set to null. We can't print more tokens. The bull cap (1,000) is enforced in the program's <code>pop_tier</code> logic, not by an admin flag.</li>
+      <li><strong>Front run init.</strong> The <code>initialize</code> instruction is gated by an Anchor <code>ProgramData</code> upgrade authority constraint. Only the deployer signing with the upgrade key can init the bank PDA.</li>
+    </ul>
+
+    <h2># what we did to harden the program</h2>
+<pre class="block">  init_if_needed              REMOVED  (reinit attack surface)
+  initialize signer            GATED to ProgramData.upgrade_authority
+  bank PDA                     SINGLETON, one shot init
+  transfer_checked             REQUIRED (decimals verified onchain)
+  Token2022 InterfaceAccount  BOTH classic + Token2022 mints accepted
+  cross wallet unwrap          TESTED (vault follows NFT)
+  adversarial test suite       wrong NFT / wrong vault rejected
+  verifiable build             solana-verify, deterministic .so</pre>
+
+    <h2># test coverage</h2>
+<pre class="kvblock">  <span class="lbl">rust unit tests   </span> passing  (tier accounting, cap, reuse)
+  <span class="lbl">anchor integration</span> passing  (wrap, unwrap, cross wallet, adversarial, royalty)
+  <span class="lbl">verifiable build  </span> solana-verify  .so matches the public repo commit</pre>
+
+    <h2># keys + wallets</h2>
+<pre class="kvblock">  <span class="lbl">deployer wallet      </span> signs anchor deploy + initialize. cold backed.
+  <span class="lbl">upgrade authority    </span> same as deployer. can patch program bugs, cannot touch user state.
+  <span class="lbl">royalty treasury     </span> a SEPARATE wallet. receives 5% secondary royalties. not the deployer.
+  <span class="lbl">RPC key (Helius)     </span> server side only in /api/rpc. never in the client bundle.</pre>
+
+    <h2># operational</h2>
+    <ul>
+      <li><strong>Same origin RPC proxy.</strong> The browser never talks to a public Solana RPC. It calls <code>/api/rpc</code> on our domain, which forwards to a paid Helius endpoint. No IP/region 403s.</li>
+      <li><strong>Method allowlist + rate limit.</strong> The proxy whitelists ~20 JSON RPC methods and rate limits per IP. Our RPC credits cannot be drained by a third party.</li>
+      <li><strong>Blue green zero downtime deploy.</strong> Two backend instances, atomic Caddy upstream swap with active health check failover. The website does not go down for a deploy or a crash.</li>
+      <li><strong>Runtime launchstate flip.</strong> Rolling the site between prelaunch and live is a single file write, no rebuild. Emergency rollback is subsecond.</li>
+    </ul>
+
+    <h2># things that can still break (named honestly)</h2>
+    <ul>
+      <li><strong>Single VPS.</strong> The website is on one server. If that box / datacenter fails, the website is unreachable until we route around it (Cloudflare static fallback is the standing answer). The onchain program is unaffected. Wrap and unwrap continue from any other client.</li>
+      <li><strong>Phantom warnings.</strong> First launch dApps occasionally show "could be malicious" until Phantom's review queue processes the domain + program submission. We submit 48 to 72h before announce.</li>
+      <li><strong>Wallet bugs.</strong> If a user's wallet mishandles SPL token simulation, they may see a wrong banner. We presimulate every wrap server side and surface the actual sim result to avoid this.</li>
+    </ul>
+
+    <div class="callout">
+      <strong>Found something?</strong> Open a GitHub issue, or DM us on X. We respond to anything that touches user state inside 24h.
+    </div>
+
+  </article>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="row">
+      <div>$ wrappedbulls: built on solana, permissionless wrap + unwrap.</div>
+      <div><a href="https://x.com/wrappedbulls" target="_blank" rel="noopener">[ X ]</a> &nbsp; <a href="thesis.html">[ THESIS ]</a></div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

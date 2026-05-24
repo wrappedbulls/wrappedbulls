@@ -1,0 +1,44 @@
+[package]
+name = "wrappedbulls"
+version = "0.1.0"
+description = "Wrappedbulls: Solana port of Unipeg's trade-as-mint NFT primitive"
+edition = "2021"
+# build.rs reads config/launch.toml at compile time and writes
+# $OUT_DIR/generated.rs with all project-specific constants
+# (royalty, supply cap, metadata URIs, treasury pubkey, etc.).
+# See programs/wrappedbulls/build.rs.
+build = "build.rs"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "wrappedbulls"
+
+[build-dependencies]
+# Used by build.rs to parse config/launch.toml. Pinned conservatively;
+# both are pure-Rust with no security surface (compile-time only).
+toml = "0.8"
+serde = { version = "1", features = ["derive"] }
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+
+[dependencies]
+# Anchor 1.0.x is the current stable line, compatible with Solana 3.x and
+# modern Rust. The IDL generator no longer uses the removed
+# `proc_macro2::Span::source_file()` API, and the account-bumps macro emits
+# heap-friendly code (no stack overflow with our 15-account WrapBull).
+# NOTE: `init-if-needed` is deliberately NOT enabled. No account in this
+# program uses `init_if_needed`; enabling the feature only widens the
+# re-initialization attack surface (a known Anchor footgun) for zero
+# benefit. Keep it off — every account uses plain `init`, which keeps
+# Anchor's default double-init protection.
+anchor-lang = { version = "1.0.2" }
+anchor-spl = { version = "1.0.2", features = ["metadata", "token_2022"] }
+# Metaplex Token Metadata — pinned to the version anchor-spl 1.0.2 requires.
+# (anchor-spl 1.0.2 has a tight dep `mpl-token-metadata = "=5.1.2-alpha.2"`.)
+mpl-token-metadata = "=5.1.2-alpha.2"

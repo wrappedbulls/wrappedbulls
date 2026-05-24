@@ -1,0 +1,27 @@
+# upstream.conf — the reverse-proxy block, rewritten atomically by
+# scripts/blue_green_deploy.sh on every deploy.
+#
+# Both instances are listed. `lb_policy first` sends ALL traffic to the
+# first healthy upstream in the list; the second is a hot spare. Active
+# health checks probe /api/launch-state so Caddy knows an instance is
+# down BEFORE a real user request hits it — a process crash fails over
+# in ~one health interval with no user-facing 502.
+#
+# The deploy script swaps the ORDER of the two addresses to cut traffic
+# between colors. Whichever is listed first is "active".
+#   blue first  -> 3001 active, 3002 spare
+#   green first -> 3002 active, 3001 spare
+#
+# Copy to /etc/caddy/upstream.conf. Do not hand-edit during normal ops.
+reverse_proxy 127.0.0.1:3001 127.0.0.1:3002 {
+	lb_policy first
+	# Active health checks — proactive, not just on-failure. Each
+	# upstream is probed on its OWN port (no health_port override).
+	health_uri /api/launch-state
+	health_interval 3s
+	health_timeout 2s
+	health_status 200
+	# Passive: stop sending to an upstream that just errored.
+	fail_duration 10s
+	max_fails 1
+}

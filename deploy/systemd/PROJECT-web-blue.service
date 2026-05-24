@@ -1,0 +1,55 @@
+# PROJECT-web-blue.service — the "blue" web instance (port 3001).
+#
+# Blue-green deploy with crash failover. Two instances, blue (:3001)
+# and green (:3002), each running from its OWN separate checkout so a
+# deploy of one NEVER touches the other's build artifacts. Caddy
+# active-health-checks both and routes to the preferred healthy one.
+# See docs/DEPLOY.md, docs/UPTIME.md, scripts/blue_green_deploy.sh.
+#
+# WHY SEPARATE CHECKOUTS: an earlier design had both instances share
+# one working directory / one .next folder. Rebuilding .next while the
+# other instance served from it could disturb the live instance. Each
+# color now has a fully independent checkout — the active instance is
+# physically untouched while the standby rebuilds.
+#
+# SETUP: replace every __PLACEHOLDER__, then:
+#   sudo cp PROJECT-web-blue.service /etc/systemd/system/<slug>-web-blue.service
+#   sudo systemctl daemon-reload && sudo systemctl enable <slug>-web-blue
+#
+# Placeholders:
+#   __SLUG__      project slug, e.g. "rockpeg"
+#   __USER__      unix user that runs the app
+#   __BLUE_DIR__  absolute path to the BLUE checkout, e.g. "/srv/rockpeg/blue"
+#                 (the GREEN unit points at a DIFFERENT directory)
+
+[Unit]
+Description=__SLUG__ web (blue, :3001) — Next.js
+After=network.target
+# If it crash-loops 5x in 60s, stop trying — a fundamentally broken
+# build must not thrash forever. The GREEN instance keeps serving and
+# Caddy fails over to it; the operator then investigates.
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=__USER__
+WorkingDirectory=__BLUE_DIR__/web
+Environment=NODE_ENV=production
+Environment=PORT=3001
+Environment=HOSTNAME=127.0.0.1
+# Secrets (SOLANA_RPC_URL with the Helius key, LAUNCH_STATE_FILE,
+# GIT_SHA) live here — NOT in the repo, NOT in NEXT_PUBLIC_*. Leading
+# "-" = optional: the unit still starts if the file is absent.
+EnvironmentFile=-/etc/__SLUG__/web.env
+ExecStart=__BLUE_DIR__/web/node_modules/.bin/next start -p 3001
+# Always bring it back — clean exit, crash, OOM, anything.
+Restart=always
+RestartSec=2
+# Light resource hygiene: a runaway instance is killed + restarted
+# rather than dragging the whole box (and the other color) down.
+MemoryHigh=768M
+MemoryMax=1G
+
+[Install]
+WantedBy=multi-user.target

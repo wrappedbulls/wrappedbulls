@@ -1,0 +1,6 @@
+{
+  "_comment": "Template for the runtime launch-state file. Copy to launch-state.json for local dev, OR point LAUNCH_STATE_FILE at a production path (e.g. /var/lib/<slug>/state.json). state is 'pre-launch' or 'live'. tokenMint is the $TOKEN mint base58, or null pre-launch. updatedAt is an optional ISO timestamp.",
+  "state": "pre-launch",
+  "tokenMint": null,
+  "updatedAt": null
+}

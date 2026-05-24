@@ -1,0 +1,17 @@
+Contact: https://x.com/wrappedbulls
+Contact: https://github.com/wrappedbulls/wrappedbulls/issues
+Expires: 2027-05-09T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://wrappedbulls.com/.well-known/security.txt
+Policy: https://wrappedbulls.com/security
+Acknowledgments: https://github.com/wrappedbulls/wrappedbulls
+
+# WrappedBulls security disclosure
+#
+# This is a Solana dApp. The on-chain program is:
+#   Program ID: A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm
+#   Source:     https://github.com/wrappedbulls/wrappedbulls
+#
+# To report a vulnerability, open a GitHub issue (preferred) or DM
+# us on X (@wrappedbulls). For non-security wallet whitelist appeals,
+# please contact wallet vendors directly (e.g., review@phantom.com).

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>WRAPPEDBULLS — homepage preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f8f7f2;
+    --ink:   #0a0a0a;
+    --dim:   #6a6a6a;
+    --rule:  #0a0a0a;
+    --soft:  #cfcec7;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    image-rendering: pixelated;
+  }
+  pre { margin: 0; font-family: inherit; }
+  a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+  a:hover { background: var(--ink); color: var(--paper); text-decoration: none; }
+
+  /* ----- top bar ----- */
+  .topbar {
+    border-bottom: 2px solid var(--rule);
+    padding: 14px 24px;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .topbar .left { text-transform: uppercase; }
+  .topbar .right { font-weight: 400; color: var(--dim); }
+  .topbar .dot { display: inline-block; width: 8px; height: 8px; background: var(--ink); margin: 0 6px 1px 0; vertical-align: middle; }
+
+  /* ----- container ----- */
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+  /* ----- hero ----- */
+  .hero { padding: 56px 24px 24px; text-align: center; }
+  .hero pre.logo {
+    display: inline-block;
+    text-align: left;
+    font-weight: 800;
+    font-size: 11px;
+    line-height: 1.1;
+    letter-spacing: 0;
+  }
+  .hero .tagline {
+    margin-top: 32px;
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+  .hero .sub {
+    margin-top: 8px;
+    color: var(--dim);
+    font-size: 14px;
+  }
+  .hero .ctas { margin-top: 32px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-block;
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    color: var(--ink);
+    padding: 10px 22px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .btn:hover { background: var(--ink); color: var(--paper); }
+  .btn.ghost { background: transparent; }
+
+  /* ----- banner ----- */
+  .banner {
+    margin: 40px auto 0;
+    max-width: 1500px;
+    padding: 0 24px;
+  }
+  .banner-frame {
+    border: 2px solid var(--ink);
+    padding: 8px;
+    background: var(--paper);
+  }
+  .banner img {
+    display: block;
+    width: 100%;
+    height: auto;
+    image-rendering: pixelated;
+  }
+
+  /* ----- section ----- */
+  section { padding: 64px 0; }
+  .section-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 24px; }
+  .section-head .marker { font-weight: 800; }
+  .section-head .title { font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+  .section-head .rule { flex: 1; border-top: 2px solid var(--ink); height: 0; transform: translateY(-6px); }
+
+  /* ----- boxes (ASCII frames done via CSS borders) ----- */
+  .box {
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    padding: 24px;
+  }
+  .box + .box { margin-top: 24px; }
+
+  /* ----- mechanic two-col ----- */
+  .mechanic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .col h3 { margin: 0 0 12px; font-size: 14px; letter-spacing: 0.08em; }
+  .col pre.steps { font-size: 13px; color: var(--ink); }
+  .vault-note {
+    margin-top: 24px;
+    border-top: 1px dashed var(--soft);
+    padding-top: 16px;
+    color: var(--dim);
+    font-size: 13px;
+  }
+  .vault-note .code { color: var(--ink); }
+
+  /* ----- featured grid (uses banner image cropping via CSS) ----- */
+  .featured-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .card {
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    padding: 0;
+    overflow: hidden;
+  }
+  .card .art {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-image: url("./wrapped-bulls-banner.png");
+    background-repeat: no-repeat;
+    background-size: 600% 200%;
+    image-rendering: pixelated;
+    border-bottom: 2px solid var(--ink);
+  }
+  /* 6 columns x 2 rows in source -> 12 positions */
+  .card[data-tile="0"] .art  { background-position: 0%   0%; }
+  .card[data-tile="1"] .art  { background-position: 20%  0%; }
+  .card[data-tile="2"] .art  { background-position: 40%  0%; }
+  .card[data-tile="3"] .art  { background-position: 60%  0%; } /* favorite */
+  .card[data-tile="4"] .art  { background-position: 80%  0%; }
+  .card[data-tile="5"] .art  { background-position: 100% 0%; }
+  .card[data-tile="6"] .art  { background-position: 0%   100%; }
+  .card[data-tile="7"] .art  { background-position: 20%  100%; }
+  .card .meta { padding: 12px 14px; }
+  .card .meta .id { font-weight: 800; font-size: 13px; letter-spacing: 0.04em; }
+  .card .meta .traits { color: var(--dim); font-size: 12px; margin-top: 4px; }
+
+  /* ----- stats ----- */
+  pre.stats {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  pre.stats .lbl { color: var(--dim); }
+  pre.stats .ok { font-weight: 700; }
+
+  /* ----- footer ----- */
+  footer { border-top: 2px solid var(--ink); padding: 24px 0 64px; margin-top: 32px; color: var(--dim); font-size: 12px; }
+  footer .row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+
+  /* ----- responsive ----- */
+  @media (max-width: 900px) {
+    .mechanic-grid { grid-template-columns: 1fr; }
+    .featured-grid { grid-template-columns: repeat(2, 1fr); }
+    .hero pre.logo { font-size: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ TOP BAR ============ -->
+<div class="topbar">
+  <div class="left"><span class="dot"></span>WRAPPEDBULLS // wrappedbulls.fun</div>
+  <div class="right">[OK] mainnet · v1.0</div>
+</div>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+<pre class="logo">██╗    ██╗██████╗  █████╗ ██████╗ ██████╗ ███████╗██████╗     ██████╗ ██╗   ██╗██╗     ██╗     ███████╗
+██║    ██║██╔══██╗██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔══██╗    ██╔══██╗██║   ██║██║     ██║     ██╔════╝
+██║ █╗ ██║██████╔╝███████║██████╔╝██████╔╝█████╗  ██║  ██║    ██████╔╝██║   ██║██║     ██║     ███████╗
+██║███╗██║██╔══██╗██╔══██║██╔═══╝ ██╔═══╝ ██╔══╝  ██║  ██║    ██╔══██╗██║   ██║██║     ██║     ╚════██║
+╚███╔███╔╝██║  ██║██║  ██║██║     ██║     ███████╗██████╔╝    ██████╔╝╚██████╔╝███████╗███████╗███████║
+ ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝     ╚══════╝╚═════╝     ╚═════╝  ╚═════╝ ╚══════╝╚══════╝╚══════╝</pre>
+
+  <div class="tagline">&gt; 1,000,000 $WBULL wrapped into 1 NFT.</div>
+  <div class="sub">the vault follows the NFT through every trade. on-chain. permissionless.</div>
+
+  <div class="ctas">
+    <a class="btn" href="#">[ WRAP A BULL → ]</a>
+    <a class="btn ghost" href="#">[ READ THE THESIS ]</a>
+  </div>
+</header>
+
+<!-- ============ BANNER ============ -->
+<div class="banner">
+  <div class="banner-frame">
+    <img src="./wrapped-bulls-banner.png" alt="WrappedBulls collection sample" />
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ MECHANIC ============ -->
+  <section>
+    <div class="section-head">
+      <div class="marker">01</div>
+      <div class="title">THE MECHANIC</div>
+      <div class="rule"></div>
+    </div>
+
+    <div class="box">
+      <div class="mechanic-grid">
+        <div class="col">
+          <h3># wrap()</h3>
+<pre class="steps">  1. caller holds 1,000,000 $WBULL
+  2. tokens lock in vault PDA
+  3. fresh NFT minted to caller
+  4. tier index assigned (1..1000)</pre>
+        </div>
+        <div class="col">
+          <h3># unwrap()</h3>
+<pre class="steps">  1. caller holds the NFT
+  2. NFT burned
+  3. 1,000,000 $WBULL released
+  4. tier index returned to pool</pre>
+        </div>
+      </div>
+      <div class="vault-note">
+        <span class="code">vault.authority = PDA(["vault", nft_mint])</span> &nbsp;→&nbsp; the locked tokens follow the NFT through every marketplace transfer. buyer of the NFT controls the vault, automatically.
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURED ============ -->
+  <section>
+    <div class="section-head">
+      <div class="marker">02</div>
+      <div class="title">THE HERD</div>
+      <div class="rule"></div>
+    </div>
+
+    <div class="featured-grid">
+      <div class="card" data-tile="3">
+        <div class="art"></div>
+        <div class="meta">
+          <div class="id">WRAPPEDBULL #042</div>
+          <div class="traits">white · lasers · normal</div>
+        </div>
+      </div>
+      <div class="card" data-tile="2">
+        <div class="art"></div>
+        <div class="meta">
+          <div class="id">WRAPPEDBULL #127</div>
+          <div class="traits">black · halo_stars · cigarette</div>
+        </div>
+      </div>
+      <div class="card" data-tile="5">
+        <div class="art"></div>
+        <div class="meta">
+          <div class="id">WRAPPEDBULL #313</div>
+          <div class="traits">black · pump · clout_shades</div>
+        </div>
+      </div>
+      <div class="card" data-tile="4">
+        <div class="art"></div>
+        <div class="meta">
+          <div class="id">WRAPPEDBULL #208</div>
+          <div class="traits">brown · tinfoil · 3d_glasses</div>
+        </div>
+      </div>
+      <div class="card" data-tile="7">
+        <div class="art"></div>
+        <div class="meta">
+          <div class="id">WRAPPEDBULL #444</div>
+          <div class="traits">pink · bell · frown</div>
+        </div>
+      </div>
+      <div class="card" data-tile="6">
+        <div class="art"></div>
+        <div class="meta">
+          <div class="id">WRAPPEDBULL #555</div>
+          <div class="traits">brown · top_hat · tongue_out</div>
+        </div>
+      </div>
+      <div class="card" data-tile="1">
+        <div class="art"></div>
+        <div class="meta">
+          <div class="id">WRAPPEDBULL #666</div>
+          <div class="traits">pink · mog · bubblegum</div>
+        </div>
+      </div>
+      <div class="card" data-tile="0">
+        <div class="art"></div>
+        <div class="meta">
+          <div class="id">WRAPPEDBULL #777</div>
+          <div class="traits">red · sunglasses · bubblegum</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ON CHAIN ============ -->
+  <section>
+    <div class="section-head">
+      <div class="marker">03</div>
+      <div class="title">ON CHAIN</div>
+      <div class="rule"></div>
+    </div>
+
+    <div class="box">
+<pre class="stats">  <span class="lbl">program       </span> WBlllllllllllllllllllllllllllllllllllllllll
+  <span class="lbl">cluster       </span> solana / mainnet-beta
+  <span class="lbl">token         </span> $WBULL  (Token-2022, 6 decimals)
+  <span class="lbl">max supply    </span> 1,000 wrapped bulls
+  <span class="lbl">tokens per nft</span> 1,000,000 $WBULL  (vault-locked)
+  <span class="lbl">royalty       </span> 5%  →  on-chain royalty treasury
+  <span class="lbl">status        </span> <span class="ok">[OK]</span> live</pre>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="row">
+      <div>$ wrappedbulls — built on solana, permissionless wrap + unwrap.</div>
+      <div>
+        <a href="#">[ X ]</a> &nbsp;
+        <a href="#">[ EXPLORER ]</a> &nbsp;
+        <a href="#">[ THESIS ]</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

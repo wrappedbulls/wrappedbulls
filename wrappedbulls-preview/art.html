@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>WRAPPEDBULLS // art</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand"><span class="dot"></span>WRAPPEDBULLS &nbsp;//&nbsp; <a href="https://wrappedbulls.com" style="text-decoration:none;font-weight:400;">wrappedbulls.com</a></div>
+  <div class="links">
+    <a href="index.html">HOME</a>
+    <a href="wrap.html">WRAP</a>
+    <a href="unwrap.html">UNWRAP</a>
+    <a href="gallery.html">HERD</a>
+    <a href="art.html" class="current">ART</a>
+    <a href="thesis.html">THESIS</a>
+    <a href="tech.html">TECH</a>
+    <a href="security.html">SECURITY</a>
+    <a href="status.html">STATUS</a>
+  </div>
+  <div class="meta">[OK] mainnet</div>
+</nav>
+
+<div class="wrap-narrow">
+
+  <div class="page-head">
+    <div class="crumbs">$ ./art</div>
+    <h1>The Art</h1>
+    <p class="lede">Every Bull is a 24×24 pixel art SVG, generated deterministically from the NFT's mint address. No two are identical. The visual is locked at wrap time and travels with the NFT.</p>
+  </div>
+
+  <article class="prose">
+
+    <h2># how the seed works</h2>
+    <p>When you wrap, the program mints a brand new NFT. Its mint address (a base58 Solana pubkey) is hashed:</p>
+<pre class="block">  seed = sha256(nft_mint_pubkey_base58)</pre>
+    <p>The seed feeds a weighted trait roll across 7 slots (body, horns, eyes, background, accessory, eyewear, mouth) and then renders the result as a 24×24 grid of 1×1 SVG rectangles.</p>
+
+    <h2># the trait system</h2>
+<pre class="block">  body palettes      9    brown / black / white / red / golden / cyan / pink / zombie / holo
+  horn palettes      5    ivory / dark / gold / crimson / silver
+  eye variants       8    normal / golden / void / green / closed / angry / crying / ski_mask
+  backgrounds        7    pasture / sand / sunset / chart / void / sky / crimson
+  accessories       28    crown, halo, cowboy_hat, mohawk, top_hat, fire_aura, ...
+  eyewear            9    sunglasses, mog, clout, thug_life, 3d, lasers, ...
+  mouth             11    cigarette, cigar, grill, bubblegum, frown, shout, ...</pre>
+    <p>That gives a tier 1 combinatorial space far larger than the 1,000 supply cap. In practice the rare slots (holo body, ski_mask eyes, fire_aura, halo_stars) appear with weights of ~0.5 to 1%.</p>
+
+    <h2># tier reroll</h2>
+    <p>Tier numbers (1 to 1000) are reused after unwrap. The number stays, but a rewrap mints a <em>fresh</em> NFT mint → fresh seed → fresh visual. So Bull #042 you see today is not necessarily the Bull #042 someone wraps next week.</p>
+
+    <div class="callout">
+      <strong>Why this matters:</strong> the art is bound to the NFT, not the tier number. Trade the NFT, the art follows. Burn the NFT, that exact visual is gone forever.
+    </div>
+
+    <h2># sample render</h2>
+    <p>One of the 24×24 pixel SVGs rendered through the same path as <code>/api/render/&lt;tier&gt;?format=png</code> (768×768):</p>
+    <div style="border:2px solid var(--ink);padding:8px;max-width:520px;margin:16px 0;">
+      <img src="../wrapped-bull-favorite.png" alt="sample wrapped bull" style="width:100%;display:block;" />
+    </div>
+
+    <h2># renderer</h2>
+    <p>The renderer is open source (~2,400 lines of pure JS) with no offchain dependency, no IPFS, no mutable metadata. Anyone can run it and reproduce the exact image from a mint pubkey.</p>
+
+  </article>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="row">
+      <div>$ wrappedbulls: built on solana, permissionless wrap + unwrap.</div>
+      <div><a href="https://x.com/wrappedbulls" target="_blank" rel="noopener">[ X ]</a> &nbsp; <a href="thesis.html">[ THESIS ]</a></div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

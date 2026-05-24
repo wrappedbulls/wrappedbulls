@@ -1,0 +1,37 @@
+# PROJECT-web-green.service — the "green" web instance (port 3002).
+#
+# Identical to PROJECT-web-blue.service except the port and checkout
+# directory. See that file and docs/DEPLOY.md for the model.
+#
+# SETUP: replace every __PLACEHOLDER__, then:
+#   sudo cp PROJECT-web-green.service /etc/systemd/system/<slug>-web-green.service
+#   sudo systemctl daemon-reload && sudo systemctl enable <slug>-web-green
+#
+# Placeholders:
+#   __SLUG__       project slug
+#   __USER__       unix user that runs the app
+#   __GREEN_DIR__  absolute path to the GREEN checkout, e.g. "/srv/rockpeg/green"
+#                  (a DIFFERENT directory from the blue checkout)
+
+[Unit]
+Description=__SLUG__ web (green, :3002) — Next.js
+After=network.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=__USER__
+WorkingDirectory=__GREEN_DIR__/web
+Environment=NODE_ENV=production
+Environment=PORT=3002
+Environment=HOSTNAME=127.0.0.1
+EnvironmentFile=-/etc/__SLUG__/web.env
+ExecStart=__GREEN_DIR__/web/node_modules/.bin/next start -p 3002
+Restart=always
+RestartSec=2
+MemoryHigh=768M
+MemoryMax=1G
+
+[Install]
+WantedBy=multi-user.target

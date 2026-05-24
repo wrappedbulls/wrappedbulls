@@ -1,0 +1,45 @@
+{
+  "$schema-note": "Web-only brand surface. Project name / ticker / domain / royalty live in config/launch.toml (the shared source of truth) and reach the web side via web/lib/launch-config.generated.ts. Edit those there, not here.",
+
+  "social": {
+    "twitter":     "@wrappedbulls",
+    "twitter_url": "https://x.com/wrappedbulls",
+    "github":      null,
+    "discord":     null,
+    "telegram":    null
+  },
+
+  "art": {
+    "mascot_path":   "/mascot.png",
+    "banner_path":   "/banner.png",
+    "favicon_path":  "/favicon.ico",
+    "og_image_path": "/og.png"
+  },
+
+  "copy": {
+    "tagline":        "Trade-as-mint NFTs on Solana.",
+    "hero_subtitle":  "Lock 1,000,000 $WBULL into a unique on-chain Bull. Sell the NFT, the tokens follow.",
+    "description":    "WrappedBulls is an ERC404-style hybrid token-NFT layer on top of a pump.fun token. Each bull NFT carries 1M $WBULL in an NFT-owned vault; the tokens follow the NFT through every transfer.",
+    "footer_blurb":   "Built on Solana. Permissionless wrap and unwrap. Vault-follows-NFT mechanic."
+  },
+
+  "colors": {
+    "bg":          "#0a0a0c",
+    "card":        "#15151a",
+    "card_hi":     "#1c1c24",
+    "accent":      "#f0d028",
+    "accent_hi":   "#fff0a0",
+    "ink":         "#e8e4dc",
+    "dim":         "#8a8a92",
+    "brown":       "#7a4a2a",
+    "pasture_top": "#a8d878",
+    "pasture_bot": "#6c9844",
+    "success":     "#3acf6b",
+    "danger":      "#e84848"
+  },
+
+  "analytics": {
+    "plausible_domain": null,
+    "umami_id": null
+  }
+}

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>WRAPPEDBULLS // home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand"><span class="dot"></span>WRAPPEDBULLS &nbsp;//&nbsp; <a href="https://wrappedbulls.com" style="text-decoration:none;font-weight:400;">wrappedbulls.com</a></div>
+  <div class="links">
+    <a href="index.html" class="current">HOME</a>
+    <a href="wrap.html">WRAP</a>
+    <a href="unwrap.html">UNWRAP</a>
+    <a href="gallery.html">HERD</a>
+    <a href="art.html">ART</a>
+    <a href="thesis.html">THESIS</a>
+    <a href="tech.html">TECH</a>
+    <a href="security.html">SECURITY</a>
+    <a href="status.html">STATUS</a>
+  </div>
+  <div class="meta">[OK] mainnet</div>
+</nav>
+
+<header class="hero">
+<pre class="logo">██╗    ██╗██████╗  █████╗ ██████╗ ██████╗ ███████╗██████╗     ██████╗ ██╗   ██╗██╗     ██╗     ███████╗
+██║    ██║██╔══██╗██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔══██╗    ██╔══██╗██║   ██║██║     ██║     ██╔════╝
+██║ █╗ ██║██████╔╝███████║██████╔╝██████╔╝█████╗  ██║  ██║    ██████╔╝██║   ██║██║     ██║     ███████╗
+██║███╗██║██╔══██╗██╔══██║██╔═══╝ ██╔═══╝ ██╔══╝  ██║  ██║    ██╔══██╗██║   ██║██║     ██║     ╚════██║
+╚███╔███╔╝██║  ██║██║  ██║██║     ██║     ███████╗██████╔╝    ██████╔╝╚██████╔╝███████╗███████╗███████║
+ ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝     ╚══════╝╚═════╝     ╚═════╝  ╚═════╝ ╚══════╝╚══════╝╚══════╝</pre>
+
+  <div class="tagline">&gt; 1,000,000 $WBULL wrapped into 1 NFT.</div>
+  <div class="sub">the vault follows the NFT through every trade. onchain. permissionless.</div>
+
+  <div class="ctas">
+    <a class="btn" href="wrap.html">[ WRAP A BULL → ]</a>
+    <a class="btn ghost" href="thesis.html">[ READ THE THESIS ]</a>
+  </div>
+</header>
+
+<div class="banner">
+  <div class="banner-frame">
+    <img src="../wrapped-bulls-banner.png" alt="WrappedBulls collection sample" />
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section>
+    <div class="section-head">
+      <div class="marker">01</div>
+      <div class="title">THE MECHANIC</div>
+      <div class="rule"></div>
+    </div>
+
+    <div class="box">
+      <div class="mechanic-grid">
+        <div class="col">
+          <h3># wrap()</h3>
+<pre class="steps">  1. caller holds 1,000,000 $WBULL
+  2. tokens lock in vault PDA
+  3. fresh NFT minted to caller
+  4. tier index assigned (1..1000)</pre>
+        </div>
+        <div class="col">
+          <h3># unwrap()</h3>
+<pre class="steps">  1. caller holds the NFT
+  2. NFT burned
+  3. 1,000,000 $WBULL released
+  4. tier index returned to pool</pre>
+        </div>
+      </div>
+      <div class="vault-note">
+        <span class="code">vault.authority = PDA(["vault", nft_mint])</span> &nbsp;→&nbsp; the locked tokens follow the NFT through every marketplace transfer. buyer of the NFT controls the vault, automatically.
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="marker">02</div>
+      <div class="title">THE RULES</div>
+      <div class="rule"></div>
+    </div>
+
+    <div class="box">
+<pre class="kvblock">  <span class="lbl">token         </span> $WBULL  (Token2022, 6 decimals)
+  <span class="lbl">max supply    </span> 1,000 wrapped bulls
+  <span class="lbl">tokens per nft</span> 1,000,000 $WBULL  (vault locked)
+  <span class="lbl">royalty       </span> 5%  →  onchain royalty treasury
+  <span class="lbl">permission    </span> none. anyone can wrap or unwrap.
+  <span class="lbl">cluster       </span> solana / mainnet</pre>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="row">
+      <div>$ wrappedbulls: built on solana, permissionless wrap + unwrap.</div>
+      <div>
+        <a href="https://x.com/wrappedbulls" target="_blank" rel="noopener">[ X ]</a> &nbsp;
+        <a href="thesis.html">[ THESIS ]</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

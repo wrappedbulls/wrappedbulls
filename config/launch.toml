@@ -1,0 +1,63 @@
+# launch.toml — single source of truth for project-specific values.
+#
+# Read by:
+#   - programs/wrappedbulls/build.rs → generates $OUT_DIR/generated.rs at
+#     compile time, included from lib.rs. Provides all on-chain
+#     constants (royalty, supply cap, metadata URIs, etc.) so the
+#     program compiles for a new project just by editing this file
+#     and re-running `anchor build`.
+#   - (planned P2.3) web/lib/launch-config.ts → reads the same file
+#     for the Next.js side, so brand strings, royalty %, treasury
+#     pubkey, and collection name come from one place.
+#
+# Edit this file → rebuild → new project. No manual source edits.
+#
+# IMPORTANT: changing values here after deploy is a NO-OP for the
+# already-deployed program. Constants are baked in at compile time.
+# To change a deployed value you must re-deploy under a new program
+# ID (singleton PDA + immutable bank state). See docs/POSTMORTEM.md §7.
+
+[project]
+# Display name used in NFT names, collection name, and most UI copy.
+name = "WrappedBulls"
+# Singular noun form for one NFT (used in error messages and copy).
+# WrappedBulls → "Bull". Next project might be "Rock", "Frog", etc.
+unit_singular = "Bull"
+# Ticker symbol of the underlying token. Also used as NFT symbol.
+ticker = "WBULL"
+# Web domain hosting the metadata endpoint + UI.
+domain = "wrappedbulls.com"
+
+[supply]
+# Maximum number of NFTs that can ever exist concurrently.
+# At pump.fun's 1B token supply / 1M tokens-per-NFT, natural cap is 1000.
+max_supply = 1000
+# Whole tokens locked into each NFT (NOT base units).
+tokens_per_nft = 1_000_000
+# Token decimals. Pump.fun standard is 6. Used at compile time to
+# compute base units: tokens_per_nft * 10^decimals.
+token_decimals = 6
+
+[royalty]
+# Secondary-sale royalty in basis points. 500 = 5%.
+bps = 500
+# Wallet receiving the secondary-sale royalty. Also written as the
+# on-chain creator on every NFT. MUST be different from the deployer
+# wallet (deployer pays gas; treasury receives royalty). Last launch
+# briefly conflated them — see docs/POSTMORTEM.md §6.
+treasury_pubkey = "FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ"
+
+[metadata]
+# Full URI for the collection-level metadata JSON.
+# Convention: https://{domain}/api/metadata/collection
+collection_uri = "https://wrappedbulls.com/api/metadata/collection"
+# URI template for per-NFT metadata. `{tier}` will be substituted at
+# wrap time with the tier index (1..=max_supply).
+# Convention: https://{domain}/api/metadata/{tier}
+nft_uri_template = "https://wrappedbulls.com/api/metadata/{tier}"
+
+[program]
+# Anchor declare_id!. The on-chain program address.
+# Regenerated per project via `solana-keygen new -o target/deploy/<name>-keypair.json`
+# during the clone step (P2.6). Must match the deployed program.
+id = "A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm"

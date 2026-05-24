@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>WRAPPEDBULLS // thesis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand"><span class="dot"></span>WRAPPEDBULLS &nbsp;//&nbsp; <a href="https://wrappedbulls.com" style="text-decoration:none;font-weight:400;">wrappedbulls.com</a></div>
+  <div class="links">
+    <a href="index.html">HOME</a>
+    <a href="wrap.html">WRAP</a>
+    <a href="unwrap.html">UNWRAP</a>
+    <a href="gallery.html">HERD</a>
+    <a href="art.html">ART</a>
+    <a href="thesis.html" class="current">THESIS</a>
+    <a href="tech.html">TECH</a>
+    <a href="security.html">SECURITY</a>
+    <a href="status.html">STATUS</a>
+  </div>
+  <div class="meta">[OK] mainnet</div>
+</nav>
+
+<div class="wrap-narrow">
+
+  <div class="page-head">
+    <div class="crumbs">$ ./thesis</div>
+    <h1>The Thesis</h1>
+    <p class="lede">Why a wrapped layer on top of a pump.fun token, why bulls, and why the vault follows NFT mechanic changes what a memecoin can be.</p>
+  </div>
+
+  <article class="prose">
+
+    <h2># the problem</h2>
+    <p>Every pump.fun token is a fungible $TOKEN with the same trade as bag mechanic: buy on the bonding curve, hope someone else buys higher. There's no scarcity tier, no onchain identity, no reason for a top holder to feel different from any other wallet on the chart.</p>
+
+    <h2># the proposal</h2>
+    <p>WrappedBulls adds a permissionless layer on top of $WBULL: lock 1,000,000 tokens, mint a bull NFT. The 1M tokens stay locked in a vault PDA whose authority is derived from the NFT mint. Trade the NFT on Magic Eden / Tensor, the vault tokens follow atomically.</p>
+
+    <div class="callout">
+      <strong>The unlock:</strong> the supply of bull NFTs is hard capped at 1,000. The supply of $WBULL is ~1B. Holding a bull is mathematically holding a top 1000 position: but tradeable as an NFT, with art, identity, and marketplace floor.
+    </div>
+
+    <h2># why it works</h2>
+    <ul>
+      <li><strong>Forced scarcity.</strong> 1B / 1M = 1,000 bulls maximum. Hard cap, onchain enforced.</li>
+      <li><strong>Two sided market.</strong> $WBULL trades on the bonding curve. WrappedBull NFTs trade on Magic Eden / Tensor with their own floor.</li>
+      <li><strong>Exit valve.</strong> Unwrap any time → 1M $WBULL back. The NFT floor can never fall below 1M $WBULL of intrinsic value (less the small mint/burn gas).</li>
+      <li><strong>Permissionless.</strong> No whitelist, no allowlist, no team mint. Wrap is open the moment $WBULL goes live.</li>
+    </ul>
+
+    <h2># why bulls</h2>
+    <p>Bulls are the canonical "we go up" symbol of every market. The collection's pixel art bulls inherit that energy. The trait system makes each one identifiable. Top wallets will hold the rare ones (holo body, fire_aura, halo_stars) and signal that on social. The collection becomes a status surface for $WBULL holders.</p>
+
+    <h2># why repacked, not new</h2>
+    <p>The wrap mechanic and the art were built and tested under a prior project. The contracts compiled cleanly, the simulation passed, the art is polished, but the token never reached real users. WrappedBulls is the same engineering, repacked with a name that telegraphs the mechanic: this is a wrapping primitive, not just another memecoin.</p>
+
+    <h2># what we are not</h2>
+    <ul>
+      <li>Not a bridge wrapper. $WBULL is not "Bitcoin on Solana." It's its own token.</li>
+      <li>Not a yield product. The vault doesn't earn interest. It just holds tokens.</li>
+      <li>Not centralized. There is no admin who can pause, freeze, or seize a vault. The program is upgradeable for fixes; the supply rules are not.</li>
+    </ul>
+
+    <h2># tl;dr</h2>
+    <p>1,000 NFTs, each carrying 1,000,000 $WBULL in a vault that follows the NFT. Wrap any time, unwrap any time, onchain, permissionless. The art is yours, the floor is mathematically pinned, the supply is capped.</p>
+
+    <div class="ctas" style="margin-top:32px;display:flex;gap:16px;flex-wrap:wrap;">
+      <a class="btn" href="wrap.html">[ WRAP A BULL → ]</a>
+      <a class="btn ghost" href="tech.html">[ HOW IT WORKS → ]</a>
+    </div>
+
+  </article>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="row">
+      <div>$ wrappedbulls: built on solana, permissionless wrap + unwrap.</div>
+      <div><a href="https://x.com/wrappedbulls" target="_blank" rel="noopener">[ X ]</a> &nbsp; <a href="thesis.html">[ THESIS ]</a></div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

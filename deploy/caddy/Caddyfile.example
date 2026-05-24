@@ -1,0 +1,34 @@
+# Caddyfile.example — reverse proxy for the blue-green web deploy.
+#
+# Caddy terminates TLS (auto-provisioned) and proxies to whichever web
+# instance is currently active. The active upstream is NOT written here
+# directly — it lives in a separate one-line file (upstream.conf) that
+# the deploy script rewrites atomically. `caddy reload` then graceful-
+# swaps with zero dropped connections.
+#
+# SETUP:
+#   1. Replace __DOMAIN__ below.
+#   2. Copy this to /etc/caddy/Caddyfile (or import it from there).
+#   3. Copy upstream.conf.example to /etc/caddy/upstream.conf and set
+#      it to the color you want live first (default: blue / :3001).
+#   4. sudo systemctl reload caddy
+#
+# The `import` path is relative to the Caddyfile's directory, so
+# upstream.conf must sit next to the Caddyfile (/etc/caddy/).
+
+__DOMAIN__ {
+	encode gzip
+
+	# Active upstream — rewritten atomically by blue_green_deploy.sh.
+	import upstream.conf
+
+	# /api/health is the deploy script's readiness probe and also what
+	# UptimeRobot / the /status page consume. Nothing special needed
+	# here — it is a normal route — but documented so nobody "optimizes"
+	# it behind auth or a cache.
+
+	log {
+		output file /var/log/caddy/access.log
+		format console
+	}
+}

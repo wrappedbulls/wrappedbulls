@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>WRAPPEDBULLS // tech</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand"><span class="dot"></span>WRAPPEDBULLS &nbsp;//&nbsp; <a href="https://wrappedbulls.com" style="text-decoration:none;font-weight:400;">wrappedbulls.com</a></div>
+  <div class="links">
+    <a href="index.html">HOME</a>
+    <a href="wrap.html">WRAP</a>
+    <a href="unwrap.html">UNWRAP</a>
+    <a href="gallery.html">HERD</a>
+    <a href="art.html">ART</a>
+    <a href="thesis.html">THESIS</a>
+    <a href="tech.html" class="current">TECH</a>
+    <a href="security.html">SECURITY</a>
+    <a href="status.html">STATUS</a>
+  </div>
+  <div class="meta">[OK] mainnet</div>
+</nav>
+
+<div class="wrap-narrow">
+
+  <div class="page-head">
+    <div class="crumbs">$ ./tech</div>
+    <h1>How it works</h1>
+    <p class="lede">An Anchor program, three instructions, and one trick: derive the vault's authority from the NFT mint so the locked tokens travel with the NFT through every transfer.</p>
+  </div>
+
+  <article class="prose">
+
+    <h2># the program</h2>
+<pre class="block">  program     anchor 1.0.2 on solana mainnet
+  language    rust, ~1,200 LOC
+  tests       13 anchor integration + 10 rust unit tests
+  cluster     mainnet
+  upgradeable yes (initialize gated to upgrade authority only)</pre>
+
+    <h2># three instructions</h2>
+
+    <h3>initialize(bank, mint)</h3>
+    <p>One shot. The deployer (upgrade authority) initializes the singleton <code>bank</code> PDA with the $WBULL mint address. Gated by an Anchor <code>ProgramData</code> upgrade authority constraint. No one but the deployer can call it.</p>
+
+    <h3>wrap_bull(tier_index)</h3>
+<pre class="block">  inputs   caller signs + nft_mint keypair signs
+  effects  1. checked transfer: 1M $WBULL from caller -> vault PDA
+           2. init nft_mint, mint 1 to caller's ATA
+           3. CPI: CreateMetadataAccountV3 + CreateMasterEditionV3
+           4. CPI: VerifySizedCollectionItem  (joins the MCC)
+           5. init BullAsset PDA (records tier, wrapped_at, nft_mint)
+           6. bank.total_wrapped += 1</pre>
+
+    <h3>unwrap_bull(tier_index)</h3>
+<pre class="block">  preconds caller holds 1 of this NFT in their ATA
+  effects  1. checked transfer: 1M $WBULL from vault -> caller
+           2. close vault (rent refunded to caller)
+           3. burn NFT, close NFT mint + ATA
+           4. close BullAsset (rent refunded)
+           5. tier_index pushed to bank.free_tiers (LIFO)</pre>
+
+    <h2># the vault trick</h2>
+    <p>The whole product hinges on a single PDA derivation:</p>
+<pre class="block">  vault.authority = PDA(["vault", nft_mint])</pre>
+    <p>The vault's authority is derived from the NFT mint address, <strong>not</strong> from the wrapping wallet. When the NFT trades on Magic Eden / Tensor, the new owner immediately has authority over the vault via the program. The locked tokens are atomically bound to the NFT.</p>
+
+    <h2># PDAs at a glance</h2>
+<pre class="block">  ["bank"]                        BullBank (singleton: mint, counters, free_tiers)
+  ["bull", tier_le]              BullAsset (per bull record)
+  ["nft_mint", total_wrapped_le] nft mint address (deterministic from bank state)
+  ["vault", nft_mint]            vault authority (the key trick)
+  ["collection_authority"]       MCC update authority</pre>
+
+    <h2># Token2022</h2>
+    <p>$WBULL is a Token2022 mint (the pump.fun standard). The program accepts both classic SPL and Token2022 via Anchor's <code>InterfaceAccount</code> + <code>transfer_checked</code>. There is no transfer fee, no transfer hook, no permanent delegate. The mint's extensions are limited to <code>metadataPointer</code> and <code>tokenMetadata</code>, both benign for the wrap mechanic.</p>
+
+    <h2># royalty</h2>
+    <p>Every wrapped NFT carries a 5% (500 bps) secondary sale royalty pointing at the onchain royalty treasury. The creator is <code>verified: false</code> by design. Wrap is permissionless so the treasury can't sign every mint. Magic Eden / Tensor still honor <code>seller_fee_basis_points</code> regardless.</p>
+
+    <h2># renderer</h2>
+    <p>Offchain. ~2,400 lines of pure JS that take a base58 nft_mint pubkey and return a 24×24 SVG. Anyone can run it. The visual is deterministic from the mint, so the art cannot be retroactively altered, even by us. See <a href="art.html">/art</a>.</p>
+
+    <div class="callout">
+      <strong>Reproducibility:</strong> the program ships with a verifiable build via <code>solana-verify</code>. The .so deployed to mainnet matches the source commit byte for byte. The verification PDA links the program to the public repo.
+    </div>
+
+  </article>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="row">
+      <div>$ wrappedbulls: built on solana, permissionless wrap + unwrap.</div>
+      <div><a href="https://x.com/wrappedbulls" target="_blank" rel="noopener">[ X ]</a> &nbsp; <a href="thesis.html">[ THESIS ]</a></div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
