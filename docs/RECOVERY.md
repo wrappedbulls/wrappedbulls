@@ -1,8 +1,8 @@
-> # ⚠️ PARTIALLY STALE — verify against authoritative docs first
+> # ⚠️ PARTIALLY STALE. verify against authoritative docs first
 > As of 2026-05-15: the upgrade-authority/deployer keypair is
 > `GMrJpP7Sa…` (the bulls-box `/root/.config/solana/id.json`), **not**
-> `FRZJ…TwQ` (that is the royalty treasury). "Scenario 1 — mid-launch
-> failure" assumes the deprecated `launch.sh` step structure — the real
+> `FRZJ…TwQ` (that is the royalty treasury). "Scenario 1. mid-launch
+> failure" assumes the deprecated `launch.sh` step structure. the real
 > launch is the **manual** [`LAUNCH_RUNBOOK.md`](LAUNCH_RUNBOOK.md)
 > sequence (its "Rollback" section is authoritative). The "email Phantom /
 > whitelist thread" scenario is obsolete (root cause was
@@ -11,7 +11,7 @@
 
 # Recovery + incident playbook
 
-What to do when something breaks. Each scenario is independent — start
+What to do when something breaks. Each scenario is independent. start
 with the symptom that matches.
 
 ## Critical assets and their recovery posture
@@ -30,7 +30,7 @@ with the symptom that matches.
 | Helius RPC API key | Stored in systemd unit `Environment=` | ⚠️ rotate via Helius dashboard |
 | Source code | github.com/wrappedbulls/wrappedbulls | ✅ github + your local clone |
 
-## Deployer keypair — your single most important secret
+## Deployer keypair. your single most important secret
 
 The mainnet deployer keypair is the **only thing that controls program
 upgrades and collection metadata updates** post-launch. Lose it and:
@@ -42,12 +42,12 @@ upgrades and collection metadata updates** post-launch. Lose it and:
 
 **Required backups (do all three before launch):**
 
-1. **Encrypted file backup** — `gpg --symmetric` the keypair JSON, store
+1. **Encrypted file backup**. `gpg --symmetric` the keypair JSON, store
    the encrypted blob in two cloud locations (e.g., Google Drive +
    iCloud) using two different passphrases.
-2. **Hardware backup** — write the seed/key to paper or steel, store
+2. **Hardware backup**. write the seed/key to paper or steel, store
    in a physical safe.
-3. **Test recovery** — before launch, prove you can restore from your
+3. **Test recovery**. before launch, prove you can restore from your
    backups by deriving the same pubkey on a fresh machine.
 
 **Operational rules:**
@@ -69,7 +69,7 @@ you're confident the program is stable, **freeze the upgrade authority**
 (see `docs/AUTHORITY.md`). After freeze, the deployer keypair losing
 its value mostly mitigates this risk.
 
-## Scenario 1 — Mid-launch failure
+## Scenario 1. Mid-launch failure
 
 `launch.sh` halts in the middle. Symptoms vary by step.
 
@@ -99,21 +99,21 @@ its value mostly mitigates this risk.
   # OR recover the lamports if you want to restart fresh:
   solana program close <BUFFER_PUBKEY> --keypair "$DEPLOYER_KEYPAIR"
   ```
-  Then re-run launch.sh — the idempotency guards skip already-completed
+  Then re-run launch.sh. the idempotency guards skip already-completed
   steps.
 
 ### Step 2 (initialize) failed
 - **Effect:** BullBank PDA may already be created with bad data, or not
   created at all. Fund check at start of script catches this case.
 - **Recovery:** check the bank state via `audit_chain.sh`. If
-  `total_wrapped == 0 && in_circulation == 0`, the bank is fresh —
+  `total_wrapped == 0 && in_circulation == 0`, the bank is fresh , 
   re-running launch.sh will skip Step 2 because the PDA exists. If the
   data looks corrupted, contact the team (this should be impossible
   given the program's `init` semantics).
 
 ### Step 2.5 (initialize_collection) failed
 - **Effect:** bank.collection_mint may be set or unset depending on how
-  far it got. The script is idempotent — re-running launch.sh skips it
+  far it got. The script is idempotent. re-running launch.sh skips it
   if collection_mint is already set.
 - **Recovery:** re-run launch.sh.
 
@@ -130,7 +130,7 @@ its value mostly mitigates this risk.
   systemctl restart wrappedbulls-web
   ```
 
-## Scenario 2 — Bulls box dies (DigitalOcean droplet failure)
+## Scenario 2. Bulls box dies (DigitalOcean droplet failure)
 
 - **Symptom:** wrappedbulls.com unreachable, ssh times out
 - **Recovery (with snapshots enabled):**
@@ -145,12 +145,12 @@ its value mostly mitigates this risk.
   1. Spin a fresh DO Ubuntu droplet
   2. Re-create the bulls box from scratch following the
      environment-rebuild steps below
-  3. The chain state is fine — bulls box is purely frontend + cranker
+  3. The chain state is fine. bulls box is purely frontend + cranker
 - **Estimated downtime:**
-  - With snapshots: 10–20 min
-  - Without snapshots: 1–2 hours
+  - With snapshots: 10 to 20 min
+  - Without snapshots: 1 to 2 hours
 
-## Scenario 3 — Caddy config breaks / TLS fails
+## Scenario 3. Caddy config breaks / TLS fails
 
 - **Symptom:** site returns 502 / TLS error / `caddy` service inactive
 - **Recovery:**
@@ -174,7 +174,7 @@ its value mostly mitigates this risk.
   ```
   (Plus the headers block we added.)
 
-## Scenario 4 — Web service crashed / 502
+## Scenario 4. Web service crashed / 502
 
 - **Symptom:** Caddy returns 502 / `systemctl is-active wrappedbulls-web`
   returns `failed`
@@ -194,7 +194,7 @@ its value mostly mitigates this risk.
   curl -sI --max-time 10 --resolve wrappedbulls.com:443:127.0.0.1 https://wrappedbulls.com/api/health
   ```
 
-## Scenario 5 — On-chain anomaly detected
+## Scenario 5. On-chain anomaly detected
 
 - **Symptom:** `audit_chain.sh` reports invariant failure
 - **Reading the report:**
@@ -208,7 +208,7 @@ its value mostly mitigates this risk.
     a vault was drained outside `unwrap_bull`. Major issue. Halt
     public communication, contact the team.
   - **Invariant 7 fails** (collection_mint not set): only failure mode
-    is that `initialize_collection` was skipped. Re-run launch.sh — the
+    is that `initialize_collection` was skipped. Re-run launch.sh. the
     idempotency guard will run it.
 - **Anomaly tx investigation:**
   ```bash
@@ -216,7 +216,7 @@ its value mostly mitigates this risk.
   solana logs <PROGRAM_ID> --url mainnet-beta
   ```
 
-## Scenario 6 — Phantom flags us again post-launch
+## Scenario 6. Phantom flags us again post-launch
 
 - **Symptom:** users report the "Request blocked / dApp could be
   malicious" warning after we were previously cleared
@@ -229,7 +229,7 @@ its value mostly mitigates this risk.
      Tensor or Magic Eden directly to trade (these don't go through
      Phantom's Blowfish layer for listings)
 
-## Scenario 7 — Helius RPC API key compromised
+## Scenario 7. Helius RPC API key compromised
 
 - **Symptom:** unexpected RPC quota usage on Helius dashboard
 - **Recovery:**

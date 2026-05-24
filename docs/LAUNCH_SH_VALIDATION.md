@@ -1,4 +1,4 @@
-> # ⚠️ OBSOLETE — `launch.sh` is DEPRECATED
+> # ⚠️ OBSOLETE. `launch.sh` is DEPRECATED
 > As of 2026-05-15 `scripts/launch.sh` fails closed and is not used; launch
 > is the **manual** [`LAUNCH_RUNBOOK.md`](LAUNCH_RUNBOOK.md) sequence. This
 > validation also encodes the wrong deployer (`FRZJ…TwQ` is the royalty
@@ -44,18 +44,18 @@
 
 The actual deploy + initialize + wrap + unwrap flow that launch.sh runs on launch day is **the same code path** that already ran successfully on devnet:
 
-- `anchor deploy --provider.cluster devnet` — success, program ID `A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm` (same as mainnet)
-- `scripts/devnet_initialize.ts` (which launch.sh invokes for mainnet too) — success, BullBank PDA created
-- Wrap of WrappedBulls #1 + #2 — success
-- Cross-wallet unwrap — success, vault tokens followed NFT to second wallet
+- `anchor deploy --provider.cluster devnet`. success, program ID `A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm` (same as mainnet)
+- `scripts/devnet_initialize.ts` (which launch.sh invokes for mainnet too). success, BullBank PDA created
+- Wrap of WrappedBulls #1 + #2. success
+- Cross-wallet unwrap. success, vault tokens followed NFT to second wallet
 
 The mainnet equivalent is identical except: different RPC URL (validated via getSlot), different cluster name in CLI flags (no behavioral difference), and the actual SOL burn.
 
 ## What's NOT been tested (and why it's OK)
 
-- The `anchor deploy --provider.cluster mainnet-beta` command itself — would burn ~5 SOL of real money for a rehearsal. We accept this risk because the same Anchor 1.0.2 deploy worked on devnet against the same binary.
-- Mainnet rate-limit behavior under launch traffic — the only way to test this is to launch.
-- Tensor mainnet listing UI — deferred to launch day when we have a real bull to list.
+- The `anchor deploy --provider.cluster mainnet-beta` command itself. would burn ~5 SOL of real money for a rehearsal. We accept this risk because the same Anchor 1.0.2 deploy worked on devnet against the same binary.
+- Mainnet rate-limit behavior under launch traffic. the only way to test this is to launch.
+- Tensor mainnet listing UI. deferred to launch day when we have a real bull to list.
 
 ## On launch day
 
@@ -70,4 +70,4 @@ DEPLOYER_KEYPAIR=/tmp/mainnet-deployer.json \
 shred -u /tmp/mainnet-deployer.json
 ```
 
-The script is **idempotent** — if it fails partway, re-run with the same args. It will skip already-completed steps (deploy / initialize) and resume.
+The script is **idempotent**. if it fails partway, re-run with the same args. It will skip already-completed steps (deploy / initialize) and resume.

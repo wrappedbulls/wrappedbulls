@@ -1,4 +1,4 @@
-> # ⚠️ STALE ROYALTY CLAIM — correction
+> # ⚠️ STALE ROYALTY CLAIM. correction
 > This doc states `seller_fee_basis_points=0` / "no royalty path". That is
 > **wrong as of 2026-05-15**: royalty is **5% (500 bps)**, creator
 > `FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ`, baked into `wrap_bull.rs`.
@@ -25,7 +25,7 @@ This is **structurally identical to a marketplace sale**, where:
 
 - Tensor / Magic Eden / generic SPL transfer all end with the same post-state: NFT in buyer's ATA, seller's ATA empty
 - The intermediate escrow / delegate step doesn't touch the vault PDA
-- The vault authority is `PDA(["vault", nft_mint])` — a pure function of the mint pubkey, immutable across all transfers
+- The vault authority is `PDA(["vault", nft_mint])`. a pure function of the mint pubkey, immutable across all transfers
 
 ## Why we skipped Tensor devnet
 
@@ -35,7 +35,7 @@ Tensor's devnet UI has well-known issues:
 - Helius DAS indexer (which Tensor uses) lags hours-to-days on devnet
 - Escrow contracts are sometimes not deployed on devnet, or deployed at different addresses than mainnet
 
-These are Tensor-side issues, not WrappedBulls issues. There is no devnet-only metadata format we'd be testing against — what works on mainnet works.
+These are Tensor-side issues, not WrappedBulls issues. There is no devnet-only metadata format we'd be testing against. what works on mainnet works.
 
 ## What gets validated on mainnet rehearsal (Task 10) and launch day
 
@@ -57,4 +57,4 @@ The risk surface area for marketplace flow has two components:
 | Marketplace can't list / display the NFT | Standard Metaplex Token Metadata + master edition format = guaranteed listable. Same format every successful Solana NFT collection uses |
 | Marketplace fee / royalty interferes with unwrap | Our NFTs have `seller_fee_basis_points=0`. There's no royalty path to interfere with. Even if there were, royalty is paid in SOL on the buy side; doesn't touch the vault token |
 
-The remaining unknown — "what does Tensor's UI actually look like with a CryptoBull listed" — is a UX question, not a protocol question. We'll validate it on mainnet day with a founder-bull listing.
+The remaining unknown. "what does Tensor's UI actually look like with a CryptoBull listed". is a UX question, not a protocol question. We'll validate it on mainnet day with a founder-bull listing.

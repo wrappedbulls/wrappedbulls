@@ -1,0 +1,53 @@
+# WrappedBulls + (legacy) CryptoBulls reverse proxy with auto-TLS via ZeroSSL.
+# Switched from Lets Encrypt due to LE outage 2026-05-08.
+# ZeroSSL also issues real, browser-trusted DV certs.
+{
+  acme_ca https://acme.zerossl.com/v2/DV90
+  email louie@cryptobulls.fun
+}
+
+# WrappedBulls (live launch site) - static
+wrappedbulls.com, www.wrappedbulls.com {
+  root * /var/www/wrappedbulls
+  try_files {path} {path}.html {path}/
+  file_server
+  encode zstd gzip
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    X-Content-Type-Options "nosniff"
+    Referrer-Policy "strict-origin-when-cross-origin"
+    Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+    -Server
+  }
+  handle_errors {
+    @404 expression {err.status_code} == 404
+    rewrite @404 /404.html
+    file_server
+  }
+  log {
+    output file /var/log/caddy/wrappedbulls.log
+    format json
+  }
+}
+
+# Legacy: cryptobulls.fun (DNS detached upstream; left for backstop)
+cryptobulls.fun, www.cryptobulls.fun {
+  encode zstd gzip
+  reverse_proxy 127.0.0.1:3000
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    X-Content-Type-Options "nosniff"
+    Referrer-Policy "strict-origin-when-cross-origin"
+    Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+    -Server
+  }
+  log {
+    output file /var/log/caddy/cryptobulls.log
+    format json
+  }
+}
+
+# Catch-all for direct-IP hits or unknown hosts -> brand site
+:80 {
+  redir https://wrappedbulls.com{uri} permanent
+}

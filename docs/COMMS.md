@@ -1,6 +1,6 @@
 > # ℹ️ Tweet copy below is USABLE; cadence/automation is stale
 > The draft tweets are fine to use. Ignore any section that ties posting
-> cadence to `launch_preflight.sh`/`launch.sh` (deprecated) — sequence
+> cadence to `launch_preflight.sh`/`launch.sh` (deprecated). sequence
 > announcements per [`LAUNCH_CHECKLIST.md`](LAUNCH_CHECKLIST.md) Phase 5
 > (announce only after GATE 4 / clean private mainnet rehearsal).
 
@@ -10,11 +10,11 @@ Three pieces, fired in sequence. Each draft is under Twitter's 280-char limit.
 
 ---
 
-## Tweet 1 — Pinned launch tweet (fire immediately after `initialize` succeeds)
+## Tweet 1. Pinned launch tweet (fire immediately after `initialize` succeeds)
 
 **Attach: `samples/banners/banner_1500x500.png`**
 
-### Option A — leads with what we solved (recommended)
+### Option A. leads with what we solved (recommended)
 ```
 Introducing WrappedBulls 🐂
 
@@ -29,12 +29,12 @@ SPL-404 needed Token-2022. We built it on standard SPL.
 wrappedbulls.com
 ```
 
-### Option B — punchier
+### Option B. punchier
 ```
 A pump.fun token that is also an NFT. 🐂
 
 Wrap 1M $WBULL → a Bull NFT.
-Trade the NFT on Magic Eden or Tensor — the tokens follow.
+Trade the NFT on Magic Eden or Tensor. the tokens follow.
 Unwrap to redeem.
 
 1000 supply. 100% on-chain pixel art. Built where nobody else could.
@@ -42,9 +42,9 @@ Unwrap to redeem.
 wrappedbulls.com
 ```
 
-### Option C — confidence flex
+### Option C. confidence flex
 ```
-The mechanic everyone said couldn't work on pump.fun — working on pump.fun. 🐂
+The mechanic everyone said couldn't work on pump.fun. working on pump.fun. 🐂
 
 WrappedBulls: wrap 1,000,000 $WBULL into an NFT. The vault follows the NFT through every transfer. No Token-2022 required.
 
@@ -53,21 +53,21 @@ WrappedBulls: wrap 1,000,000 $WBULL into an NFT. The vault follows the NFT throu
 wrappedbulls.com
 ```
 
-**Recommendation: Option A.** Tells you exactly what it is and what was hard about it. The line "SPL-404 needed Token-2022. We built it on standard SPL." is the meme that should travel — it's the actual differentiator, accurate, and sets up "but how?" curiosity that pulls people into the thesis page.
+**Recommendation: Option A.** Tells you exactly what it is and what was hard about it. The line "SPL-404 needed Token-2022. We built it on standard SPL." is the meme that should travel. it's the actual differentiator, accurate, and sets up "but how?" curiosity that pulls people into the thesis page.
 
 Pin this on @wrappedbulls. Quote-RT from your personal account.
 
 ---
 
-## Tweet 2 — "Dev wraps the first bull" (fire 5-15 min after T1, after the dev buy + wrap)
+## Tweet 2. "Dev wraps the first bull" (fire 5-15 min after T1, after the dev buy + wrap)
 
 This is the credibility signal. Dev took their own pump.fun supply and wrapped the first bull. Quote-tweet the wrap_bull tx on Solana Explorer.
 
 **Quote-tweet target:** the wrap_bull tx URL on explorer.solana.com.
 
-**Body (one of these — pick the one you like):**
+**Body (one of these. pick the one you like):**
 
-### Option A — clean
+### Option A. clean
 ```
 gm.
 
@@ -80,23 +80,23 @@ If I sell, they go with it. If I unwrap, they come back. That's the whole mechan
 wrappedbulls.com/bull/1
 ```
 
-### Option B — punchier
+### Option B. punchier
 ```
 🐂 WrappedBulls #1
 
 Wrapped from the dev allocation. 1M $WBULL now live in a vault that follows this NFT through every transfer.
 
-If you want to know whether the mechanic works — go look at the on-chain state right now.
+If you want to know whether the mechanic works. go look at the on-chain state right now.
 
 wrappedbulls.com/bull/1
 ```
 
-### Option C — confidence flex
+### Option C. confidence flex
 ```
 First bull wrapped from the dev supply.
 
 1,000,000 $WBULL locked in a vault that I can't unilaterally drain.
-The only way to release them is to burn the NFT — which means I no longer own this bull.
+The only way to release them is to burn the NFT. which means I no longer own this bull.
 
 That's the point.
 
@@ -107,7 +107,7 @@ wrappedbulls.com/bull/1
 
 ---
 
-## Tweet 3 — Mechanic thread (fire ~30 min after launch, when the timeline starts to ask "wait how does this actually work?")
+## Tweet 3. Mechanic thread (fire ~30 min after launch, when the timeline starts to ask "wait how does this actually work?")
 
 Quote-RT from @wrappedbulls. 5 tweets.
 
@@ -115,7 +115,7 @@ Quote-RT from @wrappedbulls. 5 tweets.
 ```
 A short thread on how WrappedBulls works.
 
-The constraint: pump.fun ships standard SPL tokens, no transfer hooks. SPL-404 — the standard hybrid token-NFT mechanic on Solana — requires Token-2022, which is incompatible. Every existing hybrid project had to leave the launchpad.
+The constraint: pump.fun ships standard SPL tokens, no transfer hooks. SPL-404. the standard hybrid token-NFT mechanic on Solana. requires Token-2022, which is incompatible. Every existing hybrid project had to leave the launchpad.
 
 We didn't. 🐂
 ```
@@ -146,7 +146,7 @@ The underlying SPL token never had to be modified. The launchpad never had to be
 
 That's why this works on pump.fun where SPL-404 doesn't.
 
-Same bonding curve, same PumpSwap graduation, same wallet UX — with a native NFT primitive on top of the standard token.
+Same bonding curve, same PumpSwap graduation, same wallet UX. with a native NFT primitive on top of the standard token.
 ```
 
 ### 5/5
@@ -163,13 +163,13 @@ wrappedbulls.com
 
 ---
 
-## Tweet 4 — Reply hooks (have these ready for replies in the first hour)
+## Tweet 4. Reply hooks (have these ready for replies in the first hour)
 
 When people ask predictable questions, fire one of these:
 
 **"how is this different from SPL-404?"**
 ```
-SPL-404 requires Token-2022 transfer hooks. pump.fun ships standard SPL — no hooks. Different token programs entirely. SPL-404 forces you off the launchpad.
+SPL-404 requires Token-2022 transfer hooks. pump.fun ships standard SPL. no hooks. Different token programs entirely. SPL-404 forces you off the launchpad.
 
 We derive the vault's authority from the NFT mint pubkey via a PDA. No transfer hook needed. Works on standard SPL, which is what pump.fun ships.
 ```
@@ -183,21 +183,21 @@ Different problems, same instinct: use a chain primitive instead of a hybrid tok
 
 **"what stops you from rugging the vaults?"**
 ```
-The program. The vault authority is PDA(["vault", nft_mint]) — derived from the NFT mint. No keypair exists for it. The only way to drain a vault is unwrap_bull, which checks payer_nft_account.amount == 1.
+The program. The vault authority is PDA(["vault", nft_mint]). derived from the NFT mint. No keypair exists for it. The only way to drain a vault is unwrap_bull, which checks payer_nft_account.amount == 1.
 
 Whoever holds the NFT controls the tokens. Not me.
 ```
 
 **"is the program upgradeable?"**
 ```
-For the first 30 days, yes — for bug-patching only. After 30 days of soak with no critical issues, we freeze the upgrade authority. Tx will be public on-chain.
+For the first 30 days, yes. for bug-patching only. After 30 days of soak with no critical issues, we freeze the upgrade authority. Tx will be public on-chain.
 
 Source: github.com/wrappedbulls/wrappedbulls/docs/AUTHORITY.md
 ```
 
 **"why 1M tokens per bull?"**
 ```
-1B supply ÷ 1000 max bulls = 1M per bull. Round number, gives bulls actual fractional ownership of the supply, and creates a clear "wrap threshold" — hold 1M+, you can wrap a bull.
+1B supply ÷ 1000 max bulls = 1M per bull. Round number, gives bulls actual fractional ownership of the supply, and creates a clear "wrap threshold". hold 1M+, you can wrap a bull.
 ```
 
 **"I bought on pump.fun, when can I wrap?"**
@@ -228,11 +228,11 @@ wrappedbulls.com/wrap. Connect your wallet. If you hold ≥1M $WBULL the wrap bu
 
 ---
 
-## Tweet 5 — T+1h status (fire ~60 min after launch, organic update)
+## Tweet 5. T+1h status (fire ~60 min after launch, organic update)
 
 Once you have a few wraps + maybe one live listing.
 
-### Option A — clean stat
+### Option A. clean stat
 ```
 1 hour in.
 
@@ -243,22 +243,22 @@ First listing live on Tensor: <link>
 wrappedbulls.com/gallery
 ```
 
-### Option B — UX flex
+### Option B. UX flex
 ```
 Bull #2 just sold on Tensor. The 1,000,000 $WBULL in the vault transferred with the NFT in the same tx.
 
-That's the mechanic. Not a feature, not a hook — the vault's authority is the NFT mint itself.
+That's the mechanic. Not a feature, not a hook. the vault's authority is the NFT mint itself.
 
 wrappedbulls.com/bull/2
 ```
 
 ---
 
-## Tweet 6 — T+24h recap (next-day momentum tweet)
+## Tweet 6. T+24h recap (next-day momentum tweet)
 
 Wait for actual numbers before posting. Replace `N` / `M` / `K` with real values from `/api/health` + `audit_chain.sh`.
 
-### Option A — numbers + thesis
+### Option A. numbers + thesis
 ```
 24 hours of WrappedBulls.
 
@@ -271,7 +271,7 @@ The thesis: a token can also be an NFT, on the standard pump.fun rails, without 
 wrappedbulls.com
 ```
 
-### Option B — story focused
+### Option B. story focused
 ```
 Day one: <highest-rarity bull's tier> changed hands K times.
 The vault didn't move once.
@@ -282,25 +282,25 @@ Whoever held the NFT held the right to drain it.
 That's why we built it on standard SPL.
 ```
 
-### Option C — community shout
+### Option C. community shout
 ```
 24 hours in, M wraps + K unwraps + Y SOL of marketplace volume.
 
 Big shoutout to everyone who actually read the thesis before clicking wrap. You're the reason this works.
 
-Tomorrow: <next thing — e.g., custom marketplace feature, new trait drop>.
+Tomorrow: <next thing. e.g., custom marketplace feature, new trait drop>.
 
 wrappedbulls.com
 ```
 
 ---
 
-## Tweet 7 — Marketplace verified badge (fire when ME or Tensor approves the Creator Hub claim)
+## Tweet 7. Marketplace verified badge (fire when ME or Tensor approves the Creator Hub claim)
 
 ```
 ✓ WrappedBulls is now verified on <Magic Eden | Tensor>.
 
-Listings, search, floor price — fully indexed.
+Listings, search, floor price. fully indexed.
 
 Trade here: <marketplace URL>
 ```
@@ -311,7 +311,7 @@ Plain, factual. The badge does the work.
 
 ## What NOT to tweet
 
-- "Audited" — we have not been audited. We have tests + on-chain proof. Don't claim audit.
-- "Rug-proof" — say "vault is mint-derived, not deployer-derived" instead. Mechanism, not marketing.
+- "Audited". we have not been audited. We have tests + on-chain proof. Don't claim audit.
+- "Rug-proof". say "vault is mint-derived, not deployer-derived" instead. Mechanism, not marketing.
 - Any specific holder's wallet address (privacy of others)
-- "100x" / price targets / token-price predictions — pump.fun community can sniff that out instantly. Lean into mechanic, not number-go-up.
+- "100x" / price targets / token-price predictions. pump.fun community can sniff that out instantly. Lean into mechanic, not number-go-up.

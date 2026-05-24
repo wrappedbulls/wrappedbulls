@@ -1,4 +1,4 @@
-# Launch Runbook — Zero Phantom Warnings
+# Launch Runbook. Zero Phantom Warnings
 
 **Goal:** go from pre-launch to a live mainnet wrap/unwrap with **no Phantom
 "malicious" / "transaction reverted" warnings**, confirmed privately before
@@ -11,16 +11,16 @@ program ID `A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm` is a plain
 non-executable system account. The deployed site was running in
 `LAUNCH_STATE=live` pointed at that devnet-only program, so any visitor on
 Phantom-mainnet who clicked Wrap built a transaction calling a non-program
-address — a textbook scam pattern that Phantom **correctly** flags as
+address. a textbook scam pattern that Phantom **correctly** flags as
 "could be malicious." Every such attempt also fed Blowfish a
 malicious-interaction signal for wrappedbulls.com, degrading the domain's
 reputation.
 
 This was never a transaction-mechanics bug. The `signAndSendTransaction`,
-pre-simulation, blockhash, and balance-gate work is all correct and stays —
+pre-simulation, blockhash, and balance-gate work is all correct and stays , 
 but it was never the cause of the mainnet warning.
 
-## Wallet roles (DO NOT CONFUSE — different keys, different jobs)
+## Wallet roles (DO NOT CONFUSE. different keys, different jobs)
 
 | Role | Address | Used for |
 |---|---|---|
@@ -28,7 +28,7 @@ but it was never the cause of the mainnet warning.
 | **Royalty treasury / on-chain creator** | `FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ` | Hardcoded in `wrap_bull.rs` as `ROYALTY_TREASURY`; written into every NFT's on-chain metadata as the creator (share 100, `verified:false` by design). Magic Eden / Tensor route the 5% secondary royalty here. Does NOT sign anything; just receives. |
 
 These are intentionally two different wallets. The treasury is independent
-of the upgrade authority — it only needs to be a normal wallet the user
+of the upgrade authority. it only needs to be a normal wallet the user
 controls so marketplaces can pay royalties to it.
 
 ## Token-address handoff protocol
@@ -37,26 +37,26 @@ $WBULL is not launched. The mint address does not exist yet.
 
 1. **Before launch:** user provides the pump.fun $WBULL mint address. It
    goes into `NEXT_PUBLIC_TOKEN_MINT` (display) and is passed to
-   `initialize` (locks it into BullBank — immutable after).
+   `initialize` (locks it into BullBank. immutable after).
 2. **At launch:** user explicitly notifies "it's live." Only then run the
    launch sequence. Do not deploy/initialize against a guessed or
-   placeholder mint — `initialize` locks the mint permanently.
+   placeholder mint. `initialize` locks the mint permanently.
 
-## Royalty / creator (baked into the program — 2026-05-15)
+## Royalty / creator (baked into the program. 2026-05-15)
 
 - `wrap_bull.rs`: `seller_fee_basis_points: 500` (5%), `creators:
   Some([{address: ROYALTY_TREASURY, verified: false, share: 100}])`.
-- This is set in the Metaplex `CreateMetadataAccountsV3` CPI — it is NOT
+- This is set in the Metaplex `CreateMetadataAccountsV3` CPI. it is NOT
   part of the Anchor IDL or the wrap_bull instruction signature, so
   `web/lib/idl.json` and the web client need NO changes for it.
 - It applies to every NFT minted by the **deployed** program. The mainnet
   program MUST be built+deployed from this updated source (the change is
-  already compiled clean and test-verified on devnet — see below).
+  already compiled clean and test-verified on devnet. see below).
 - Creator is `verified:false` by design: wrap is permissionless so the
   treasury can't sign every mint. Collection trust comes from the verified
   MCC, not creator verification. ME/Tensor still honor the 5% and route to
   the treasury. (Optional post-launch hardening: a consistent verified
-  program-PDA creator — not required for royalties to function.)
+  program-PDA creator. not required for royalties to function.)
 
 ## Current state (pre-launch, safe)
 
@@ -76,17 +76,17 @@ $WBULL is not launched. The mint address does not exist yet.
   only; never committed, never in client bundle). Pre-launch: Helius
   **devnet** endpoint. Launch: flip the one systemd line devnet→mainnet.
 - Metadata/render API hardened (single-flight + stale-while-revalidate,
-  no immutable-by-tier bug, graceful 503 on RPC failure) — survives a
+  no immutable-by-tier bug, graceful 503 on RPC failure). survives a
   full marketplace crawl of 1000 tiers.
 - Client tx flow audited launch-ready: legacy `Transaction` +
-  `connection.simulateTransaction(tx)` (NO config arg — the
+  `connection.simulateTransaction(tx)` (NO config arg. the
   "Invalid arguments" footgun is gone) + `wallet.sendTransaction`
   (= Phantom `signAndSendTransaction`). Token mint read from on-chain
   `fetchBank().tokenMint`, so it auto-picks the real $WBULL at launch.
 
 ## Pre-launch confirmation (do anytime, no risk)
 
-**Rehearsal 1 — local devnet, isolates domain-rep from program/tx.**
+**Rehearsal 1. local devnet, isolates domain-rep from program/tx.**
 `localhost` is not a Blowfish-flagged domain, so a clean result here means
 the program/tx is fine and any wrappedbulls.com warning was domain-rep only.
 
@@ -111,8 +111,8 @@ npm run dev          # uses web/.env.development.local → live mode, devnet
 
 ## Launch day sequence (produces zero warnings)
 
-Do these IN ORDER. Steps 0–9 are private; do not announce until step 10
-confirms clean. The bulls box `/root/wrappedbulls-sol` is NOT a git clone — it
+Do these IN ORDER. Steps 0 to 9 are private; do not announce until step 10
+confirms clean. The bulls box `/root/wrappedbulls-sol` is NOT a git clone. it
 is a working copy; the program source there must be the royalty-bearing
 version (already synced + built + 12/12 tests pass on devnet as of
 2026-05-15).
@@ -131,9 +131,9 @@ version (already synced + built + 12/12 tests pass on devnet as of
    allocated at 2× the binary, rent-exempt minimum **5.82 SOL** (permanent),
    PLUS a transient deploy **buffer of ~5.82 SOL** held during upload
    (refunded when the buffer closes), + IDL account ≈ 0.15 + initialize +
-   fees + retry margin. **~5 SOL is NOT enough — it fails mid-deploy and
+   fees + retry margin. **~5 SOL is NOT enough. it fails mid-deploy and
    strands SOL in a buffer.** Fund ~9 SOL (absolute floor ~7). Any excess
-   is recoverable. This is the DEPLOYER key, not the royalty treasury —
+   is recoverable. This is the DEPLOYER key, not the royalty treasury , 
    see the wallet-roles table above.
 2. **Build fresh from the royalty-bearing source:**
    ```
@@ -147,7 +147,7 @@ version (already synced + built + 12/12 tests pass on devnet as of
    ```
    **CAREFUL:** Anchor CLI uses `mainnet` (NOT `mainnet-beta`). Anchor
    accepts `localnet | testnet | mainnet | devnet` or a full URL. `mainnet-beta`
-   is the *Solana* CLI value — passing it to `anchor` fails with
+   is the *Solana* CLI value. passing it to `anchor` fails with
    `invalid value 'mainnet-beta' for '--provider.cluster'`. Verified
    2026-05-20 by an exact-string mistake that caused a no-op "successful"
    deploy script.
@@ -167,10 +167,10 @@ version (already synced + built + 12/12 tests pass on devnet as of
    # initialize_collection → creates the MCC collection NFT
    ```
    Use the devnet init scripts pointed at mainnet + the real mint.
-   `initialize` is one-time and locks the mint forever — triple-check the
+   `initialize` is one-time and locks the mint forever. triple-check the
    mint address before running.
 6. **Repoint the site env** (BOTH `web/.env.production` AND the systemd
-   unit; remember `.env.local` must NOT exist on the build machine — only
+   unit; remember `.env.local` must NOT exist on the build machine. only
    `.env.development.local`, which `next build` ignores):
    ```
    NEXT_PUBLIC_LAUNCH_STATE=live
@@ -191,7 +191,7 @@ version (already synced + built + 12/12 tests pass on devnet as of
    #   creators == [{ address: FRZJ...TwQ, share: 100 }]
    #   collection.verified == true (MCC)
    ```
-   If any is wrong, STOP — do not announce; the program must be rebuilt
+   If any is wrong, STOP. do not announce; the program must be rebuilt
    /redeployed. (This is why step 7 precedes the public announce.)
    The anchor suite already proves this deterministically on every run:
    `tests/wrappedbulls.ts` `assertRoyalty()` decodes the freshly-minted NFT's
@@ -200,7 +200,7 @@ version (already synced + built + 12/12 tests pass on devnet as of
    re-confirmation of an already-test-gated invariant.
 8. **Marketplace visibility check:** the wrapped NFT is a standard
    Metaplex NFT in a verified MCC, so Magic Eden and Tensor auto-index it
-   — but confirm before announcing:
+  . but confirm before announcing:
    - Open the NFT mint on Magic Eden and Tensor; image + traits +
      "WrappedBulls" collection grouping must resolve (they read
      `/api/metadata/<tier>` and the verified collection on-chain).
@@ -209,7 +209,7 @@ version (already synced + built + 12/12 tests pass on devnet as of
      layer must be live), and that `external_url`/`image` resolve.
    - Optional accelerators: submit the collection to Magic Eden / Tensor
      listing forms; claim the Creator Hub for the banner.
-9. **Rehearsal 2 — private mainnet wrap (the real confirmation gate):**
+9. **Rehearsal 2. private mainnet wrap (the real confirmation gate):**
    With your own wallet holding ≥1,000,000 $WBULL + ≥0.03 SOL, do ONE
    wrap on wrappedbulls.com on Phantom-mainnet, **before any public
    announcement**.
@@ -217,9 +217,9 @@ version (already synced + built + 12/12 tests pass on devnet as of
      NFT appears in Phantom Collectibles) → proceed to step 10.
    - Warning → you found out privately. Do not announce. Capture the
      `[wrappedbulls-tx:wrapBull]` console object + Phantom screenshot; the
-     remaining factor is domain reputation — pursue verified build +
+     remaining factor is domain reputation. pursue verified build +
      Blowfish submission (below) and re-test before announcing.
-10. **Announce.** Only after steps 7–9 are all clean.
+10. **Announce.** Only after steps 7 to 9 are all clean.
 
 ## Domain-reputation hardening (do before/around launch)
 
@@ -227,20 +227,20 @@ The hard triggers (no program, Unknown program, doomed tx) are
 deterministically removed by the steps above. Domain reputation is the
 residual third-party (Blowfish) variable. Reduce it:
 
-- **Stop the bleeding** — done (pre-launch gate; no more malicious-flagged
+- **Stop the bleeding**. done (pre-launch gate; no more malicious-flagged
   interactions from wrappedbulls.com).
-- **Verified build** — register the mainnet program build hash so Blowfish
+- **Verified build**. register the mainnet program build hash so Blowfish
   / explorers can prove the bytecode matches this open-source repo.
-- **Blowfish submission** — once the mainnet program is live + IDL
+- **Blowfish submission**. once the mainnet program is live + IDL
   published, submit the domain + program via Blowfish's intake
   (https://form.typeform.com/to/BHue5Hg0) with the repo, SECURITY.md, and
   the verified-build attestation.
 - Phantom support has confirmed they no longer whitelist domains by
-  default, so there is no review queue to wait on — reputation is earned
-  through clean, decodable, verified on-chain activity, which steps 3–7
+  default, so there is no review queue to wait on. reputation is earned
+  through clean, decodable, verified on-chain activity, which steps 3 to 7
   produce.
 
-## RPC scaling (launch-critical — discovered 2026-05-15)
+## RPC scaling (launch-critical. discovered 2026-05-15)
 
 At launch, Magic Eden / Tensor / Phantom crawl `/api/metadata/[tier]` and
 `/api/render/[tier]` for all 1000 tiers, repeatedly. A single free RPC key
@@ -268,7 +268,7 @@ Status:
 
 - [x] **Dedicated Helius key acquired (2026-05-15).** Verified working on
   BOTH devnet and mainnet (`getHealth` ok, `getAccountInfo` returns data).
-  Stored ONLY in the systemd `Environment=SOLANA_RPC_URL=` on the box —
+  Stored ONLY in the systemd `Environment=SOLANA_RPC_URL=` on the box , 
   never committed to the repo, never in the client bundle. Pre-launch it
   is set to the Helius **devnet** endpoint
   (`https://devnet.helius-rpc.com/?api-key=<WRAPPEDBULLS_KEY>`).
@@ -296,5 +296,5 @@ Helius `SOLANA_RPC_URL`.
   revert to "goes live at launch" cards; no tx possible.
 - IDL is reversible via `anchor idl close <PROGRAM_ID>` (rent refunded to
   authority) if ever needed.
-- Program is upgradeable (upgrade authority retained) — fixes can be
+- Program is upgradeable (upgrade authority retained). fixes can be
   shipped via `anchor upgrade` without changing the program ID.

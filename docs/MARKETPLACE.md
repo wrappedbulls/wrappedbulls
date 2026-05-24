@@ -1,21 +1,21 @@
-> # ⚠️ PARTIALLY STALE — read with the corrections below
+> # ⚠️ PARTIALLY STALE. read with the corrections below
 > As of 2026-05-15, two claims in this doc are **factually wrong** and would
 > cause a real launch mistake if copied into marketplace forms:
 > - **ROYALTY IS 5% (500 bps), NOT 0%.** Every wrapped bull's on-chain
 >   metadata has `seller_fee_basis_points = 500` and creator
 >   `FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ` (share 100). Anywhere
 >   below that says "0%" / "no royalty" / "`seller_fee_basis_points = 0`"
->   is WRONG — enter **5%** and the treasury wallet in ME/Tensor forms.
+>   is WRONG. enter **5%** and the treasury wallet in ME/Tensor forms.
 > - The "deployer wallet `FRZJ…TwQ`" references are wrong: `FRZJ…TwQ` is the
 >   **royalty/creator treasury**; the deployer is `GMrJpP7Sa…`. For
 >   Creator-Hub claims, the wallet that receives royalties / should claim
 >   the collection is the treasury `FRZJ…TwQ`.
-> - Ignore "launches automatically with `scripts/launch.sh`" — that script
+> - Ignore "launches automatically with `scripts/launch.sh`". that script
 >   is deprecated; launch is the manual [`LAUNCH_RUNBOOK.md`](LAUNCH_RUNBOOK.md)
 >   sequence. Authoritative marketplace steps: runbook Phase 4 / step 8.
 > The collection-recognition mechanics (MCC auto-indexing) below remain valid.
 
-# Magic Eden + Tensor — pre-launch and launch-day plan
+# Magic Eden + Tensor. pre-launch and launch-day plan
 
 What we have done, what happens automatically, and what you have to do
 manually to get full Magic Eden and Tensor recognition for the
@@ -29,11 +29,11 @@ pointing at a collection NFT, the marketplaces auto-index it.
 
 There are two levels of recognition:
 
-1. **Auto-indexed (instant)** — happens the moment your first bull is
+1. **Auto-indexed (instant)**. happens the moment your first bull is
    wrapped and verified into the collection. NFTs become **tradeable**,
    but listings show DYOR / "unverified collection" warnings. Collections
    are not searchable from the homepage and aren't featured.
-2. **Creator-claimed (manual)** — you connect to each marketplace's
+2. **Creator-claimed (manual)**. you connect to each marketplace's
    creator portal and prove ownership via X account auth + signature.
    This removes the DYOR warnings, makes the collection searchable, and
    gives it a proper landing page with your banner / description.
@@ -45,7 +45,7 @@ launch day or shortly after.
 
 - ✅ MCC implemented in the Anchor program (`verify_sized_collection_item`
       runs on every wrap)
-- ✅ Sized collection (`CollectionDetails::V1`) — auto-increments size
+- ✅ Sized collection (`CollectionDetails::V1`). auto-increments size
 - ✅ `/api/metadata/<tier>` returns valid Metaplex JSON: name, symbol,
       description, image (absolute HTTPS), external_url, attributes,
       properties.files
@@ -65,8 +65,8 @@ launch day or shortly after.
 On launch day, after you fund the deployer + run `launch.sh <WBULL_MINT>`:
 
 - Mainnet program deploy (idempotent)
-- `initialize` — locks the $WBULL mint into BullBank
-- `initialize_collection` — mints the 1-of-1 Collection NFT (sized, MCC)
+- `initialize`. locks the $WBULL mint into BullBank
+- `initialize_collection`. mints the 1-of-1 Collection NFT (sized, MCC)
 - Web service env switch from devnet → mainnet
 - All wraps from this point verify into the collection automatically
 
@@ -78,7 +78,7 @@ will start indexing the collection within an hour.
 After launch + first wrap is on chain:
 
 1. Go to **[Magic Eden Creator Hub](https://creators.magiceden.io)** and
-   connect your **deployer wallet** (the one that signed `initialize` —
+   connect your **deployer wallet** (the one that signed `initialize` , 
    `FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ`).
 2. Find the collection (it should auto-appear from MCC) and click
    **Claim Ownership**.
@@ -93,7 +93,7 @@ After launch + first wrap is on chain:
    - Website: `https://wrappedbulls.com`
    - Category: PFP / Generative
    - Royalty: 0%
-4. Submit for review. Magic Eden's team reviews within 24–72 hours.
+4. Submit for review. Magic Eden's team reviews within 24 to 72 hours.
    Once approved: DYOR warnings clear, search works, collection gets
    a proper landing page.
 
@@ -107,7 +107,7 @@ After launch + first wrap is on chain:
 2. Connect your **deployer wallet** (same as ME above).
 3. Find the auto-imported collection or paste the collection NFT mint
    address (you'll get this from `bank.collection_mint` after
-   `initialize_collection` runs — `launch.sh` prints it).
+   `initialize_collection` runs. `launch.sh` prints it).
 4. Click **Claim** → connect **@wrappedbulls** X account when prompted.
    This is the **mandatory** verification step.
 5. Fill the metadata:
@@ -116,30 +116,30 @@ After launch + first wrap is on chain:
    - Avatar: upload `mascot.png`
    - Description, X handle, website (same as ME)
 6. Tensor recommends signing with the Update Authority wallet for faster
-   review. **See note below** — our collection's update authority is a
+   review. **See note below**. our collection's update authority is a
    program PDA, not a wallet, by design. If they require a wallet
    signature we'll explain via support.
 7. Submit for review.
 
 Reference: [Verifying a new NFT Collection on Tensor](https://docs.tensor.trade/work-with-us/creator-portal/verifying-a-new-nft-collection)
 
-## ⚠️ Note on update authority — read before claiming
+## ⚠️ Note on update authority. read before claiming
 
 The WrappedBulls collection NFT's **Metaplex update authority is a
 program-owned PDA** (`PDA(["collection_authority"])`), not a wallet.
-This is **intentional and more secure** — it lets the program (and only
+This is **intentional and more secure**. it lets the program (and only
 the program) sign `verify_sized_collection_item` for every wrap, so you
 don't need to manually approve each new bull NFT.
 
 This means the standard "sign with update authority wallet" step on ME
 and Tensor's verification flow won't work directly. **It does NOT block
-auto-indexing or trading** — only the manual verification badge.
+auto-indexing or trading**. only the manual verification badge.
 
 If Tensor's reviewer asks for update authority signature:
 
 > Reply: "Our collection NFT's update authority is a program PDA
 > (`PDA(["collection_authority"])`), derived from the wrappedbulls program ID
-> `A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm`. This is intentional —
+> `A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm`. This is intentional , 
 > the program signs `verify_sized_collection_item` on every wrap so each
 > NFT auto-verifies into the collection without manual approvals.
 > Source: github.com/wrappedbulls/wrappedbulls. Happy to demonstrate the
@@ -192,7 +192,7 @@ After launch:
 - [ ] Check Phantom NFT view shows bull art correctly
 - [ ] Run `scripts/audit_chain.sh --url https://api.mainnet-beta.solana.com`
 
-## Useful URLs (post-launch — collection_mint replaces `<MINT>`)
+## Useful URLs (post-launch. collection_mint replaces `<MINT>`)
 
 - Magic Eden: `https://magiceden.io/marketplace/<MINT>`
 - Tensor: `https://www.tensor.trade/trade/<MINT>`

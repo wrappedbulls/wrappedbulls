@@ -1,4 +1,4 @@
-# Mainnet program proof — WrappedBulls / $WBULL (Token-2022)
+# Mainnet program proof. WrappedBulls / $WBULL (Token-2022)
 
 Captured 2026-05-20. Authoritative artifact of the mainnet program's
 correctness for the **wrap_bull** flow, used to justify skipping a real
@@ -34,10 +34,10 @@ runs the **exact** builder/blockhash/feePayer/simulateTransaction
 sequence used by [`web/lib/program.ts`](../web/lib/program.ts)
 `buildSignSimulateSend`. Key properties:
 
-- Uses `Transaction` (legacy), not `VersionedTransaction` — matches
+- Uses `Transaction` (legacy), not `VersionedTransaction`. matches
   prod wallet adapter behavior.
 - Sets `feePayer` + `recentBlockhash`, then calls
-  `connection.simulateTransaction(tx)` with **no config arg** — runs
+  `connection.simulateTransaction(tx)` with **no config arg**. runs
   with the same defaults the browser uses, including `sigVerify: false`
   by default in this code path.
 - `SIM_PAYER` env override lets simulation run as any pubkey
@@ -76,7 +76,7 @@ Program log: Wrapped bull tier=1 nft_mint=GxCWcPgEBxB2URwAFUzjKvNMMxVxuRGFWu76Wh
 Program A2tUttiBhWnPUYzqsT6BVf1L4qEMHxw4UibmhTcZbnNk success
 ```
 
-**Result line printed:** `CLEAN — simulationErr is null (tx mechanics OK)`.
+**Result line printed:** `CLEAN. simulationErr is null (tx mechanics OK)`.
 
 ## What this proves
 
@@ -86,7 +86,7 @@ Program A2tUttiBhWnPUYzqsT6BVf1L4qEMHxw4UibmhTcZbnNk success
 - The on-chain program correctly consumes the `bulls_token_program`
   account split (Token-2022 for $WBULL, classic SPL for the NFT).
 - CU budget (600k requested, 221k actually consumed) leaves ~63%
-  headroom — no risk of CU exhaustion under contention.
+  headroom. no risk of CU exhaustion under contention.
 - Tx serializes under the 1232-byte legacy limit.
 - Vault PDA derivation `PDA(["vault", nft_mint])` resolves correctly
   and is owned by the NFT identity, not the wrapper wallet (the
@@ -108,7 +108,7 @@ Empirical mainnet properties that simulation cannot verify on its own:
 
 For the relaunch, these gaps are closed by the **24h devnet drill**
 (see relaunch playbook P6.3) using a real Token-2022 devnet mint, real
-browser, real Phantom — not by a mainnet wrap.
+browser, real Phantom. not by a mainnet wrap.
 
 ## Reproducibility
 
@@ -119,7 +119,7 @@ ANCHOR_WALLET=/path/to/any-keypair.json \
 npx ts-node scripts/devnet_simulate_wrap.ts
 ```
 
-Note: `ANCHOR_WALLET` only needs to be a parseable keypair — its
+Note: `ANCHOR_WALLET` only needs to be a parseable keypair. its
 balance is irrelevant. `SIM_PAYER` is the pubkey the simulator runs
 as. The deployer is the canonical proof subject because it held
 material $WBULL at the time of the launch.

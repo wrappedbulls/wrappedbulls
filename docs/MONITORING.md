@@ -12,7 +12,7 @@ What needs to be alive at all times, how to know if it isn't, and what to do if 
 | Caddy / TLS | TLS valid, cert > 14 days from expiry | cert expired | Caddy auto-renews; if expired manually run `systemctl restart caddy` |
 | Anchor program | program account exists on-chain | program upgraded out from under us | check `solana program show` matches expected ID |
 
-## UptimeRobot setup (recommended — free, 5-minute resolution)
+## UptimeRobot setup (recommended. free, 5-minute resolution)
 
 1. Sign up at https://uptimerobot.com (free tier: 50 monitors, 5-min interval)
 2. Add monitor:
@@ -47,21 +47,21 @@ while true; do
 done
 ```
 
-Keep this off the bulls box itself — if the box is down the monitor goes down with it.
+Keep this off the bulls box itself. if the box is down the monitor goes down with it.
 
 ## On-chain monitoring (Day 1+)
 
 Beyond uptime, watch for state-level anomalies:
 
 ```bash
-# Daily sanity script — run via cron, alert on diff
+# Daily sanity script. run via cron, alert on diff
 solana account <BANK_PDA> --output json --url mainnet-beta | jq '...'
 # Check: in_circulation == total_wrapped - total_unwrapped
 # Check: free_tiers.length == total_unwrapped (allowing for tier cycling)
 # Check: vault accounts holding exactly 1,000,000 each (fetch all, sum should equal in_circulation * 1M)
 ```
 
-If the vault total doesn't equal `in_circulation * 1,000,000`, **something is wrong** — pause wraps via website (remove the wrap button) and investigate.
+If the vault total doesn't equal `in_circulation * 1,000,000`, **something is wrong**. pause wraps via website (remove the wrap button) and investigate.
 
 ## Logs
 
@@ -85,7 +85,7 @@ The 2GB box runs:
 - Next.js standalone server (~30 MB cold, grows to ~80-100 MB with cache + Solana web3 connection pool)
 - Optional: cranker indexer (~50-100 MB if added)
 
-Total comfortably under 200 MB — leaves ~1.7 GB free for OS / page cache. Should not hit memory pressure even at high traffic.
+Total comfortably under 200 MB. leaves ~1.7 GB free for OS / page cache. Should not hit memory pressure even at high traffic.
 
 If we ever do hit OOM:
 - Add a 4 GB swap file: `fallocate -l 4G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile && echo '/swapfile none swap sw 0 0' >> /etc/fstab`
@@ -93,18 +93,18 @@ If we ever do hit OOM:
 
 ## When things go wrong
 
-1. **First check:** `systemctl status wrappedbulls-web caddy` — is anything dead?
-2. **Then:** `journalctl -u wrappedbulls-web --since "10 minutes ago"` — what's the last error?
-3. **Network:** `curl -v --max-time 10 https://api.mainnet-beta.solana.com` — is RPC reachable from the box?
-4. **Disk:** `df -h /` — disk full will crash the service silently
-5. **Firewall:** `ufw status` — should allow 22, 80, 443 only
+1. **First check:** `systemctl status wrappedbulls-web caddy`. is anything dead?
+2. **Then:** `journalctl -u wrappedbulls-web --since "10 minutes ago"`. what's the last error?
+3. **Network:** `curl -v --max-time 10 https://api.mainnet-beta.solana.com`. is RPC reachable from the box?
+4. **Disk:** `df -h /`. disk full will crash the service silently
+5. **Firewall:** `ufw status`. should allow 22, 80, 443 only
 
 ## Backup
 
-The bulls box itself isn't strictly stateful — all the state lives on Solana. But:
+The bulls box itself isn't strictly stateful. all the state lives on Solana. But:
 - The deployer keypair at `/root/.config/solana/id.json` is irreplaceable. **Cold-back the seed phrase before mainnet deploy.**
-- Caddy auto-issued certs at `/var/lib/caddy/.local/share/caddy/certificates/` — Caddy will re-fetch them if lost, but you'd be without TLS for ~30 sec to a few min.
-- DigitalOcean snapshots are $0.06/GB-month — enable weekly backups for $1.20/month for the 70GB box. Worth it.
+- Caddy auto-issued certs at `/var/lib/caddy/.local/share/caddy/certificates/`. Caddy will re-fetch them if lost, but you'd be without TLS for ~30 sec to a few min.
+- DigitalOcean snapshots are $0.06/GB-month. enable weekly backups for $1.20/month for the 70GB box. Worth it.
 
 ## Health endpoint (TODO)
 
@@ -120,4 +120,4 @@ export async function GET() {
 }
 ```
 
-Add this as the next polish — useful for deeper monitoring (e.g. UptimeRobot keyword check on `"ok":true`).
+Add this as the next polish. useful for deeper monitoring (e.g. UptimeRobot keyword check on `"ok":true`).

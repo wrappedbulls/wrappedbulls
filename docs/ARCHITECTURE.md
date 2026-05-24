@@ -1,4 +1,4 @@
-# Architecture — WrappedBulls baseline (relaunch source)
+# Architecture. WrappedBulls baseline (relaunch source)
 
 Technical reference for the on-chain program + web stack, as they exist
 in the baseline at commit `b9f508d` + uncommitted Token-2022 port +
@@ -12,11 +12,10 @@ Internal reference. NOT for public repo.
 ### 1.1 Program identity
 
 - Anchor program name: `wrappedbulls` (rename per project)
-- Mainnet program ID: `A2tUttiBhWnPUYzqsT6BVf1L4qEMHxw4UibmhTcZbnNk`
-  (regenerate for next project — see [P5.1])
-- Upgrade authority: deployer keypair on mainnet (the bulls-box
-  deployer, separate from the royalty treasury wallet — these MUST be
-  different wallets, conflated last launch and cost time)
+- Mainnet program ID: regenerated via the clone script.
+- Upgrade authority: deployer keypair on mainnet. The deployer MUST be a
+  separate wallet from the royalty treasury wallet. Deployer pays gas;
+  treasury receives royalties; conflating them is a known footgun.
 - Loader: BPFLoaderUpgradeable
 
 ### 1.2 PDAs
@@ -39,16 +38,16 @@ makes the wrap mechanic ERC404-style hybrid rather than per-user.
 [`programs/wrappedbulls/src/state.rs`](../programs/wrappedbulls/src/state.rs)
 fields:
 
-- `token_mint: Pubkey` — $TOKEN mint, immutable after init
-- `total_wrapped: u64` / `total_unwrapped: u64` — lifetime counters
-- `in_circulation: u16` — derived (`total_wrapped - total_unwrapped`)
-- `next_tier: u16` — lowest never-wrapped tier (starts at 1)
-- `free_tiers: Vec<u16>` — stack of unwrapped tiers awaiting reuse
-- `authority: Pubkey` — admin authority
-- `bump: u8` — PDA bump
-- `collection_mint: Pubkey` — MCC NFT mint (Pubkey::default() until
+- `token_mint: Pubkey`. $TOKEN mint, immutable after init
+- `total_wrapped: u64` / `total_unwrapped: u64`. lifetime counters
+- `in_circulation: u16`. derived (`total_wrapped - total_unwrapped`)
+- `next_tier: u16`. lowest never-wrapped tier (starts at 1)
+- `free_tiers: Vec<u16>`. stack of unwrapped tiers awaiting reuse
+- `authority: Pubkey`. admin authority
+- `bump: u8`. PDA bump
+- `collection_mint: Pubkey`. MCC NFT mint (Pubkey::default() until
   `initialize_collection`)
-- `reserved: [u8; 32]` — slot for future migration
+- `reserved: [u8; 32]`. slot for future migration
 
 Tier allocation order: `pop free_tiers` first (LIFO), fall back to
 `next_tier++`. Unit tests in [`state.rs`] cover the full lifecycle
@@ -78,7 +77,7 @@ pub token_program: Program<'info, Token>,                    // NFT side
 ```
 
 CPI: `token_interface::transfer_checked(cpi_ctx, TOKENS_PER_BULL,
-decimals)` — verifies decimals on-chain (`transfer` is deprecated).
+decimals)`. verifies decimals on-chain (`transfer` is deprecated).
 
 Client side ([`web/lib/program.ts`](../web/lib/program.ts)):
 
@@ -118,20 +117,20 @@ not just the original wrapper.
 
 Every wrap CPIs into three Metaplex instructions in this order:
 
-1. `CreateMetadataAccountV3` — creates the NFT metadata at
+1. `CreateMetadataAccountV3`. creates the NFT metadata at
    `PDA(["metadata", token_metadata_program, nft_mint])`. URI is
    `https://<domain>/api/metadata/<tier>`. Creator =
    `[ROYALTY_TREASURY (unverified)]`, `seller_fee_basis_points = 500`.
-2. `CreateMasterEditionV3` — caps supply at 1 (unique NFT) at
+2. `CreateMasterEditionV3`. caps supply at 1 (unique NFT) at
    `PDA(["metadata", token_metadata_program, nft_mint, "edition"])`.
-3. `VerifySizedCollectionItem` — links this NFT to the
+3. `VerifySizedCollectionItem`. links this NFT to the
    `collection_mint` set during `initialize_collection`. The
    collection authority signs via PDA(`["collection_authority"]`).
 
 Marketplaces (Magic Eden, Tensor, Phantom Collectibles) read the
 verified MCC link and group the NFTs into a collection automatically.
 No per-marketplace pre-submission required for the collection to
-appear — they auto-index on the chain event.
+appear. they auto-index on the chain event.
 
 ### 1.7 Royalty
 
@@ -163,7 +162,7 @@ pub program_data: Account<'info, ProgramData>,
 the defense against an attacker front-running the singleton bank PDA
 init with their own params right after deploy.
 
-`init_if_needed` was deliberately removed as a hardening pass — the
+`init_if_needed` was deliberately removed as a hardening pass. the
 bank PDA cannot be re-initialized, period. The cost is that param
 errors at init time become permanent (mitigated by `mainnet_sim_gate.sh`,
 P4.2).
@@ -173,7 +172,7 @@ P4.2).
 Next.js 14, App Router, Node runtime, deployed as a standalone build
 on a single VPS behind Caddy.
 
-### 2.1 `/api/rpc` proxy — critical infrastructure
+### 2.1 `/api/rpc` proxy. critical infrastructure
 
 [`web/app/api/rpc/route.ts`](../web/app/api/rpc/route.ts)
 
@@ -192,13 +191,13 @@ The Solana wallet adapter is configured with
 allowlist, request-count metrics, distinguish RPC-down from
 upstream-rate-limited in the response.
 
-### 2.2 `/api/render/[tier]` — NFT image rendering
+### 2.2 `/api/render/[tier]`. NFT image rendering
 
 Server-rendered deterministic SVG → PNG, seeded from `nft_mint`
 pubkey. Cached. Used by both marketplace metadata and the in-app
 gallery.
 
-### 2.3 `/api/metadata/[tier]` — NFT metadata JSON
+### 2.3 `/api/metadata/[tier]`. NFT metadata JSON
 
 Returned at the URI written into Metaplex metadata at wrap time:
 
@@ -219,12 +218,11 @@ Returned at the URI written into Metaplex metadata at wrap time:
 Current state: `const PRE_LAUNCH = true|false` is hardcoded in
 [`web/app/wrap/page.tsx`](../web/app/wrap/page.tsx) and
 [`web/app/unwrap/page.tsx`](../web/app/unwrap/page.tsx). Toggle =
-rebuild. **This is the build-time-state anti-pattern from
-[`LESSONS_LEARNED.md`](LESSONS_LEARNED.md) L1.**
+rebuild. This is the build time state antipattern we are replacing.
 
-Next-project target: `/api/launch-state` reads
-`/var/lib/<project>/state.json`. UI fetches on every page load.
-State flip = single-file write. Zero rebuild. See P3.1, P3.8.
+Target: `/api/launch-state` reads `/var/lib/<project>/state.json`. UI
+fetches on every page load. State flip = single file write. Zero
+rebuild.
 
 ### 2.5 Wallet integration
 
@@ -242,14 +240,14 @@ page header.
   `/api/rpc`). `SOLANA_RPC_URL` (no `NEXT_PUBLIC` prefix) is set in
   the systemd unit. Server-only.
 - `next.config.js` has `typescript.ignoreBuildErrors: true` and
-  `eslint.ignoreDuringBuilds: true` — set during the launch crisis
+  `eslint.ignoreDuringBuilds: true`. set during the launch crisis
   to allow rapid iteration through React 19 / wallet-adapter type
   mismatches. **For the next project, fix the type errors and remove
   these escape hatches.**
 
 ## 3. Anchor tests
 
-[`tests/wrappedbulls.ts`](../tests/wrappedbulls.ts) — 13/13 passing on devnet.
+[`tests/wrappedbulls.ts`](../tests/wrappedbulls.ts). 13/13 passing on devnet.
 Coverage:
 
 - Initialize bank + initialize_collection (with upgrade-authority gate)
@@ -300,7 +298,7 @@ project-by-project without code edits.
 ```
 
 **Single-instance** today. For the next project, run two instances
-(blue-green) with Caddy doing an atomic `import` file swap — see
+(blue-green) with Caddy doing an atomic `import` file swap. see
 P3.2. Zero-downtime rebuilds forever.
 
 ## 6. What transfers vs what gets rebuilt for the next project
@@ -327,5 +325,5 @@ P3.2. Zero-downtime rebuilds forever.
 | Single-instance systemd                  |                |                      | ✓ → blue-green |
 | Brand strings (WrappedBulls/$WBULL/etc)   |                | ✓ (brand.json)       |         |
 
-See the [P-numbered todo](../docs/RELAUNCH_PLAYBOOK.md) (to be written
-in P2.7) for the work items behind each "rebuild" entry.
+See [`LAUNCH_RUNBOOK.md`](LAUNCH_RUNBOOK.md) for the work items behind
+each "rebuild" entry.

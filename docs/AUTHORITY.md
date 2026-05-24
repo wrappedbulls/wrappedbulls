@@ -1,4 +1,4 @@
-# Program upgrade authority — policy
+# Program upgrade authority. policy
 
 ## Decision
 
@@ -27,7 +27,7 @@ A hybrid policy fits WrappedBulls' positioning:
 
 1. Deploy program with deployer wallet as authority.
 2. Run `initialize` with the real $WBULL mint.
-3. Tweet the program ID and a notice: *"The program is currently upgradeable for the first 30 days while we monitor mainnet behavior. Authority will be frozen at the end of the soak period — receipts will be public on-chain."*
+3. Tweet the program ID and a notice: *"The program is currently upgradeable for the first 30 days while we monitor mainnet behavior. Authority will be frozen at the end of the soak period. receipts will be public on-chain."*
 
 ### During the soak period (Day 1-30)
 
@@ -35,7 +35,7 @@ A hybrid policy fits WrappedBulls' positioning:
    - Failed unwraps (vault state inconsistency)
    - Marketplace edge cases (NFT listed but unwrap won't authorize the buyer)
    - Indexer / metadata server desync
-2. If a bug surfaces: deploy a fix, communicate the change publicly, increment a version counter (e.g. embed `BULLPEG_VERSION = "1.0.1"` in `lib.rs` so on-chain state can be verified).
+2. If a bug surfaces: deploy a fix, communicate the change publicly, increment a version counter (e.g. embed `WRAPPEDBULLS_VERSION = "1.0.1"` in `lib.rs` so onchain state can be verified).
 3. If no bugs: continue monitoring.
 
 ### Soak period end (Day 30-60, soft target Day 30)
@@ -55,7 +55,7 @@ A hybrid policy fits WrappedBulls' positioning:
 ## What this does NOT cover
 
 - **The deployer wallet itself.** Even after the program is frozen, the deployer wallet still holds the launch supply (or whatever it minted). The wallet is a separate trust assumption.
-- **The website + cranker.** The website code is mutable (we can deploy any frontend). The trust assumption is that the on-chain program enforces all the safety rules — the website is just a UI.
+- **The website + cranker.** The website code is mutable (we can deploy any frontend). The trust assumption is that the on-chain program enforces all the safety rules. the website is just a UI.
 - **The Metaplex Token Metadata program** (CPI'd into during wrap). That program has its own upgrade authority controlled by the Metaplex Foundation. Out of our hands.
 
 ## Failsafe: if a critical bug surfaces post-freeze
@@ -66,7 +66,7 @@ If a critical bug is found *after* the program is frozen:
 2. Wraps may need to be paused via off-chain coordination (the website removes the wrap button, but on-chain wraps remain available to anyone with a CLI client).
 3. A new program would have to be deployed with a migration path for existing wraps. This is highly disruptive and should be avoided.
 
-This is why the 30-day soak matters — we want any critical bug to surface *before* freeze, not after.
+This is why the 30-day soak matters. we want any critical bug to surface *before* freeze, not after.
 
 ## Alternative: never freeze (rejected)
 

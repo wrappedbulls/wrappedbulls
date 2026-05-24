@@ -1,13 +1,13 @@
-> # ⚠️ SUPERSEDED — DO NOT FOLLOW
+> # ⚠️ SUPERSEDED. DO NOT FOLLOW
 > Replaced 2026-05-15 by [`LAUNCH_CHECKLIST.md`](LAUNCH_CHECKLIST.md)
-> (Phases 4–6) + [`LAUNCH_RUNBOOK.md`](LAUNCH_RUNBOOK.md). Wrong here:
+> (Phases 4 to 6) + [`LAUNCH_RUNBOOK.md`](LAUNCH_RUNBOOK.md). Wrong here:
 > deployer is `GMrJpP7Sa…` not `FRZJ…TwQ` (FRZJ…TwQ is the royalty
 > treasury); the `launch_preflight.sh`/`launch.sh` automation is deprecated
 > (manual sequence now); the "Phantom whitelist / email review@phantom.com"
 > model was disproved (root cause was program-not-on-mainnet). Marketplace
 > royalty is **5%**, not 0%. Historical context only.
 
-# Post-launch sequencing — first 72 hours (SUPERSEDED)
+# Post-launch sequencing. first 72 hours (SUPERSEDED)
 
 Minute-by-minute plan for launch day and the days that follow.
 Update timestamps as you go.
@@ -26,7 +26,7 @@ visitors see explainer content + the art teaser instead of devnet noise.
 | Run `launch.sh <WBULL_MINT>` on bulls box | Program deploys, bank initializes, collection initializes, web rebuilds with `LAUNCH_STATE=live` + `TOKEN_MINT=$WBULL_MINT`, RPC flips to mainnet, web restarts | You / launch.sh |
 | Site flips to live mode automatically | Stats + feed + herd visible; contract address pill shows on homepage; /wrap + /unwrap activate | launch.sh |
 
-## T-30 minutes — final preflight
+## T-30 minutes. final preflight
 
 ```bash
 ssh root@165.22.167.96
@@ -43,7 +43,7 @@ Must report **0 fails**. Expected passes by this stage:
 
 If anything fails, fix before continuing.
 
-## T-5 minutes — pump.fun launch
+## T-5 minutes. pump.fun launch
 
 You launch `$WBULL` on pump.fun via the standard pump.fun UI:
 - Token name: **WrappedBulls**
@@ -58,7 +58,7 @@ Once it confirms, copy the **mint address** from pump.fun's URL.
 Quick dev-buy now if part of your strategy (creates the founder bull supply
 for your first wrap).
 
-## T+0 — run launch.sh
+## T+0. run launch.sh
 
 ```bash
 DEPLOYER_KEYPAIR=/tmp/mainnet-deployer.json \
@@ -82,7 +82,7 @@ Watch the output. It runs:
 
 Expected duration: **~3-5 minutes** total.
 
-## T+5 — verify the launch landed
+## T+5. verify the launch landed
 
 ```bash
 curl -s https://wrappedbulls.com/api/health | jq
@@ -95,12 +95,12 @@ Open https://wrappedbulls.com in a fresh tab (or hard refresh). Check:
 - [ ] $WBULL contract pill shows the mint with pump.fun link
 - [ ] `/wrap`, `/unwrap`, `/gallery` show live UIs (not pre-launch cards)
 - [ ] Connect wallet on mainnet → **no Phantom red banner** (if Phantom
-      already whitelisted us — otherwise expect the warning until
+      already whitelisted us. otherwise expect the warning until
       review@phantom.com clears us)
 
 If any check fails, see [`RECOVERY.md`](RECOVERY.md) Scenario 1.
 
-## T+10 — founder bull wrap
+## T+10. founder bull wrap
 
 Connect Phantom with the wallet that did the pump.fun dev-buy. You should
 have ≥1M $WBULL. Go to `/wrap`, click **Wrap WrappedBulls #1 →**, confirm
@@ -109,7 +109,7 @@ in Phantom. ~3 seconds later you have founder bull #1 in your wallet.
 **Capture the tx signature** from the green success banner. You'll
 quote-tweet it.
 
-## T+15 — pinned launch tweet (T1)
+## T+15. pinned launch tweet (T1)
 
 From `@wrappedbulls`, post Tweet 1 (Option A from `COMMS.md`):
 
@@ -128,7 +128,7 @@ From `@wrappedbulls`, post Tweet 1 (Option A from `COMMS.md`):
 **Attach `samples/banners/banner_1500x500.png`.** Pin it. Quote-RT from your
 personal account.
 
-## T+20 — founder bull tweet (T2)
+## T+20. founder bull tweet (T2)
 
 Quote-tweet the wrap tx URL on Solana Explorer with Option A from COMMS.md:
 
@@ -144,12 +144,12 @@ Quote-tweet the wrap tx URL on Solana Explorer with Option A from COMMS.md:
 >
 > wrappedbulls.com/bull/1
 
-## T+30 — mechanic thread (T3)
+## T+30. mechanic thread (T3)
 
 5-tweet thread from `@wrappedbulls`. Copy the 5 tweets from
 [`COMMS.md`](COMMS.md) section "Tweet 3".
 
-## T+45 to T+90 — submit marketplace claims
+## T+45 to T+90. submit marketplace claims
 
 Both can be done in parallel.
 
@@ -174,10 +174,10 @@ Both can be done in parallel.
 5. Same banner + avatar + metadata
 6. Submit (24-72h review)
 
-If Tensor asks for "Update Authority wallet signature" — use the reply
+If Tensor asks for "Update Authority wallet signature". use the reply
 template in [`MARKETPLACE.md`](MARKETPLACE.md) "Note on update authority".
 
-## T+1 hour — status update (T5)
+## T+1 hour. status update (T5)
 
 Fire Tweet 5 from `COMMS.md` once a few wraps have landed:
 
@@ -191,9 +191,9 @@ Fire Tweet 5 from `COMMS.md` once a few wraps have landed:
 
 Replace N / Y with real numbers from `/api/health` and gallery.
 
-## T+1 to T+6 hours — reply hooks
+## T+1 to T+6 hours. reply hooks
 
-Have [`COMMS.md`](COMMS.md) "Tweet 4 — Reply hooks" open in a tab.
+Have [`COMMS.md`](COMMS.md) "Tweet 4. Reply hooks" open in a tab.
 Predictable questions:
 - "how is this different from SPL-404?" → reply template ready
 - "what stops you from rugging the vaults?" → reply template ready
@@ -201,7 +201,7 @@ Predictable questions:
 
 Pin good organic threads, RT smart commentary.
 
-## T+12 hours — first audit
+## T+12 hours. first audit
 
 Run on bulls box:
 ```bash
@@ -211,12 +211,12 @@ Run on bulls box:
 All 7 invariants must pass. If any fail, halt comms and investigate via
 `solana program logs` + `RECOVERY.md` Scenario 5.
 
-## T+24 hours — recap tweet (T6)
+## T+24 hours. recap tweet (T6)
 
 Once you have day-1 numbers, fire Tweet 6 from COMMS.md. Use real
 `audit_chain.sh` output for the numbers.
 
-## T+24 to T+72 hours — marketplace verifications
+## T+24 to T+72 hours. marketplace verifications
 
 Watch for approval emails from:
 - Magic Eden Creator Hub
@@ -224,7 +224,7 @@ Watch for approval emails from:
 
 When either clears, fire Tweet 7 (verified badge) from COMMS.md.
 
-## T+30 days — upgrade authority decision
+## T+30 days. upgrade authority decision
 
 Per [`docs/AUTHORITY.md`](AUTHORITY.md), the plan is: 30-60 days of soak
 with no critical incidents, then **freeze upgrade authority** on chain.
@@ -247,10 +247,10 @@ and the rest of the experience works. We just lose some conversion
 in the first hours/days.
 
 Mitigation:
-- Don't pin the wrap CTA above the fold while warning is up — replace
+- Don't pin the wrap CTA above the fold while warning is up. replace
   with "Tradeable on Tensor / Magic Eden as soon as your first bull wraps"
 - Bump email follow-up to Phantom with concrete launch data (wrap tx
-  signature, real users) — this often unstucks reviews
+  signature, real users). this often unstucks reviews
 
 ## Quick reference
 

@@ -1,8 +1,8 @@
-> # ⚠️ SUPERSEDED — DO NOT FOLLOW THIS DOCUMENT
+> # ⚠️ SUPERSEDED. DO NOT FOLLOW THIS DOCUMENT
 > Replaced 2026-05-15 by **[`LAUNCH_RUNBOOK.md`](LAUNCH_RUNBOOK.md)** +
 > **[`LAUNCH_CHECKLIST.md`](LAUNCH_CHECKLIST.md)** (authoritative).
 > This file contains **dangerous, wrong** instructions:
-> - It tells you to fund/verify `FRZJ…TwQ` as the **deployer** — that wallet
+> - It tells you to fund/verify `FRZJ…TwQ` as the **deployer**. that wallet
 >   is the **royalty treasury**, NOT the deployer. The real deployer is
 >   `GMrJpP7SaUkfyizsB3b8GeKWgDiqac3g5EaMGnMtkXCj` (the bulls-box keypair).
 >   Funding FRZJ…TwQ for deploy would strand deploy SOL in the wrong wallet.
@@ -19,20 +19,20 @@ Mainnet deploy of $WBULL + WrappedBulls program. Step-by-step, in order, with ex
 **Prerequisites (must all be true before starting):**
 
 - [ ] Mainnet deployer keypair generated **on your own machine** (not the bulls box). Pubkey: `FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ`. The seed phrase is **cold-backed** on paper, ideally 2 copies in different physical locations.
-- [ ] Deployer funded with **at least 5.5 SOL** on mainnet (only fund right before launch — don't pre-fund and leave SOL sitting around).
+- [ ] Deployer funded with **at least 5.5 SOL** on mainnet (only fund right before launch. don't pre-fund and leave SOL sitting around).
 - [ ] All pre-launch tests passing: `cargo test --manifest-path programs/wrappedbulls/Cargo.toml --lib` (10 tests) + `anchor test` (7 tests)
-- [ ] Browser E2E on devnet completed end-to-end (wrap + unwrap via wallet adapter UI) — done
-- [ ] Cross-wallet unwrap test passed on devnet (vault followed NFT to second wallet) — done
-- [ ] DNS already points wrappedbulls.com + www at 165.22.167.96 — done
+- [ ] Browser E2E on devnet completed end-to-end (wrap + unwrap via wallet adapter UI). done
+- [ ] Cross-wallet unwrap test passed on devnet (vault followed NFT to second wallet). done
+- [ ] DNS already points wrappedbulls.com + www at 165.22.167.96. done
 - [ ] Bulls box is up: `ssh root@165.22.167.96 'systemctl is-active wrappedbulls-web caddy'`
-- [ ] Helius RPC key wired into the systemd unit — done
+- [ ] Helius RPC key wired into the systemd unit. done
 - [ ] UptimeRobot monitoring `/api/render/1` + `/api/health`
 - [ ] X account warmed up, intro tweet drafted, banner image ready
 - [ ] Pump.fun account funded with enough SOL to launch
 
 ---
 
-## Step 0 — Final pre-flight
+## Step 0. Final pre-flight
 
 ```bash
 # 1. SCP your mainnet deployer keypair onto the bulls box, just for launch day:
@@ -58,7 +58,7 @@ solana address --keypair /tmp/mainnet-deployer.json
 
 ---
 
-## Step 1 — Launch $WBULL on pump.fun
+## Step 1. Launch $WBULL on pump.fun
 
 This is the only manual UI step. Do it on pump.fun in the browser.
 
@@ -72,7 +72,7 @@ This is the only manual UI step. Do it on pump.fun in the browser.
    - **Website:** `https://wrappedbulls.com`
    - **Telegram:** if you have one
 3. Confirm the launch.
-4. **Record the mint address** — pump.fun shows it on the token page. Format: 44-character base58 string ending in `pump`.
+4. **Record the mint address**. pump.fun shows it on the token page. Format: 44-character base58 string ending in `pump`.
 
 ```
 $WBULL mint = ____________________________________________________
@@ -82,9 +82,9 @@ $WBULL mint = ____________________________________________________
 
 ---
 
-## Step 2 — Run the launch script (deploys + initializes + flips web to mainnet)
+## Step 2. Run the launch script (deploys + initializes + flips web to mainnet)
 
-`launch.sh` is idempotent — it skips deploy if the program is already on-chain, and skips initialize if the BullBank already exists. You can re-run it safely if anything fails partway through.
+`launch.sh` is idempotent. it skips deploy if the program is already on-chain, and skips initialize if the BullBank already exists. You can re-run it safely if anything fails partway through.
 
 ```bash
 DEPLOYER_KEYPAIR=/tmp/mainnet-deployer.json \
@@ -116,36 +116,36 @@ active
 === LAUNCH COMPLETE ===
 ```
 
-If any step fails, check `/root/launch-mainnet.log` for the full output. Re-run the script — it will pick up where it left off.
+If any step fails, check `/root/launch-mainnet.log` for the full output. Re-run the script. it will pick up where it left off.
 
-**After successful launch — shred the keypair file:**
+**After successful launch. shred the keypair file:**
 ```bash
 shred -u /tmp/mainnet-deployer.json
 ```
 The keypair stays cold on your paper backup. There's no reason to leave a copy on the box.
 
 **Verify on Solana Explorer:**
-- Open `https://explorer.solana.com/address/<PROGRAM_ID>` — confirm program is deployed, executable
-- Open `https://explorer.solana.com/address/<BANK_PDA>` — confirm BullBank exists with `token_mint` matching the $WBULL mint and `next_tier == 1`
+- Open `https://explorer.solana.com/address/<PROGRAM_ID>`. confirm program is deployed, executable
+- Open `https://explorer.solana.com/address/<BANK_PDA>`. confirm BullBank exists with `token_mint` matching the $WBULL mint and `next_tier == 1`
 
-**DO NOT proceed until verified.** Initialize is a one-shot — if launch.sh locked the wrong mint, the only fix is to deploy a fresh program with a different keypair.
+**DO NOT proceed until verified.** Initialize is a one-shot. if launch.sh locked the wrong mint, the only fix is to deploy a fresh program with a different keypair.
 
 ---
 
-## Step 3 — Smoke test from a fresh wallet
+## Step 3. Smoke test from a fresh wallet
 
 Open https://wrappedbulls.com in incognito Chrome.
 
 - [ ] Landing page shows `MAINNET-BETA · Program live`
 - [ ] Stats show `In circulation: 0`, `Next tier: #1`
 - [ ] `/wrap` page shows the wallet button. Connect Phantom (mainnet). It loads.
-- [ ] Wallet balance shows 0 $WBULL (you haven't bought any yet — that's expected for a fresh wallet)
+- [ ] Wallet balance shows 0 $WBULL (you haven't bought any yet. that's expected for a fresh wallet)
 
-**No actual wrap yet — we want at least a few minutes of "is this rugged?" panic-poking time before announcing.**
+**No actual wrap yet. we want at least a few minutes of "is this rugged?" panic-poking time before announcing.**
 
 ---
 
-## Step 4 — First mainnet wrap (founder bull)
+## Step 4. First mainnet wrap (founder bull)
 
 From your launch wallet (the one that holds the $WBULL pump.fun launch supply):
 
@@ -168,7 +168,7 @@ Verify:
 
 ---
 
-## Step 5 — Announce on X
+## Step 5. Announce on X
 
 Pin the intro tweet to the @wrappedbulls profile. Quote-RT from your personal account.
 
@@ -191,7 +191,7 @@ Attach: `samples/banners/banner_1500x500.png`.
 
 ---
 
-## Step 6 — Monitor for the first hour
+## Step 6. Monitor for the first hour
 
 Keep these tabs open:
 - pump.fun token page (watch for buys)
@@ -229,9 +229,9 @@ solana program show <PROGRAM_ID> --url mainnet-beta
 # 4. Tweet the upgrade with explanation + tx signature
 ```
 
-**The bank state and existing BullAssets are not touched by an upgrade — only the program logic is replaced.**
+**The bank state and existing BullAssets are not touched by an upgrade. only the program logic is replaced.**
 
-If the bug is critical AND the program is already frozen — see [AUTHORITY.md](./AUTHORITY.md) for the failsafe path (it's bad; don't end up here).
+If the bug is critical AND the program is already frozen. see [AUTHORITY.md](./AUTHORITY.md) for the failsafe path (it's bad; don't end up here).
 
 ---
 
