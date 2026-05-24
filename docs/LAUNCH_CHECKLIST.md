@@ -5,7 +5,7 @@ Paint by numbers playbook for the day you decide to fire on pump.fun. Each step 
 ## Prerequisites (confirm BEFORE launch day)
 
 - [ ] **Treasury wallet pubkey** in [`config/launch.toml`](../config/launch.toml): `8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD`. Seed phrase backed up offline on paper, two copies, two locations.
-- [ ] **Deployer wallet** generated separately from treasury, funded with ≥9 SOL on mainnet, keypair backed up per [`RECOVERY.md`](RECOVERY.md).
+- [ ] **Deployer wallet pubkey**: `9ZDrkF9a8bMHPeDhe3oiDDUC1616C3vtTGozBgMxhWtn`. Separate seed from treasury. Backed up offline. **Fund with ≥9 SOL on mainnet** before Phase 2. Becomes the program upgrade authority at deploy.
 - [ ] **Phantom domain submission** in queue (sent 2026-05-24; awaiting first warning evidence after Phase 3).
 - [ ] **@wrappedbulls X profile** live (banner, pfp, bio, no pinned tweet yet).
 - [ ] **UptimeRobot monitor** green at https://wrappedbulls.com.

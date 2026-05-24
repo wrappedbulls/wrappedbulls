@@ -6,7 +6,7 @@
 
 ## Why this trade-off
 
-A Solana program deployed via the BPF Upgradeable Loader has an `Authority` pubkey that controls future upgrades. The WrappedBulls program currently has its authority set to the deployer wallet.
+A Solana program deployed via the BPF Upgradeable Loader has an `Authority` pubkey that controls future upgrades. The WrappedBulls program's authority is the deployer wallet `9ZDrkF9a8bMHPeDhe3oiDDUC1616C3vtTGozBgMxhWtn`. This is a separate keypair from the royalty treasury (`8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD`). The deployer pays gas and signs upgrades. The treasury receives royalties and signs nothing.
 
 Two options at launch:
 
