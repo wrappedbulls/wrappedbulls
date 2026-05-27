@@ -6,11 +6,10 @@
   email louie@cryptobulls.fun
 }
 
-# WrappedBulls (live launch site) - static
+# WrappedBulls live site
+#   - /api/*  reverse_proxy to wrappedbulls-web (Next.js on :3001)
+#   - everything else: static prelaunch HTML in /var/www/wrappedbulls
 wrappedbulls.com, www.wrappedbulls.com {
-  root * /var/www/wrappedbulls
-  try_files {path} {path}.html {path}/
-  file_server
   encode zstd gzip
   header {
     Strict-Transport-Security "max-age=31536000; includeSubDomains"
@@ -19,11 +18,29 @@ wrappedbulls.com, www.wrappedbulls.com {
     Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
     -Server
   }
+
+  # API layer: Next.js handles metadata + render + rpc + health
+  handle /api/* {
+    reverse_proxy 127.0.0.1:3001 {
+      header_up Host {host}
+      header_up X-Forwarded-Proto https
+    }
+  }
+
+  # Static site: terminal aesthetic HTML
+  handle {
+    root * /var/www/wrappedbulls
+    try_files {path} {path}.html {path}/
+    file_server
+  }
+
   handle_errors {
     @404 expression {err.status_code} == 404
     rewrite @404 /404.html
+    root * /var/www/wrappedbulls
     file_server
   }
+
   log {
     output file /var/log/caddy/wrappedbulls.log
     format json
