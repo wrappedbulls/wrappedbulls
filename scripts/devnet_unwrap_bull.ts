@@ -14,6 +14,7 @@ import {
 } from "@solana/web3.js";
 import {
   TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID,
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 import { Wrappedbulls } from "../target/types/wrappedbulls";
@@ -54,6 +55,14 @@ async function main() {
   const bullAssetData = await (program.account as any).bullAsset.fetch(bullAsset);
   const nftMint = bullAssetData.nftMint as PublicKey;
 
+  // Detect $WBULL token program (classic vs Token2022) by inspecting
+  // the mint account's owner.
+  const mintInfo = await provider.connection.getAccountInfo(tokenMint);
+  if (!mintInfo) throw new Error(`token mint ${tokenMint.toBase58()} not found`);
+  const bullsTokenProgram = mintInfo.owner.equals(TOKEN_2022_PROGRAM_ID)
+    ? TOKEN_2022_PROGRAM_ID
+    : TOKEN_PROGRAM_ID;
+
   console.log("program:        ", program.programId.toBase58());
   console.log("bank:           ", bankPda.toBase58());
   console.log("tier:           ", tier);
@@ -64,8 +73,8 @@ async function main() {
     [Buffer.from("vault"), nftMint.toBuffer()],
     program.programId,
   );
-  const vault = getAssociatedTokenAddressSync(tokenMint, vaultAuthority, true);
-  const payerTokenAccount = getAssociatedTokenAddressSync(tokenMint, payer.publicKey);
+  const vault = getAssociatedTokenAddressSync(tokenMint, vaultAuthority, true, bullsTokenProgram);
+  const payerTokenAccount = getAssociatedTokenAddressSync(tokenMint, payer.publicKey, false, bullsTokenProgram);
   const payerNftAccount = getAssociatedTokenAddressSync(nftMint, payer.publicKey);
 
   const [metadata] = PublicKey.findProgramAddressSync(
@@ -101,6 +110,7 @@ async function main() {
       collectionMint,
       collectionMetadata,
       tokenProgram: TOKEN_PROGRAM_ID,
+      bullsTokenProgram,
       tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
     } as any)
     .preInstructions([cuBump])

@@ -11,6 +11,7 @@ import {
 } from "@solana/web3.js";
 import {
   TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID,
   ASSOCIATED_TOKEN_PROGRAM_ID,
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
@@ -33,6 +34,20 @@ async function main() {
   const bank = await (program.account as any).bullBank.fetch(bankPda);
   const tokenMint = bank.tokenMint as PublicKey;
   const collectionMint = bank.collectionMint as PublicKey;
+
+  // Detect whether $WBULL is classic SPL or Token2022 by inspecting the
+  // mint account's owner. wrap_bull's `bulls_token_program` account
+  // must match the token program that owns the mint.
+  const mintInfo = await provider.connection.getAccountInfo(tokenMint);
+  if (!mintInfo) throw new Error(`token mint ${tokenMint.toBase58()} not found`);
+  const bullsTokenProgram = mintInfo.owner.equals(TOKEN_2022_PROGRAM_ID)
+    ? TOKEN_2022_PROGRAM_ID
+    : TOKEN_PROGRAM_ID;
+  console.log(
+    "bulls_token_program:",
+    bullsTokenProgram.toBase58(),
+    bullsTokenProgram.equals(TOKEN_2022_PROGRAM_ID) ? "(Token2022)" : "(classic SPL)",
+  );
   const tier = (bank.freeTiers.length > 0
     ? bank.freeTiers[bank.freeTiers.length - 1]
     : bank.nextTier) as number;
@@ -70,8 +85,11 @@ async function main() {
     program.programId
   );
 
-  const vault = getAssociatedTokenAddressSync(tokenMint, vaultAuthority, true);
-  const payerTokenAccount = getAssociatedTokenAddressSync(tokenMint, payer.publicKey);
+  // ATAs that hold the underlying $TOKEN must be derived with the
+  // correct token program (classic vs Token2022). The NFT ATA is
+  // always classic SPL because the NFT mint is classic.
+  const vault = getAssociatedTokenAddressSync(tokenMint, vaultAuthority, true, bullsTokenProgram);
+  const payerTokenAccount = getAssociatedTokenAddressSync(tokenMint, payer.publicKey, false, bullsTokenProgram);
   const payerNftAccount = getAssociatedTokenAddressSync(nftMint, payer.publicKey);
 
   const [metadata] = PublicKey.findProgramAddressSync(
@@ -128,6 +146,7 @@ async function main() {
       collectionMasterEdition,
       collectionAuthority,
       tokenProgram: TOKEN_PROGRAM_ID,
+      bullsTokenProgram,
       associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
       systemProgram: anchor.web3.SystemProgram.programId,
