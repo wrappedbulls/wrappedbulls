@@ -19,9 +19,18 @@ wrappedbulls.com, www.wrappedbulls.com {
     -Server
   }
 
-  # API layer: Next.js handles metadata + render + rpc + health
+  # API layer: blue/green Next.js (blue=3001, green=3002).
+  # lb_policy first: blue is preferred; green takes over only when blue
+  # fails health checks. Crash or deploy of blue is a sub-second failover
+  # to green with zero dropped requests.
   handle /api/* {
-    reverse_proxy 127.0.0.1:3001 {
+    reverse_proxy 127.0.0.1:3001 127.0.0.1:3002 {
+      lb_policy first
+      health_uri /api/health
+      health_interval 5s
+      health_timeout 3s
+      fail_duration 30s
+      max_fails 3
       header_up Host {host}
       header_up X-Forwarded-Proto https
     }

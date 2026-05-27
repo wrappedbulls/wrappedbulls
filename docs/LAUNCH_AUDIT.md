@@ -56,10 +56,16 @@ Generated 2026-05-27, after the Next.js API layer deploy.
 
 **Action:** deploy program to devnet using the new keypair, point the API at devnet temporarily, run a wrap, confirm both endpoints return correct content with the right image and trait values.
 
-### 2. Upgrade the API server side RPC to Helius or Triton
-**Why:** the systemd unit currently points at `https://api.mainnet-beta.solana.com`. When Magic Eden and Tensor crawl all 1000 tier endpoints simultaneously, the public RPC will rate limit (429s) and the API will start returning errors. Result: NFTs with broken metadata on marketplaces.
+### 2. Upgrade the API server side RPC to Helius or Triton ✅ DONE 2026-05-27
+**Why:** the systemd unit currently points at `https://api.mainnet-beta.solana.com`. When Magic Eden and Tensor crawl all 1000 tier endpoints simultaneously, the public RPC rate limits and the API returns 503s.
 
-**Action:** sign up for a Helius (or Triton) mainnet API key. Update the systemd Environment line for `SOLANA_RPC_URL` on the VPS to the paid endpoint. Reload the service.
+**Load test result (2026-05-27, 200 parallel requests across 100 tiers):**
+- Public mainnet RPC: **140/200 returned 503** "rpc unavailable, retry" (70% failure rate).
+- Second burst (cache populated): **117/200 still 503** because failures are not cached and each unique tier still hits upstream.
+- The `cacheWrapSWR` single-flight collapses concurrent requests for the SAME tier into one RPC call, but a crawl of 1000 DIFFERENT tiers creates 1000 parallel upstream calls. Public RPC rejects most of them.
+- The existing inherited Helius key from the prior project shows **"max usage reached"** (depleted credit budget).
+
+**Resolution:** new Helius API key wired into systemd Environment for both blue and green. Burst test repeated post-upgrade: 200 parallel requests in **2.67 s, zero 503s** (was 13.02 s with 70% 503s). Marketplace crawl is now served at ~75 req/sec sustained.
 
 ### 3. RPC failover
 **Why:** single point of failure. If the paid RPC has an outage, every metadata + render request returns 500 until the upstream comes back. Marketplaces cache the broken response.
@@ -85,20 +91,18 @@ Generated 2026-05-27, after the Next.js API layer deploy.
 
 ## Critical work for "website never goes down"
 
-### 7. Blue green deploy for wrappedbulls-web
-**Why:** currently a single `wrappedbulls-web.service` instance on :3001. If it crashes, systemd takes ~3s to restart. During that window, /api/* returns 502. For a marketplace crawler this looks like a broken collection.
+### 7. Blue green deploy for wrappedbulls-web ✅ DONE 2026-05-27
+**Why:** without blue/green, any restart of the single instance produced a brief 502 window.
 
-**Action:** add `wrappedbulls-web-green.service` on :3002 from a SEPARATE checkout. Caddy `handle /api/* { reverse_proxy 127.0.0.1:3001 127.0.0.1:3002 { lb_policy first; health_uri /api/health } }`. Deploys swap colors atomically.
+**State:** `wrappedbulls-web.service` on :3001 (blue) and `wrappedbulls-web-green.service` on :3002 (green) both running from separate `/opt/wrappedbulls-web` + `/opt/wrappedbulls-web-green` dirs. Caddy `lb_policy first` + active health checks at /api/health (5s interval, 3s timeout, 30s fail_duration, 3 max_fails). A crash or deploy of one color fails over to the other within one health interval.
 
 ### 8. Enable DigitalOcean droplet snapshots
 **Why:** if the droplet dies (hardware failure, region outage, accidental delete), recovery from scratch is 1 to 2 hours. With snapshots: 10 to 20 minutes.
 
 **Action:** in the DigitalOcean panel, enable weekly snapshots on the wrappedbulls droplet. Cost: ~$1.20/mo.
 
-### 9. Process watchdog beyond systemd
-**Why:** systemd restarts the service on crash, but not on hang. A hung Node process accepting connections but not responding can produce stalled requests indefinitely.
-
-**Action:** add a small systemd timer that runs `curl -fs --max-time 5 https://wrappedbulls.com/api/health || systemctl restart wrappedbulls-web` every 60s. Or use systemd `Watchdog=` with sd_notify.
+### 9. Process watchdog beyond systemd ✅ DONE 2026-05-27
+**State:** `wrappedbulls-watchdog.timer` fires every 60 s, calls `/usr/local/bin/wrappedbulls-watchdog.sh` which probes both colors at `http://127.0.0.1:300{1,2}/api/health`. Restarts a color after 2 consecutive failures. Logs to `journalctl -t wrappedbulls-watchdog`.
 
 ### 10. Rate limit /api/rpc to prevent budget exhaustion
 **Why:** /api/rpc proxies browser RPC calls to the paid Helius endpoint server side. Without rate limiting, a single malicious user can drain the Helius credit budget in hours. Result: API outage when budget hits zero.
