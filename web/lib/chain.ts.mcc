@@ -7,7 +7,7 @@ import { PublicKey, Connection } from "@solana/web3.js";
 
 const PROGRAM_ID = new PublicKey(
   process.env.NEXT_PUBLIC_PROGRAM_ID ||
-    "A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm"
+    "F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS"
 );
 
 const RPC_URL =

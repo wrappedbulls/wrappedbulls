@@ -4,7 +4,7 @@
 set -uo pipefail
 
 MINT="XfY2XBcgY8QSLtGHnmwYrMT4CQt5mVMj55tXRWHpump"
-PROGRAM="A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm"
+PROGRAM="F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS"
 HELIUS="https://mainnet.helius-rpc.com/?api-key=dc600042-d2ea-486d-8044-877884eb777b"
 DEPLOYER_KP="/root/.config/solana/id.json"
 WEB_SRC="/root/wrappedbulls-sol/web"

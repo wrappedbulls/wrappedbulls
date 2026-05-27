@@ -1,5 +1,5 @@
 {
-  "address": "A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm",
+  "address": "F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS",
   "metadata": {
     "name": "wrappedbulls",
     "version": "0.1.0",
@@ -52,7 +52,7 @@
           "docs": [
             "This program's account. used to locate its ProgramData."
           ],
-          "address": "A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm"
+          "address": "F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS"
         },
         {
           "name": "program_data",

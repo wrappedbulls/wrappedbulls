@@ -9,7 +9,7 @@ Acknowledgments: https://github.com/wrappedbulls/wrappedbulls
 # WrappedBulls security disclosure
 #
 # This is a Solana dApp. The on-chain program is:
-#   Program ID: A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm
+#   Program ID: F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS
 #   Source:     https://github.com/wrappedbulls/wrappedbulls
 #
 # To report a vulnerability, open a GitHub issue (preferred) or DM

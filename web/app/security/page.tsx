@@ -23,7 +23,7 @@ export default function SecurityPage() {
 
       <Section title="On-chain identity">
         <Field label="Program ID" mono>
-          A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm
+          F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS
         </Field>
         <Field label="Network">
           Solana - currently devnet for testing, mainnet at launch

@@ -37,11 +37,11 @@ These were latent because the original test runs predated the keypair switch.
 | Source | Value |
 |---|---|
 | `target/deploy/wrappedbulls.so` | exists, ~307KB |
-| Keypair-derived program ID | `A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm` |
-| `declare_id!` in `lib.rs` | `A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm` |
-| `Anchor.toml [programs.devnet]` | `A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm` |
-| `Anchor.toml [programs.localnet]` | `A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm` |
-| `Anchor.toml [programs.mainnet]` | `A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm` |
+| Keypair-derived program ID | `F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS` |
+| `declare_id!` in `lib.rs` | `F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS` |
+| `Anchor.toml [programs.devnet]` | `F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS` |
+| `Anchor.toml [programs.localnet]` | `F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS` |
+| `Anchor.toml [programs.mainnet]` | `F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS` |
 
 All five sources of truth aligned.
 

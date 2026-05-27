@@ -306,7 +306,7 @@ WorkingDirectory=/opt/wrappedbulls-web
 Environment=NODE_ENV=production
 Environment=PORT=3000
 Environment=HOSTNAME=127.0.0.1
-Environment=NEXT_PUBLIC_PROGRAM_ID=A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm
+Environment=NEXT_PUBLIC_PROGRAM_ID=F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS
 Environment=NEXT_PUBLIC_SOLANA_CLUSTER=mainnet-beta
 Environment=NEXT_PUBLIC_SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
 Environment=SOLANA_RPC_URL=https://mainnet.helius-rpc.com/?api-key=<HELIUS_KEY>

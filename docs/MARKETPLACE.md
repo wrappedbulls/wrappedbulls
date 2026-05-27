@@ -139,7 +139,7 @@ If Tensor's reviewer asks for update authority signature:
 
 > Reply: "Our collection NFT's update authority is a program PDA
 > (`PDA(["collection_authority"])`), derived from the wrappedbulls program ID
-> `A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm`. This is intentional , 
+> `F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS`. This is intentional , 
 > the program signs `verify_sized_collection_item` on every wrap so each
 > NFT auto-verifies into the collection without manual approvals.
 > Source: github.com/wrappedbulls/wrappedbulls. Happy to demonstrate the

@@ -59,4 +59,4 @@ nft_uri_template = "https://wrappedbulls.com/api/metadata/{tier}"
 # Anchor declare_id!. The onchain program address.
 # Regenerated per project via `solana-keygen new -o target/deploy/<name>-keypair.json`
 # during the clone step. Must match the deployed program.
-id = "A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm"
+id = "F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS"

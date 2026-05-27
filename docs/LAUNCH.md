@@ -98,7 +98,7 @@ deployer pubkey: FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ
 expected:        FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ
 balance:         5.5 SOL
 WBULL mint:      <YOUR_PUMPFUN_MINT>
-program ID:      A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm (matches Anchor.toml)
+program ID:      F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS (matches Anchor.toml)
 
 === Step 1: deploy program ===
 Deploying (this takes ~60s and burns ~5 SOL)...

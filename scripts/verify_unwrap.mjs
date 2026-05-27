@@ -3,7 +3,7 @@
 
 import { PublicKey, Connection } from "@solana/web3.js";
 
-const PROGRAM = new PublicKey("A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm");
+const PROGRAM = new PublicKey("F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS");
 const NFT_1 = new PublicKey("pz9fuh2Qh8ghCjVK84u7vgPPiN6wASUoHHBaoC3brMP");
 const TOKEN_MINT = new PublicKey("7BGVzbJ6kk59T4UTjFHJmkHoMNYHEYpjonSgv2PYC1CM");
 const ATA_PROGRAM = new PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");

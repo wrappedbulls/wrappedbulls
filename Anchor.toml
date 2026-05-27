@@ -5,13 +5,13 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-wrappedbulls = "A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm"
+wrappedbulls = "F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS"
 
 [programs.localnet]
-wrappedbulls = "A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm"
+wrappedbulls = "F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS"
 
 [programs.mainnet]
-wrappedbulls = "A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm"
+wrappedbulls = "F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS"
 
 [provider]
 cluster = "localnet"

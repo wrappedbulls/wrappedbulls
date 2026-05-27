@@ -8,7 +8,7 @@ set -o pipefail
 WEB=/root/wrappedbulls-sol/web
 DEPLOY=/opt/wrappedbulls-web
 HELIUS='https://mainnet.helius-rpc.com/?api-key=dc600042-d2ea-486d-8044-877884eb777b'
-PROG=A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm
+PROG=F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS
 MINT=XfY2XBcgY8QSLtGHnmwYrMT4CQt5mVMj55tXRWHpump
 
 echo "============================================================"

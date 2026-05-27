@@ -147,7 +147,7 @@ Done:
 
 - [x] Anchor program complete (initialize / wrap_bull / unwrap_bull / initialize_collection)
 - [x] Full anchor test suite passing including the vault follows NFT proof and adversarial vault security tests
-- [x] **Devnet deployed**: `A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm` (executable on devnet; on mainnet this address is currently an empty system account, see runbook)
+- [x] **Devnet deployed**: `F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS` (executable on devnet; on mainnet this address is currently an empty system account, see runbook)
 - [x] Anchor IDL published **on devnet** (program decodes as `wrappedbulls`, not "Unknown program")
 - [x] **Metaplex Certified Collection** (MCC) wired (devnet), verified on each wrap in tests
 - [x] **Single signer wrap_bull** (`nft_mint` is a PDA from `["nft_mint", bank.total_wrapped]`)

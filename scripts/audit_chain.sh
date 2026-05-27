@@ -25,7 +25,7 @@
 
 set -euo pipefail
 
-PROGRAM_ID="${PROGRAM_ID:-A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm}"
+PROGRAM_ID="${PROGRAM_ID:-F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS}"
 RPC_URL="${RPC_URL:-https://api.devnet.solana.com}"
 
 while [[ $# -gt 0 ]]; do

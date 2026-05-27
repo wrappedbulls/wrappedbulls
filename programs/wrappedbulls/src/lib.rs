@@ -34,7 +34,7 @@ use instructions::*;
 // under `[program] id =`. The clone script (P2.6) updates both in
 // lockstep when scaffolding a new project. If they disagree, the
 // program will load but the on-chain ID won't match expectations.
-declare_id!("A2tUttiL2v2fYxPyeUSZ75CqnjDp5sewCqcnXubgoxm");
+declare_id!("F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS");
 
 // ---- Protocol constants ----
 //
