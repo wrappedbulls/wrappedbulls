@@ -20,6 +20,9 @@
 [project]
 # Display name used in NFT names, collection name, and most UI copy.
 name = "WrappedBulls"
+# Live $WBULL mint (pump.fun launch address). Documentation only; the
+# program reads its own copy from the BullBank PDA after `initialize`.
+token_mint = "gAhvUSC7XamFqt6gr1JwHU2tEZFYQMEQYEsyKBSpump"
 # Singular noun form for one NFT (used in error messages and copy).
 # WrappedBulls → "Bull".
 unit_singular = "Bull"
