@@ -61,7 +61,7 @@ fi
 
 # Mainnet deployer keypair (must hold ~5.5 SOL on mainnet)
 KEYPAIR="${DEPLOYER_KEYPAIR:-$HOME/.config/solana/id.json}"
-EXPECTED_DEPLOYER="${EXPECTED_DEPLOYER:-FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ}"
+EXPECTED_DEPLOYER="${EXPECTED_DEPLOYER:-8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD}"
 
 if [ ! -f "$KEYPAIR" ]; then
   echo "ERROR: keypair not found at $KEYPAIR"

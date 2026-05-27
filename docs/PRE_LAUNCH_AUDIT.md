@@ -93,7 +93,7 @@ Helius API key wired server-side only (not in client JS bundle).
 
 ## Audit 7: Mainnet deployer integrity (PASS)
 
-- Pubkey: `FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ`
+- Pubkey: `8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD`
 - Mainnet balance: 0 SOL
 - Mainnet account: does not exist (no transactions, no accidental funding) ✓
 - Devnet account: does not exist ✓

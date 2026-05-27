@@ -1,7 +1,7 @@
 > # ⚠️ STALE ROYALTY CLAIM. correction
 > This doc states `seller_fee_basis_points=0` / "no royalty path". That is
 > **wrong as of 2026-05-15**: royalty is **5% (500 bps)**, creator
-> `FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ`, baked into `wrap_bull.rs`.
+> `8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD`, baked into `wrap_bull.rs`.
 > Treat any "0%" statement below as superseded. Authoritative:
 > [`LAUNCH_RUNBOOK.md`](LAUNCH_RUNBOOK.md).
 

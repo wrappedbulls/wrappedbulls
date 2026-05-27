@@ -3,7 +3,7 @@
 > cause a real launch mistake if copied into marketplace forms:
 > - **ROYALTY IS 5% (500 bps), NOT 0%.** Every wrapped bull's on-chain
 >   metadata has `seller_fee_basis_points = 500` and creator
->   `FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ` (share 100). Anywhere
+>   `8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD` (share 100). Anywhere
 >   below that says "0%" / "no royalty" / "`seller_fee_basis_points = 0`"
 >   is WRONG. enter **5%** and the treasury wallet in ME/Tensor forms.
 > - The "deployer wallet `FRZJ…TwQ`" references are wrong: `FRZJ…TwQ` is the
@@ -79,7 +79,7 @@ After launch + first wrap is on chain:
 
 1. Go to **[Magic Eden Creator Hub](https://creators.magiceden.io)** and
    connect your **deployer wallet** (the one that signed `initialize` , 
-   `FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ`).
+   `8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD`).
 2. Find the collection (it should auto-appear from MCC) and click
    **Claim Ownership**.
 3. Fill the listing application:

@@ -38,7 +38,7 @@ fi
 WBULL_MINT="$1"
 
 KEYPAIR="${DEPLOYER_KEYPAIR:-$HOME/.config/solana/id.json}"
-EXPECTED_DEPLOYER="${EXPECTED_DEPLOYER:-FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ}"
+EXPECTED_DEPLOYER="${EXPECTED_DEPLOYER:-8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD}"
 
 . "$HOME/.cargo/env" 2>/dev/null || true
 export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"

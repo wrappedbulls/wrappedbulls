@@ -18,7 +18,7 @@ Mainnet deploy of $WBULL + WrappedBulls program. Step-by-step, in order, with ex
 
 **Prerequisites (must all be true before starting):**
 
-- [ ] Mainnet deployer keypair generated **on your own machine** (not the bulls box). Pubkey: `FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ`. The seed phrase is **cold-backed** on paper, ideally 2 copies in different physical locations.
+- [ ] Mainnet deployer keypair generated **on your own machine** (not the bulls box). Pubkey: `8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD`. The seed phrase is **cold-backed** on paper, ideally 2 copies in different physical locations.
 - [ ] Deployer funded with **at least 5.5 SOL** on mainnet (only fund right before launch. don't pre-fund and leave SOL sitting around).
 - [ ] All pre-launch tests passing: `cargo test --manifest-path programs/wrappedbulls/Cargo.toml --lib` (10 tests) + `anchor test` (7 tests)
 - [ ] Browser E2E on devnet completed end-to-end (wrap + unwrap via wallet adapter UI). done
@@ -53,7 +53,7 @@ solana balance --keypair /tmp/mainnet-deployer.json --url mainnet-beta
 
 # 5. Confirm pubkey matches the expected one:
 solana address --keypair /tmp/mainnet-deployer.json
-# Expected: FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ
+# Expected: 8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD
 ```
 
 ---
@@ -94,8 +94,8 @@ DEPLOYER_KEYPAIR=/tmp/mainnet-deployer.json \
 **Expected (full run):**
 ```
 === Step 0: pre-flight checks ===
-deployer pubkey: FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ
-expected:        FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ
+deployer pubkey: 8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD
+expected:        8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD
 balance:         5.5 SOL
 WBULL mint:      <YOUR_PUMPFUN_MINT>
 program ID:      F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS (matches Anchor.toml)

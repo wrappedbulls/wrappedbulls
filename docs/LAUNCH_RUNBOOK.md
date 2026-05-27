@@ -25,7 +25,7 @@ but it was never the cause of the mainnet warning.
 | Role | Address | Used for |
 |---|---|---|
 | **Deployer / upgrade authority** | `GMrJpP7SaUkfyizsB3b8GeKWgDiqac3g5EaMGnMtkXCj` (bulls-box keypair `/root/.config/solana/id.json`) | Signs `anchor deploy`, `anchor idl init`, `initialize`, `initialize_collection`. Must be funded with mainnet SOL at launch. |
-| **Royalty treasury / on-chain creator** | `FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ` | Hardcoded in `wrap_bull.rs` as `ROYALTY_TREASURY`; written into every NFT's on-chain metadata as the creator (share 100, `verified:false` by design). Magic Eden / Tensor route the 5% secondary royalty here. Does NOT sign anything; just receives. |
+| **Royalty treasury / on-chain creator** | `8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD` | Hardcoded in `wrap_bull.rs` as `ROYALTY_TREASURY`; written into every NFT's on-chain metadata as the creator (share 100, `verified:false` by design). Magic Eden / Tensor route the 5% secondary royalty here. Does NOT sign anything; just receives. |
 
 These are intentionally two different wallets. The treasury is independent
 of the upgrade authority. it only needs to be a normal wallet the user
@@ -123,7 +123,7 @@ version (already synced + built + 12/12 tests pass on devnet as of
    - Sanity: `solana account <MINT> -u mainnet-beta` shows a real SPL
      mint (decimals 6 for pump.fun), mint authority null.
    - Confirm the program source on the box still has
-     `ROYALTY_TREASURY = FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ`
+     `ROYALTY_TREASURY = 8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD`
      and `ROYALTY_BPS = 500` in `programs/wrappedbulls/src/instructions/wrap_bull.rs`.
 1. **Fund the deployer/upgrade-authority wallet** `GMrJpP7Sa...`
    (`/root/.config/solana/id.json`) with **~9 SOL on mainnet**. Evidence-

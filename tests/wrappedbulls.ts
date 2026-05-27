@@ -129,7 +129,7 @@ async function assertVerifiedCollection(
 // expected by Magic Eden / Tensor — sellerFeeBasisPoints === 500 (5%) and a
 // single creator == the royalty treasury with 100% share. This is the proof
 // that the royalty/creator change in wrap_bull.rs actually lands on-chain.
-const ROYALTY_TREASURY = "FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ";
+const ROYALTY_TREASURY = "8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD";
 const ROYALTY_BPS = 500;
 async function assertRoyalty(
   connection: anchor.web3.Connection,

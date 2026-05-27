@@ -135,7 +135,7 @@ appear. they auto-index on the chain event.
 ### 1.7 Royalty
 
 - Hardcoded in [`programs/wrappedbulls/src/instructions/wrap_bull.rs:34`](../programs/wrappedbulls/src/instructions/wrap_bull.rs#L34):
-  `ROYALTY_TREASURY = FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ`,
+  `ROYALTY_TREASURY = 8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD`,
   `ROYALTY_BPS = 500`
 - Written into every NFT's metadata `creators[0]` and
   `seller_fee_basis_points`

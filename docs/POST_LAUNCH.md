@@ -35,7 +35,7 @@ DEPLOYER_KEYPAIR=/tmp/mainnet-deployer.json \
 ```
 
 Must report **0 fails**. Expected passes by this stage:
-- ✓ Keypair pubkey matches `FRZJpAtPcWJBRFziY6dZkBHMBSWVi12hXAtAJEHawTwQ`
+- ✓ Keypair pubkey matches `8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD`
 - ✓ Mainnet balance ≥ 6 SOL
 - ✓ build artifact + Anchor.toml alignment + declare_id! match
 - ✓ MCC readiness (web `.mcc` alternates + `web_apply_mcc.sh`)
