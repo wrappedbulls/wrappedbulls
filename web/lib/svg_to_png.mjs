@@ -177,8 +177,14 @@ export function contactSheet(svgs, opts = {}) {
 
 // --- Direct CLI usage: convert all samples to PNG + contact sheet ---
 
-if (import.meta.url === `file://${process.argv[1].replaceAll('\\', '/')}`
-  || process.argv[1]?.endsWith('svg_to_png.mjs')) {
+// Guard the standalone CLI block so importing from CJS or a bundler
+// (where process.argv[1] may be undefined) does not crash the module
+// load. Only run the CLI code when actually invoked as a script.
+const _argv1 = typeof process !== 'undefined' && process.argv && process.argv[1];
+if (_argv1 && (
+  import.meta.url === `file://${_argv1.replaceAll('\\', '/')}`
+  || _argv1.endsWith('svg_to_png.mjs')
+)) {
   const SAMPLES = path.resolve(import.meta.dirname, '..', '..', 'samples');
   const svgs = [];
   const files = fs.readdirSync(SAMPLES)

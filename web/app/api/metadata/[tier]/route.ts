@@ -89,7 +89,13 @@ export async function GET(req: NextRequest, ctx: RouteContext) {
   if (!bull) {
     return NextResponse.json(
       { error: `WrappedBulls #${tier} is not currently wrapped` },
-      { status: 404, headers: { "Cache-Control": NEGATIVE_CACHE } }
+      {
+        status: 404,
+        headers: {
+          "Cache-Control": NEGATIVE_CACHE,
+          "Access-Control-Allow-Origin": "*",
+        },
+      }
     );
   }
 
@@ -115,7 +121,7 @@ export async function GET(req: NextRequest, ctx: RouteContext) {
     name: `WrappedBulls #${tier}`,
     symbol: "WBULL",
     description:
-      `WrappedBulls #${tier} - a hybrid token-NFT. Holds 1,000,000 $WBULL ` +
+      `WrappedBulls #${tier}. A hybrid token + NFT. Holds 1,000,000 $WBULL ` +
       `locked in a vault whose authority is derived from this NFT's mint ` +
       `address. Sell the NFT, the tokens go with it. Unwrap to redeem.`,
     image: imageUrl,

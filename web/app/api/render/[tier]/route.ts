@@ -92,7 +92,13 @@ export async function GET(req: NextRequest, ctx: RouteContext) {
   if (!asset) {
     return new NextResponse(
       `WrappedBulls #${tier} is not currently wrapped`,
-      { status: 404, headers: { "Cache-Control": NEGATIVE_CACHE } }
+      {
+        status: 404,
+        headers: {
+          "Cache-Control": NEGATIVE_CACHE,
+          "Access-Control-Allow-Origin": "*",
+        },
+      }
     );
   }
 

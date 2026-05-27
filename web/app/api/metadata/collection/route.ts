@@ -28,9 +28,9 @@ export async function GET(req: NextRequest) {
     name: "WrappedBulls",
     symbol: "WBULL",
     description:
-      "WrappedBulls is a hybrid token-NFT layer for pump.fun-launched " +
+      "WrappedBulls is the first hybrid token + NFT layer for pump.fun " +
       "memecoins. Each bull NFT locks 1,000,000 $WBULL in a vault PDA " +
-      "whose authority is derived from the NFT's mint address - sell the " +
+      "whose authority is derived from the NFT's mint address. Sell the " +
       "NFT, the tokens follow. Tradeable on Magic Eden and Tensor; " +
       "unwrap any time to redeem the underlying $WBULL.",
     image,
