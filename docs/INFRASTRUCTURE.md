@@ -93,6 +93,20 @@ The Helius key is stored in systemd Environment only. Never committed. Never cli
 
 Served from `/var/www/wrappedbulls/`. Source of truth is `wrappedbulls-preview/` in this repo. Deploy via `scp wrappedbulls-preview/*.html *.png *.css root@vps:/var/www/wrappedbulls/`.
 
+## Runtime launch state
+
+The site reads launch state from `/var/lib/wrappedbulls/state.json` on every `/api/launch-state` request. No restart needed to flip.
+
+```
+# Go live with the $WBULL mint address
+wrappedbulls-set-launch-state live <WBULL_MINT>
+
+# Rollback to pre-launch
+wrappedbulls-set-launch-state pre-launch
+```
+
+The helper script writes atomically (`mv` rename) and prints both the new file state and the live API view for confirmation. Configured via `LAUNCH_STATE_FILE` env var on both colors so the file is shared and a flip is visible to both Next.js instances simultaneously.
+
 ## Watchdog
 
 - `wrappedbulls-watchdog.timer` fires every 60s

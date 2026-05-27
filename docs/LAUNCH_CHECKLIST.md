@@ -60,6 +60,16 @@ This is the irreversible deploy step. From here forward, the program lives oncha
     https://github.com/wrappedbulls/wrappedbulls
   ```
 
+## Phase 2.5. Flip launch state to live (T+12, no service restart needed)
+
+After Phase 2 succeeds and you have the $WBULL mint address, atomic flip the site to "live" so client UI shows post-launch copy + the mint:
+
+- [ ] SSH to VPS, run:
+  ```
+  wrappedbulls-set-launch-state live <WBULL_MINT>
+  ```
+  Effect: `/var/lib/wrappedbulls/state.json` is replaced atomically. `/api/launch-state` reflects the change on the next request (no Caddy reload, no service restart, no rebuild). Rollback: `wrappedbulls-set-launch-state pre-launch`.
+
 ## Phase 3. First wrap (the Phantom evidence step, T+15 to T+20)
 
 This is where you generate the tx that Phantom asked for, and prove the mechanic works end to end on mainnet.
@@ -76,6 +86,16 @@ This is where you generate the tx that Phantom asked for, and prove the mechanic
   - Vault PDA holds 1,000,000 $WBULL
   - NFT mint exists with metadata pointing at `https://wrappedbulls.com/api/metadata/1`
   - Collection NFT verified (MCC `verified == true`)
+
+## Phase 3.5. Cache warm-up (T+18, immediate)
+
+To make sure the first Magic Eden / Tensor crawl is served from cache rather than 1000 cold RPC reads:
+
+- [ ] From any machine with network access:
+  ```
+  node scripts/warmup_cache.mjs
+  ```
+  Hits `/api/metadata/[1..1000]` + `/api/render/[1..1000]` at 80ms pace. Takes ~2 minutes. Idempotent.
 
 ## Phase 4. Announce (T+20 to T+30)
 
