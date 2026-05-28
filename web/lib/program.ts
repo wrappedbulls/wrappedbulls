@@ -315,10 +315,43 @@ async function buildSignSimulateSend(
   const sig = await wallet.sendTransaction(tx, connection);
 
   // 7. Confirm with the same blockhash we built with.
-  await connection.confirmTransaction(
-    { signature: sig, blockhash, lastValidBlockHeight },
-    "confirmed",
-  );
+  // confirmTransaction throws "block height exceeded" when the blockhash
+  // window passes (~60s), EVEN IF the tx already landed in an earlier
+  // confirmed slot. We then cross-check the signature status directly
+  // before deciding the tx really failed. This kills the false-negative
+  // "expired" message that previously appeared after a successful wrap.
+  try {
+    await connection.confirmTransaction(
+      { signature: sig, blockhash, lastValidBlockHeight },
+      "confirmed",
+    );
+  } catch (e: any) {
+    const looksLikeExpiry =
+      /block height|expired|TransactionExpired/i.test(String(e?.message ?? e));
+    // Poll signature status for ~12s before giving up.
+    for (let attempt = 0; attempt < 8; attempt++) {
+      const { value } = await connection.getSignatureStatuses([sig]);
+      const st = value[0];
+      if (st && st.err) {
+        throw new Error(`onchain failure: ${JSON.stringify(st.err)}`);
+      }
+      if (
+        st &&
+        (st.confirmationStatus === "confirmed" ||
+          st.confirmationStatus === "finalized")
+      ) {
+        return sig;
+      }
+      await new Promise((r) => setTimeout(r, 1500));
+    }
+    if (looksLikeExpiry) {
+      throw new Error(
+        "Transaction sent but confirmation timed out. It may still land. Check Solscan: " +
+          `https://solscan.io/tx/${sig}`,
+      );
+    }
+    throw e;
+  }
 
   return sig;
 }

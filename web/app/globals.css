@@ -107,3 +107,61 @@ main, header, footer { position: relative; z-index: 1; }
   white-space: nowrap;
   width: max-content;
 }
+
+/* ---------- static-style top nav (chrome match with /art, /thesis, etc.) ---------- */
+.topnav {
+  border-bottom: 2px solid var(--bull-rule);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  background: var(--bull-paper);
+}
+.topnav .brand {
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 14px 0;
+  text-transform: uppercase;
+}
+.topnav .brand .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--bull-ink);
+  margin: 0 6px 1px 0;
+  vertical-align: middle;
+}
+.topnav .links { display: flex; gap: 18px; padding: 14px 0; flex-wrap: wrap; }
+.topnav .links a {
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+}
+.topnav .links a:hover { background: var(--bull-ink); color: var(--bull-paper); padding: 0 4px; margin: 0 -4px; }
+.topnav .links a.current { font-weight: 800; border-bottom: 2px solid var(--bull-ink); padding-bottom: 2px; margin-bottom: -2px; }
+.topnav .meta { color: var(--bull-dim); padding: 8px 0; font-weight: 400; display: flex; align-items: center; gap: 8px; }
+
+/* ---------- static-style footer (chrome match) ---------- */
+footer.terminal {
+  border-top: 2px solid var(--bull-ink);
+  padding: 24px 0 64px;
+  margin-top: 32px;
+  color: var(--bull-dim);
+  font-size: 12px;
+}
+footer.terminal .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+footer.terminal .row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+footer.terminal a { text-decoration: none; }
+footer.terminal a:hover { background: var(--bull-ink); color: var(--bull-paper); }
+footer.terminal .dim { opacity: 0.45; pointer-events: none; }
+
+@media (max-width: 600px) {
+  .topnav { padding: 0 16px; font-size: 12px; gap: 8px; }
+  .topnav .brand { padding: 12px 0; }
+  .topnav .links { gap: 12px; padding: 0 0 12px; }
+  .topnav .meta { padding: 0 0 12px; }
+}

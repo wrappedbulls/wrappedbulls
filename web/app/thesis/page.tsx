@@ -68,7 +68,6 @@ export default function ThesisPage() {
       <div className="mt-24 text-center">
         <div className="text-5xl mb-6">🐂</div>
         <div className="text-2xl font-bold mb-3">
-          Crypto + Bulls ={" "}
           <span style={{ color: "var(--bull-accent)" }}>WrappedBulls</span>
         </div>
         <p className="text-[var(--bull-dim)] italic">

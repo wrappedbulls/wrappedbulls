@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import {
   fetchBank,
   fetchUserOwnedBulls,
@@ -187,7 +188,7 @@ export default function UnwrapPage() {
         <div className="card text-center py-12">
           <div className="text-xl font-bold mb-3">Connect your wallet</div>
           <p className="text-[var(--bull-dim)] mb-6">Phantom, Solflare, or any Solana wallet.</p>
-          <p className="text-xs text-[var(--bull-dim)]">Use the <span className="text-[var(--bull-accent)]">Select Wallet</span> button in the top right.</p>
+          <div className="flex justify-center"><WalletMultiButton /></div>
         </div>
       ) : loading ? (
         <div className="card">

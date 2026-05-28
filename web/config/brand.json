@@ -17,10 +17,10 @@
   },
 
   "copy": {
-    "tagline":        "Trade-as-mint NFTs on Solana.",
-    "hero_subtitle":  "Lock 1,000,000 $WBULL into a unique on-chain Bull. Sell the NFT, the tokens follow.",
-    "description":    "WrappedBulls is an ERC404-style hybrid token-NFT layer on top of a pump.fun token. Each bull NFT carries 1M $WBULL in an NFT-owned vault; the tokens follow the NFT through every transfer.",
-    "footer_blurb":   "Built on Solana. Permissionless wrap and unwrap. Vault-follows-NFT mechanic."
+    "tagline":        "Hybrid token + NFT layer on pump.fun.",
+    "hero_subtitle":  "Lock 1,000,000 $WBULL into a unique onchain Bull. Sell the NFT, the tokens follow.",
+    "description":    "WrappedBulls is the first hybrid token + NFT layer for pump.fun memecoins. Each bull NFT carries 1M $WBULL in an NFT owned vault; the tokens follow the NFT through every transfer.",
+    "footer_blurb":   "Built on Solana. Permissionless wrap and unwrap. Vault follows NFT mechanic."
   },
 
   "colors": {

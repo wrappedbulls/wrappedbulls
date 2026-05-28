@@ -8,14 +8,17 @@ export default function ConnectButton() {
       <WalletMultiButton />
       <style jsx global>{`
         .cb-wallet-btn .wallet-adapter-button {
-          background: var(--bull-accent) !important;
-          color: #1a1a00 !important;
-          font-family: ui-monospace, SFMono-Regular, Menlo, monospace !important;
-          font-weight: 600 !important;
+          background: var(--bull-ink) !important;
+          color: var(--bull-paper) !important;
+          font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+          font-weight: 700 !important;
           font-size: 12px !important;
+          letter-spacing: 0.06em !important;
+          text-transform: uppercase !important;
           height: 38px !important;
           padding: 0 10px !important;
-          border-radius: 8px !important;
+          border-radius: 0 !important;
+          border: 2px solid var(--bull-ink) !important;
           max-width: 160px !important;
           overflow: hidden !important;
           text-overflow: ellipsis !important;
@@ -30,13 +33,15 @@ export default function ConnectButton() {
           }
         }
         .cb-wallet-btn .wallet-adapter-button:hover {
-          background: var(--bull-accent-hi) !important;
+          background: var(--bull-paper) !important;
+          color: var(--bull-ink) !important;
         }
         .cb-wallet-btn .wallet-adapter-button:not([disabled]):hover {
-          background: var(--bull-accent-hi) !important;
+          background: var(--bull-paper) !important;
+          color: var(--bull-ink) !important;
         }
         .cb-wallet-btn .wallet-adapter-button-trigger {
-          background: var(--bull-accent) !important;
+          background: var(--bull-ink) !important;
         }
         /* Wallet selection modal: cap at a reasonable width on desktop, fall
            back to viewport width on mobile. Centered horizontally. */

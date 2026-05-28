@@ -121,7 +121,7 @@ export default async function BullPage({ params }: BullPageContext) {
             {cluster === "mainnet-beta" && (
               <>
                 <a
-                  href={`https://magiceden.io/item-details/${bull.nftMint.toBase58()}`}
+                  href={`https://magiceden.us/item-details/${bull.nftMint.toBase58()}`}
                   target="_blank"
                   rel="noopener"
                   className="btn btn-secondary text-sm"

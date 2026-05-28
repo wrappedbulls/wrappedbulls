@@ -22,7 +22,7 @@ import * as renderer from './renderer.mjs';
 //   MOUTH : 0 none
 const MASCOTS = [
   // 1. The flagship — classic brown bull, ivory horns, calm pasture bg.
-  //    The default. The platonic CryptoBull.
+  //    The default. The platonic WrappedBull.
   { id: '01_classic_brown',     label: 'Classic — brown bull, ivory horns, pasture',
     body: 0, horn: 0, eye: 0, bg: 0, acc: 0, eyewear: 0, mouth: 0 },
 
