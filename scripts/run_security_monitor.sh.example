@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# Cron runner for scripts/security_monitor.ts.
+#
+# Copy this to a location OUTSIDE the repo (so the RPC key is never committed),
+# fill in the real values, `chmod +x`, and point cron at it, e.g.:
+#
+#   */5 * * * * /root/wb-monitor.sh
+#
+# The monitor sends no transactions; it only simulates a wrap + an unwrap
+# against live mainnet and writes one line per run to the log. On a FAIL it
+# exits non-zero and (if MONITOR_WEBHOOK is set) POSTs an alert.
+
+set -uo pipefail
+
+# Toolchain (anchor + solana) on PATH for ts-node / @coral-xyz/anchor.
+export PATH="$HOME/.cargo/bin:$HOME/.local/share/solana/install/active_release/bin:$PATH"
+
+# Mainnet RPC. Use a private/paid endpoint; do NOT commit the real key.
+export ANCHOR_PROVIDER_URL="https://your-mainnet-rpc-endpoint"
+
+# Any parseable keypair — only the anchor provider needs it; simulation does
+# not verify signatures.
+export ANCHOR_WALLET="/path/to/keypair.json"
+
+# A pubkey that holds >= 1,000,000 $WBULL so the wrap simulation can run.
+export SIM_WRAP_PAYER="<pubkey-holding-1M-WBULL>"
+
+# Optional: push alerts on FAIL. e.g. a Telegram bot sendMessage URL that
+# accepts a JSON body with a {text} field, or any webhook you wrap.
+# export MONITOR_WEBHOOK="https://api.telegram.org/bot<token>/sendMessage?chat_id=<id>"
+
+REPO_DIR="/path/to/wrappedbulls"
+LOG="/var/log/wrappedbulls-monitor.log"
+
+cd "$REPO_DIR" || exit 1
+npx ts-node scripts/security_monitor.ts >> "$LOG" 2>&1
