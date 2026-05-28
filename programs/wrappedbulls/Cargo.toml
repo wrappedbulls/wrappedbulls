@@ -33,13 +33,13 @@ idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
 # `proc_macro2::Span::source_file()` API, and the account-bumps macro emits
 # heap-friendly code (no stack overflow with our 15-account WrapBull).
 # NOTE: `init-if-needed` is enabled solely for the WrapBull `vault` ATA.
-# An attacker can pre-create the next slot's vault ATA (a canonical, empty
+# An attacker can pre-create the next slot's vault ATA (a canonical
 # associated token account) to make plain `init` fail with IllegalOwner and
-# freeze all wraps. `init_if_needed` lets a wrap adopt that pre-existing
-# empty ATA instead. The reinit surface is bounded: the vault is a canonical
-# ATA (mint + authority + token_program are derivation-enforced), and the
-# handler additionally requires `vault.amount == 0`, so no balance can be
-# silently reinterpreted. Every other account still uses plain `init`.
+# freeze all wraps. `init_if_needed` lets a wrap adopt that pre-existing ATA
+# instead. The reinit surface is bounded: the vault is a canonical ATA (mint
+# + authority + token_program are derivation-enforced), so only $WBULL can
+# ever sit in it, and unwrap_bull drains the FULL balance back to the holder.
+# Every other account still uses plain `init`.
 anchor-lang = { version = "1.0.2", features = ["init-if-needed"] }
 anchor-spl = { version = "1.0.2", features = ["metadata", "token_2022"] }
 # Metaplex Token Metadata — pinned to the version anchor-spl 1.0.2 requires.

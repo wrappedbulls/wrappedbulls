@@ -86,7 +86,12 @@ pub struct UnwrapBull<'info> {
         associated_token::mint = token_mint,
         associated_token::authority = nft_mint_authority,
         associated_token::token_program = bulls_token_program,
-        constraint = vault.amount == TOKENS_PER_BULL @ WrappedbullsError::VaultBalanceMismatch,
+        // `>=` not `==`: anyone can transfer extra $WBULL into a canonically
+        // derived vault to push its balance above 1M and brick a strict
+        // equality check. We only require the bull's 1M is backed; the handler
+        // drains the FULL balance on unwrap, so donated tokens go to the holder
+        // and the close always succeeds.
+        constraint = vault.amount >= TOKENS_PER_BULL @ WrappedbullsError::VaultBalanceMismatch,
     )]
     pub vault: Box<InterfaceAccount<'info, TokenAccountIf>>,
 
@@ -159,10 +164,15 @@ pub fn handler(ctx: Context<UnwrapBull>, tier_index: u16) -> Result<()> {
     let auth_bump = ctx.bumps.nft_mint_authority;
     let signer_seeds: &[&[&[u8]]] = &[&[b"vault", nft_mint_key.as_ref(), &[auth_bump]]];
 
-    // === 1. Drain vault: 1M $TOKEN -> payer ===
+    // === 1. Drain vault FULLY -> payer ===
+    // Transfer the ENTIRE vault balance, not a hardcoded 1M. The balance is
+    // guaranteed >= 1M (account constraint); any extra was donated by an
+    // attacker trying to brick the unwrap, so it simply flows to the holder.
+    // Draining everything is also what lets the close below always succeed.
     // `transfer_checked` (required by Token-2022; accepted by classic SPL).
     {
         let decimals = ctx.accounts.token_mint.decimals;
+        let drain_amount = ctx.accounts.vault.amount;
         let cpi_accounts = TransferChecked {
             from: ctx.accounts.vault.to_account_info(),
             mint: ctx.accounts.token_mint.to_account_info(),
@@ -174,7 +184,7 @@ pub fn handler(ctx: Context<UnwrapBull>, tier_index: u16) -> Result<()> {
             cpi_accounts,
             signer_seeds,
         );
-        token_interface::transfer_checked(cpi_ctx, TOKENS_PER_BULL, decimals)?;
+        token_interface::transfer_checked(cpi_ctx, drain_amount, decimals)?;
     }
 
     // === 2. Close vault token account; rent -> payer ===
