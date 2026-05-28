@@ -43,4 +43,7 @@ pub enum WrappedbullsError {
 
     #[msg("Only the program's upgrade authority may call initialize")]
     UnauthorizedInitializer,
+
+    #[msg("Vault token account already holds a balance — cannot wrap into a non-empty vault")]
+    VaultNotEmpty,
 }

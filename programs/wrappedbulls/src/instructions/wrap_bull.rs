@@ -121,8 +121,14 @@ pub struct WrapBull<'info> {
     /// created with the SAME program (classic SPL or Token-2022) that owns
     /// the $TOKEN mint. For pump.fun Token-2022 mints this derives the
     /// Token-2022 ATA address, which is different from the classic SPL ATA.
+    // `init_if_needed` (not `init`): this ATA is canonically derived, so
+    // anyone can compute and pre-create it empty. An attacker who does so for
+    // the next slot makes a plain `init` fail with IllegalOwner and freezes
+    // every wrap. Adopting a pre-existing EMPTY ATA is safe — the handler
+    // requires `vault.amount == 0` before depositing, so a donated balance
+    // cannot be silently absorbed into a bull that would later fail unwrap.
     #[account(
-        init,
+        init_if_needed,
         payer = payer,
         associated_token::mint = token_mint,
         associated_token::authority = nft_mint_authority,
@@ -218,6 +224,13 @@ pub fn handler(ctx: Context<WrapBull>, tier_index: u16) -> Result<()> {
     // === 1. Validate balance ===
     let balance = ctx.accounts.payer_token_account.amount;
     require!(balance >= TOKENS_PER_BULL, WrappedbullsError::InsufficientBalance);
+
+    // === 1b. Vault must be empty ===
+    // With `init_if_needed` the vault may be a pre-existing ATA (an attacker
+    // can create the next slot's vault to grief `init`). Adopting an EMPTY one
+    // is fine; refuse a non-empty one so a donated balance can never be folded
+    // into a bull that would then fail the unwrap `amount == 1M` check.
+    require!(ctx.accounts.vault.amount == 0, WrappedbullsError::VaultNotEmpty);
 
     // === 2. Validate + pop tier ===
     require!(
