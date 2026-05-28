@@ -57,4 +57,4 @@ The risk surface area for marketplace flow has two components:
 | Marketplace can't list / display the NFT | Standard Metaplex Token Metadata + master edition format = guaranteed listable. Same format every successful Solana NFT collection uses |
 | Marketplace fee / royalty interferes with unwrap | Our NFTs have `seller_fee_basis_points=0`. There's no royalty path to interfere with. Even if there were, royalty is paid in SOL on the buy side; doesn't touch the vault token |
 
-The remaining unknown. "what does Tensor's UI actually look like with a CryptoBull listed". is a UX question, not a protocol question. We'll validate it on mainnet day with a founder-bull listing.
+The remaining unknown. "what does Tensor's UI actually look like with a wrapped Bull listed". is a UX question, not a protocol question. We'll validate it on mainnet day with a founder bull listing.

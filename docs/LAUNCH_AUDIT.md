@@ -127,11 +127,7 @@ Generated 2026-05-27, after the Next.js API layer deploy.
 **Currently:** foundational palette + JetBrains Mono is done, but the layout structures are pre-restyle.
 **Action:** restyle each page to match `wrappedbulls-preview/*.html` patterns: 2px borders, ASCII frames, kvblock terminal style. Multi session.
 
-### 14. Stop cryptobulls-web on port 3000
-**Currently:** the cryptobulls-web service still runs on the VPS (DNS detached, no traffic, but consumes memory).
-**Action:** `systemctl stop cryptobulls-web && systemctl disable cryptobulls-web` and remove from Caddyfile.
-
-### 15. Backup script for /opt/wrappedbulls-web
+### 14. Backup script for /opt/wrappedbulls-web
 **Action:** daily tarball of the deploy dir to an offsite location.
 
 ---
