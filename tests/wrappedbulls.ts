@@ -31,7 +31,9 @@ const CU_BUMP = ComputeBudgetProgram.setComputeUnitLimit({ units: 600_000 });
 import {
   TOKEN_PROGRAM_ID,
   ASSOCIATED_TOKEN_PROGRAM_ID,
+  createAssociatedTokenAccountIdempotentInstruction,
   createMint,
+  createMintToInstruction,
   mintTo,
   getAssociatedTokenAddressSync,
   getOrCreateAssociatedTokenAccount,
@@ -1078,5 +1080,257 @@ describe("wrappedbulls", () => {
     const bankAfter: any = await program.account.bullBank.fetch(bankPda);
     expect(bankAfter.totalWrapped.toString()).to.equal(bankBefore.totalWrapped.toString());
     expect(bankAfter.inCirculation).to.equal(bankBefore.inCirculation);
+  });
+
+  // =========================================================================
+  // ADVERSARIAL: regression coverage for the vault griefing classes we
+  // already patched. Vaults are canonically derivable token accounts, so
+  // anyone can pre-create or fund them. These tests pin the fixes:
+  //   1. init_if_needed on the wrap vault adopts an empty pre-created ATA.
+  //   2. removing the `vault.amount == 0` guard means a donated pre-created
+  //      ATA is also adopted, and unwrap drains the full balance back.
+  //   3. post-wrap donations to a live bull's vault never brick unwrap; the
+  //      holder gets their 1M plus the dust the griefer wasted.
+  // =========================================================================
+
+  // Top up alice using a manually built tx with an explicit fresh blockhash.
+  // The spl-token `mintTo` helper trips the web3.js blockhash cache when many
+  // txs are fired back to back on the test validator.
+  async function topUpAlice(amount: bigint) {
+    const { blockhash, lastValidBlockHeight } =
+      await connection.getLatestBlockhash("confirmed");
+    const ix = createMintToInstruction(
+      tokenMint, aliceTokenAccount, alice.publicKey, amount,
+    );
+    const tx = new Transaction({
+      recentBlockhash: blockhash, feePayer: alice.publicKey,
+    }).add(ix);
+    tx.sign(alice);
+    const sig = await connection.sendRawTransaction(tx.serialize());
+    await connection.confirmTransaction(
+      { signature: sig, blockhash, lastValidBlockHeight }, "confirmed",
+    );
+  }
+
+  // Carol pre-creates the canonical vault ATA. Same pattern as topUpAlice:
+  // manual tx with explicit blockhash to avoid the cache trap.
+  async function carolPreCreateVaultAta(vault: PublicKey, vaultAuthority: PublicKey) {
+    const { blockhash, lastValidBlockHeight } =
+      await connection.getLatestBlockhash("confirmed");
+    const ix = createAssociatedTokenAccountIdempotentInstruction(
+      carol.publicKey, vault, vaultAuthority, tokenMint,
+    );
+    const tx = new Transaction({
+      recentBlockhash: blockhash, feePayer: carol.publicKey,
+    }).add(ix);
+    tx.sign(carol);
+    const sig = await connection.sendRawTransaction(tx.serialize());
+    await connection.confirmTransaction(
+      { signature: sig, blockhash, lastValidBlockHeight }, "confirmed",
+    );
+  }
+
+  // Mint tokens directly into a vault using an explicit fresh blockhash.
+  // The spl-token `mintTo` helper trips the web3.js blockhash cache when many
+  // txs are fired in rapid succession on the test validator (the cache holds
+  // a stale hash and the SDK times out polling for a new one). This avoids
+  // that by building the tx manually.
+  async function donateToVault(vault: PublicKey, amount: bigint) {
+    const { blockhash, lastValidBlockHeight } =
+      await connection.getLatestBlockhash("confirmed");
+    const ix = createMintToInstruction(tokenMint, vault, alice.publicKey, amount);
+    const tx = new Transaction({
+      recentBlockhash: blockhash,
+      feePayer: alice.publicKey,
+    }).add(ix);
+    tx.sign(alice);
+    const sig = await connection.sendRawTransaction(tx.serialize());
+    await connection.confirmTransaction(
+      { signature: sig, blockhash, lastValidBlockHeight },
+      "confirmed",
+    );
+  }
+
+  // Helper to pick the tier the program will actually allocate next, so the
+  // test does not desync from however many tiers the earlier tests consumed.
+  async function nextTierToWrap(): Promise<{ tierIndex: number; bankBefore: any }> {
+    const bankBefore: any = await program.account.bullBank.fetch(bankPda);
+    const free = (bankBefore.freeTiers as number[]).map(Number);
+    const tierIndex = free.length
+      ? free[free.length - 1]
+      : Number(bankBefore.nextTier);
+    return { tierIndex, bankBefore };
+  }
+
+  it("GRIEF: pre-created empty vault ATA cannot block wrap (init_if_needed adopts it)", async () => {
+    await mintTo(connection, alice, tokenMint, aliceTokenAccount, alice, TOKENS_PER_BULL);
+
+    const { tierIndex, bankBefore } = await nextTierToWrap();
+    const nftMintPk = deriveNftMint(
+      program.programId, BigInt(bankBefore.totalWrapped.toString()),
+    );
+    const pdas = deriveWrapPdas(
+      program.programId, tierIndex, nftMintPk, tokenMint, alice.publicKey,
+    );
+    const collPdas = deriveCollectionPdas(
+      program.programId, collectionMint.publicKey, alice.publicKey,
+    );
+
+    // Carol pre-creates the canonical vault ATA empty before alice can wrap.
+    // Before the fix, this caused IllegalOwner during init and froze all
+    // wraps. After init_if_needed, the wrap adopts it.
+    await getOrCreateAssociatedTokenAccount(
+      connection, carol, tokenMint, pdas.vaultAuthority, true,
+    );
+    expect((await getAccount(connection, pdas.vault)).amount).to.equal(0n);
+
+    await program.methods.wrapBull(tierIndex).accounts({
+      bank: bankPda, payer: alice.publicKey, payerTokenAccount: aliceTokenAccount,
+      tokenMint, nftMint: nftMintPk, nftMintAuthority: pdas.vaultAuthority,
+      vault: pdas.vault, payerNftAccount: pdas.payerNftAccount,
+      bullAsset: pdas.bullAsset, metadata: pdas.metadata,
+      masterEdition: pdas.masterEdition, collectionMint: collectionMint.publicKey,
+      collectionMetadata: collPdas.collectionMetadata,
+      collectionMasterEdition: collPdas.collectionMasterEdition,
+      collectionAuthority: collPdas.collectionAuthority,
+      tokenProgram: TOKEN_PROGRAM_ID, bullsTokenProgram: TOKEN_PROGRAM_ID,
+      associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+      tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+      systemProgram: SystemProgram.programId, rent: SYSVAR_RENT_PUBKEY,
+    }).preInstructions([CU_BUMP], true).signers([alice]).rpc();
+
+    expect((await getAccount(connection, pdas.vault)).amount).to.equal(TOKENS_PER_BULL);
+    expect((await getAccount(connection, pdas.payerNftAccount)).amount).to.equal(1n);
+
+    // Cleanup: unwrap so we leave the tier free for later tests.
+    await program.methods.unwrapBull(tierIndex).accounts({
+      bank: bankPda, payer: alice.publicKey, payerTokenAccount: aliceTokenAccount,
+      tokenMint, nftMint: nftMintPk, nftMintAuthority: pdas.vaultAuthority,
+      vault: pdas.vault, payerNftAccount: pdas.payerNftAccount,
+      bullAsset: pdas.bullAsset, metadata: pdas.metadata,
+      masterEdition: pdas.masterEdition, collectionMint: collectionMint.publicKey,
+      collectionMetadata: collPdas.collectionMetadata,
+      tokenProgram: TOKEN_PROGRAM_ID, bullsTokenProgram: TOKEN_PROGRAM_ID,
+      tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+    }).preInstructions([CU_BUMP], true).signers([alice]).rpc();
+  });
+
+  it("GRIEF: donated pre-created vault still wraps; unwrap drains the donation too", async () => {
+    await topUpAlice(TOKENS_PER_BULL);
+    const donation = 1_500_000n; // dust in base units, well under 1M
+
+    const { tierIndex, bankBefore } = await nextTierToWrap();
+    const nftMintPk = deriveNftMint(
+      program.programId, BigInt(bankBefore.totalWrapped.toString()),
+    );
+    const pdas = deriveWrapPdas(
+      program.programId, tierIndex, nftMintPk, tokenMint, alice.publicKey,
+    );
+    const collPdas = deriveCollectionPdas(
+      program.programId, collectionMint.publicKey, alice.publicKey,
+    );
+
+    // Carol pre-creates the vault ATA, then a donation is minted straight
+    // into it. The program does not care who funded it; before the fix, a
+    // `vault.amount == 0` guard rejected the wrap. Now the wrap proceeds
+    // and unwrap full-drain returns it.
+    await carolPreCreateVaultAta(pdas.vault, pdas.vaultAuthority);
+    await donateToVault(pdas.vault, donation);
+    expect((await getAccount(connection, pdas.vault)).amount).to.equal(donation);
+
+    const aliceBefore = (await getAccount(connection, aliceTokenAccount)).amount;
+
+    await program.methods.wrapBull(tierIndex).accounts({
+      bank: bankPda, payer: alice.publicKey, payerTokenAccount: aliceTokenAccount,
+      tokenMint, nftMint: nftMintPk, nftMintAuthority: pdas.vaultAuthority,
+      vault: pdas.vault, payerNftAccount: pdas.payerNftAccount,
+      bullAsset: pdas.bullAsset, metadata: pdas.metadata,
+      masterEdition: pdas.masterEdition, collectionMint: collectionMint.publicKey,
+      collectionMetadata: collPdas.collectionMetadata,
+      collectionMasterEdition: collPdas.collectionMasterEdition,
+      collectionAuthority: collPdas.collectionAuthority,
+      tokenProgram: TOKEN_PROGRAM_ID, bullsTokenProgram: TOKEN_PROGRAM_ID,
+      associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+      tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+      systemProgram: SystemProgram.programId, rent: SYSVAR_RENT_PUBKEY,
+    }).preInstructions([CU_BUMP], true).signers([alice]).rpc();
+
+    // Vault now holds the donation plus the 1M deposit.
+    expect((await getAccount(connection, pdas.vault)).amount)
+      .to.equal(donation + TOKENS_PER_BULL);
+
+    // Alice unwraps; the constraint is `>= 1M` and the transfer drains it
+    // all, so she gets back her 1M plus the donation.
+    await program.methods.unwrapBull(tierIndex).accounts({
+      bank: bankPda, payer: alice.publicKey, payerTokenAccount: aliceTokenAccount,
+      tokenMint, nftMint: nftMintPk, nftMintAuthority: pdas.vaultAuthority,
+      vault: pdas.vault, payerNftAccount: pdas.payerNftAccount,
+      bullAsset: pdas.bullAsset, metadata: pdas.metadata,
+      masterEdition: pdas.masterEdition, collectionMint: collectionMint.publicKey,
+      collectionMetadata: collPdas.collectionMetadata,
+      tokenProgram: TOKEN_PROGRAM_ID, bullsTokenProgram: TOKEN_PROGRAM_ID,
+      tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+    }).preInstructions([CU_BUMP], true).signers([alice]).rpc();
+
+    const aliceAfter = (await getAccount(connection, aliceTokenAccount)).amount;
+    // Net: she paid 1M, got 1M + donation back. So balance changed by +donation.
+    expect(aliceAfter - aliceBefore).to.equal(donation);
+  });
+
+  it("GRIEF: post-wrap donation to a live bull's vault cannot block unwrap", async () => {
+    await topUpAlice(TOKENS_PER_BULL);
+    const donation = 1_234_567n;
+
+    const { tierIndex, bankBefore } = await nextTierToWrap();
+    const nftMintPk = deriveNftMint(
+      program.programId, BigInt(bankBefore.totalWrapped.toString()),
+    );
+    const pdas = deriveWrapPdas(
+      program.programId, tierIndex, nftMintPk, tokenMint, alice.publicKey,
+    );
+    const collPdas = deriveCollectionPdas(
+      program.programId, collectionMint.publicKey, alice.publicKey,
+    );
+
+    // Normal wrap first.
+    await program.methods.wrapBull(tierIndex).accounts({
+      bank: bankPda, payer: alice.publicKey, payerTokenAccount: aliceTokenAccount,
+      tokenMint, nftMint: nftMintPk, nftMintAuthority: pdas.vaultAuthority,
+      vault: pdas.vault, payerNftAccount: pdas.payerNftAccount,
+      bullAsset: pdas.bullAsset, metadata: pdas.metadata,
+      masterEdition: pdas.masterEdition, collectionMint: collectionMint.publicKey,
+      collectionMetadata: collPdas.collectionMetadata,
+      collectionMasterEdition: collPdas.collectionMasterEdition,
+      collectionAuthority: collPdas.collectionAuthority,
+      tokenProgram: TOKEN_PROGRAM_ID, bullsTokenProgram: TOKEN_PROGRAM_ID,
+      associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+      tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+      systemProgram: SystemProgram.programId, rent: SYSVAR_RENT_PUBKEY,
+    }).preInstructions([CU_BUMP], true).signers([alice]).rpc();
+    expect((await getAccount(connection, pdas.vault)).amount).to.equal(TOKENS_PER_BULL);
+
+    // Griefer deposits tokens into the live bull's vault (modeled here by
+    // minting straight in; from the program's perspective any donor looks
+    // identical). Before the fix this bricked unwrap (`amount == 1M`
+    // constraint failed).
+    await donateToVault(pdas.vault, donation);
+    expect((await getAccount(connection, pdas.vault)).amount)
+      .to.equal(TOKENS_PER_BULL + donation);
+
+    const aliceBefore = (await getAccount(connection, aliceTokenAccount)).amount;
+
+    await program.methods.unwrapBull(tierIndex).accounts({
+      bank: bankPda, payer: alice.publicKey, payerTokenAccount: aliceTokenAccount,
+      tokenMint, nftMint: nftMintPk, nftMintAuthority: pdas.vaultAuthority,
+      vault: pdas.vault, payerNftAccount: pdas.payerNftAccount,
+      bullAsset: pdas.bullAsset, metadata: pdas.metadata,
+      masterEdition: pdas.masterEdition, collectionMint: collectionMint.publicKey,
+      collectionMetadata: collPdas.collectionMetadata,
+      tokenProgram: TOKEN_PROGRAM_ID, bullsTokenProgram: TOKEN_PROGRAM_ID,
+      tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+    }).preInstructions([CU_BUMP], true).signers([alice]).rpc();
+
+    const aliceAfter = (await getAccount(connection, aliceTokenAccount)).amount;
+    expect(aliceAfter - aliceBefore).to.equal(TOKENS_PER_BULL + donation);
   });
 });
