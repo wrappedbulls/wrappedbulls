@@ -1,14 +1,15 @@
-// /stats. The Vault Deflation dashboard.
+// /deflation. The Vault Deflation dashboard.
 //
-// Makes the core mechanic legible and screenshot friendly: how much $WBULL is
-// locked in vaults and out of circulation, what percent of total supply that
-// is, the herd floor (redeemable backing), and the lifetime wrap counters.
-// Server rendered against live chain state, same pattern as the homepage.
+// Server renders the shell + an accurate first paint from live chain state,
+// then a small client island (DeflationLive) keeps just the numbers updating
+// every 30s. Chain reads are cached server-side (lib/deflation.ts) so the poll
+// is cheap no matter how many viewers are watching.
 
 import Link from "next/link";
-import { fetchBullBank, getConnection } from "@/lib/chain";
 import { isPreLaunch } from "@/lib/launch-state";
 import { LAUNCH_CONFIG } from "@/lib/launch-config.generated";
+import { loadDeflationStats } from "@/lib/deflation";
+import DeflationLive from "./DeflationLive";
 
 export const metadata = {
   title: "Vault Deflation · WrappedBulls",
@@ -18,63 +19,12 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
-const TOKENS_PER_BULL = LAUNCH_CONFIG.supply.tokensPerNft; // 1,000,000
-const MAX_SUPPLY = LAUNCH_CONFIG.supply.maxSupply; // 1,000 bulls
-const TICKER = LAUNCH_CONFIG.project.ticker; // WBULL
-// pump.fun standard total supply fallback if the live read fails.
-const FALLBACK_TOTAL_SUPPLY = 1_000_000_000;
+const TICKER = LAUNCH_CONFIG.project.ticker;
+const MAX_SUPPLY = LAUNCH_CONFIG.supply.maxSupply;
 
-interface DeflationStats {
-  inCirculation: number;
-  totalWrapped: string;
-  totalUnwrapped: string;
-  lockedTokens: number; // whole $WBULL locked in vaults right now
-  totalSupply: number; // whole $WBULL
-  pctLocked: number; // percent of total supply locked
-  slotsFilled: number;
-  slotsRemaining: number;
-}
-
-async function loadStats(): Promise<DeflationStats | null> {
-  try {
-    const conn = getConnection();
-    const bank = await fetchBullBank(conn);
-    if (!bank) return null;
-
-    let totalSupply = FALLBACK_TOTAL_SUPPLY;
-    try {
-      const supply = await conn.getTokenSupply(bank.tokenMint, "confirmed");
-      const ui = supply.value.uiAmount;
-      if (ui && ui > 0) totalSupply = ui;
-    } catch {
-      // keep fallback
-    }
-
-    const lockedTokens = bank.inCirculation * TOKENS_PER_BULL;
-    const pctLocked = totalSupply > 0 ? (lockedTokens / totalSupply) * 100 : 0;
-
-    return {
-      inCirculation: bank.inCirculation,
-      totalWrapped: bank.totalWrapped.toString(),
-      totalUnwrapped: bank.totalUnwrapped.toString(),
-      lockedTokens,
-      totalSupply,
-      pctLocked,
-      slotsFilled: bank.inCirculation,
-      slotsRemaining: Math.max(0, MAX_SUPPLY - bank.inCirculation),
-    };
-  } catch {
-    return null;
-  }
-}
-
-function fmt(n: number): string {
-  return n.toLocaleString("en-US");
-}
-
-export default async function StatsPage() {
+export default async function DeflationPage() {
   const preLaunch = isPreLaunch();
-  const stats = preLaunch ? null : await loadStats();
+  const stats = preLaunch ? null : await loadDeflationStats();
 
   return (
     <main className="max-w-5xl mx-auto px-4 sm:px-6 py-16">
@@ -103,31 +53,7 @@ export default async function StatsPage() {
         </div>
       ) : (
         <>
-          {/* HERO: percent of supply locked */}
-          <div className="card mb-6 text-center py-12">
-            <div className="text-xs uppercase tracking-wider text-[var(--bull-dim)] mb-3">
-              ${TICKER} supply locked in vaults
-            </div>
-            <div
-              className="font-extrabold leading-none text-[var(--bull-accent)]"
-              style={{ fontSize: "clamp(48px, 12vw, 110px)" }}
-            >
-              {stats.pctLocked.toFixed(2)}%
-            </div>
-            <div className="text-[var(--bull-dim)] mt-4 text-sm">
-              {fmt(stats.lockedTokens)} ${TICKER} sealed away and out of circulation
-            </div>
-          </div>
-
-          {/* STAT GRID */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-            <Stat label="Locked in vaults" value={`${fmt(stats.lockedTokens)}`} sub={`$${TICKER}`} />
-            <Stat label="Bulls in circulation" value={`${stats.slotsFilled}`} sub={`of ${MAX_SUPPLY} max`} />
-            <Stat label="Slots remaining" value={`${fmt(stats.slotsRemaining)}`} sub="open to wrap" />
-            <Stat label="Herd floor" value={`${fmt(stats.lockedTokens)}`} sub={`$${TICKER} redeemable backing`} />
-            <Stat label="Total wrapped" value={fmt(Number(stats.totalWrapped))} sub="lifetime" />
-            <Stat label="Total unwrapped" value={fmt(Number(stats.totalUnwrapped))} sub="lifetime" />
-          </div>
+          <DeflationLive initial={stats} ticker={TICKER} maxSupply={MAX_SUPPLY} />
 
           <div className="card">
             <div className="text-[var(--bull-ink)] font-bold text-xs uppercase tracking-wider mb-2">
@@ -147,18 +73,12 @@ export default async function StatsPage() {
             <Link href="/wrap" className="btn btn-primary">Wrap a bull</Link>
             <Link href="/gallery" className="btn btn-secondary">See the herd</Link>
           </div>
+
+          <div className="mt-6 text-xs text-[var(--bull-dim)]">
+            Live from chain. Updates every 30 seconds.
+          </div>
         </>
       )}
     </main>
-  );
-}
-
-function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
-  return (
-    <div className="card">
-      <div className="text-xs uppercase text-[var(--bull-dim)] tracking-wider mb-1">{label}</div>
-      <div className="text-2xl md:text-3xl font-extrabold text-[var(--bull-accent)] break-all">{value}</div>
-      {sub && <div className="text-xs text-[var(--bull-dim)] mt-1">{sub}</div>}
-    </div>
   );
 }
