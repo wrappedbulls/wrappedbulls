@@ -64,6 +64,54 @@ async function loadAllBulls(
   return out;
 }
 
+export interface RankedBull {
+  tier: number;
+  nftMint: string;
+  rank: number; // 1 = rarest
+  total: number;
+  score: number;
+}
+
+// Rank every in-circulation bull in one pass, using the same score as
+// getRarityForTier so ranks are consistent across the bull page and gallery.
+export async function getAllRarities(
+  conn: Connection,
+  programId: PublicKey
+): Promise<RankedBull[]> {
+  const all = await cacheWrap(
+    "rarity-all",
+    "v1",
+    60_000,
+    () => loadAllBulls(conn, programId)
+  );
+  const total = all.length;
+  if (total === 0) return [];
+
+  const hist: Record<string, Map<number, number>> = {};
+  for (const cat of CATEGORIES) hist[cat] = new Map();
+  for (const b of all) {
+    for (const cat of CATEGORIES) {
+      const v = b.traits[cat];
+      hist[cat].set(v, (hist[cat].get(v) || 0) + 1);
+    }
+  }
+  function score(b: BullEntry): number {
+    let s = 0;
+    for (const cat of CATEGORIES) {
+      const v = b.traits[cat];
+      s += 1 / (hist[cat].get(v) || 1);
+    }
+    return s;
+  }
+  const scored = all.map((b) => ({
+    tier: b.tier,
+    nftMint: b.nftMint,
+    score: score(b),
+  }));
+  scored.sort((a, b) => b.score - a.score); // rarest first
+  return scored.map((b, i) => ({ ...b, rank: i + 1, total }));
+}
+
 export async function getRarityForTier(
   conn: Connection,
   programId: PublicKey,

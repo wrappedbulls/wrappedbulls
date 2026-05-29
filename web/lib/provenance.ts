@@ -12,7 +12,7 @@
 
 import { Connection, PublicKey } from "@solana/web3.js";
 import { getProgramId, fetchBullBank } from "@/lib/chain";
-import { cacheGet, cacheSet } from "@/lib/cache";
+import { cacheGet, cacheSet, cacheWrap } from "@/lib/cache";
 
 export const ERA_SIZE = 100;
 export const OG_MAX_SERIAL = 100;
@@ -64,6 +64,30 @@ export async function deriveSerial(
     }
   }
   return null;
+}
+
+// Reverse lookup table mint -> serial for the whole herd, so the gallery can
+// resolve every bull's serial without a brute force per bull. Keyed on the
+// current total_wrapped so it always covers all existing bulls; rebuilds
+// cheaply when a new bull is wrapped.
+export async function buildSerialMap(
+  conn: Connection,
+): Promise<Record<string, number>> {
+  const programId = getProgramId();
+  let upper = 0;
+  try {
+    const bank = await fetchBullBank(conn);
+    if (bank) upper = Number(bank.totalWrapped);
+  } catch {
+    return {};
+  }
+  return cacheWrap("serial-map", String(upper), 300_000, async () => {
+    const map: Record<string, number> = {};
+    for (let n = 0; n <= upper; n++) {
+      map[nftMintPda(n, programId).toBase58()] = n + 1;
+    }
+    return map;
+  });
 }
 
 export async function getProvenance(

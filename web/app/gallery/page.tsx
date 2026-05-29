@@ -1,6 +1,9 @@
 import Link from "next/link";
-import { fetchBullBank, fetchBullAsset, getConnection } from "@/lib/chain";
+import { fetchBullBank, getConnection, getProgramId } from "@/lib/chain";
 import { isPreLaunch } from "@/lib/launch-state";
+import { getAllRarities } from "@/lib/rarity";
+import { buildSerialMap, eraOf, isOgSerial } from "@/lib/provenance";
+import HerdGrid, { type HerdCard } from "./HerdGrid";
 
 export const metadata = {
   title: "Gallery - All wrapped WrappedBulls",
@@ -17,24 +20,44 @@ const PRE_LAUNCH_EXAMPLES = [
   "bull_16", "bull_19", "bull_22", "bull_25", "bull_28",
 ];
 
-async function loadAllBulls() {
+interface BankLite {
+  inCirculation: number;
+  totalWrapped: bigint;
+}
+
+async function loadHerd(): Promise<{ cards: HerdCard[]; bank: BankLite | null }> {
   const conn = getConnection();
   const bank = await fetchBullBank(conn);
-  if (!bank) return { tiers: [] as number[], bank: null };
-  // Tiers 1..nextTier-1 minus those currently in free_tiers (unwrapped, awaiting reuse)
-  const allMinted = new Set<number>();
-  for (let t = 1; t < bank.nextTier; t++) allMinted.add(t);
-  for (const t of bank.freeTiers) allMinted.delete(t);
-  const tiers = Array.from(allMinted).sort((a, b) => a - b);
-  return { tiers, bank };
+  if (!bank) return { cards: [], bank: null };
+
+  // One getProgramAccounts (via getAllRarities) gives every in-circulation
+  // bull with its rank; the serial map resolves provenance without a per-bull
+  // brute force. Both are cached.
+  const [ranked, serialMap] = await Promise.all([
+    getAllRarities(conn, getProgramId()),
+    buildSerialMap(conn),
+  ]);
+
+  const cards: HerdCard[] = ranked.map((r) => {
+    const serial = serialMap[r.nftMint] ?? null;
+    return {
+      tier: r.tier,
+      rank: r.rank,
+      total: r.total,
+      serial,
+      era: serial ? eraOf(serial) : null,
+      isOG: serial ? isOgSerial(serial) : false,
+    };
+  });
+
+  return { cards, bank: { inCirculation: bank.inCirculation, totalWrapped: bank.totalWrapped } };
 }
 
 export default async function GalleryPage() {
   const preLaunch = isPreLaunch();
-  // In pre-launch mode, don't read chain state (avoids leaking devnet stats).
-  const { tiers, bank } = preLaunch
-    ? { tiers: [] as number[], bank: null }
-    : await loadAllBulls();
+  const { cards, bank } = preLaunch
+    ? { cards: [] as HerdCard[], bank: null }
+    : await loadHerd();
 
   return (
     <main className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
@@ -49,8 +72,6 @@ export default async function GalleryPage() {
           <div className="card flex gap-6">
             <Stat label="Live" value={bank.inCirculation} />
             <Stat label="Wrapped lifetime" value={bank.totalWrapped.toString()} />
-            {/* Capacity = 1000 - in-circulation. Tiers in free_tiers (unwrapped)
-                are reusable, so they count as available, not consumed. */}
             <Stat label="Slots remaining" value={Math.max(0, 1000 - bank.inCirculation)} />
           </div>
         )}
@@ -85,7 +106,7 @@ export default async function GalleryPage() {
             ))}
           </div>
         </>
-      ) : tiers.length === 0 ? (
+      ) : cards.length === 0 ? (
         <div className="card text-center py-16">
           <div className="text-2xl font-bold mb-3">
             {bank && bank.totalWrapped > 0n
@@ -100,22 +121,7 @@ export default async function GalleryPage() {
           <Link href="/wrap" className="btn btn-primary">Wrap a bull →</Link>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {tiers.map((tier) => (
-            <Link key={tier} href={`/bull/${tier}`} className="card card-hover group p-3">
-              <div className="aspect-square rounded-lg overflow-hidden bg-[#0a0a0c] mb-2">
-                <img
-                  src={`/api/render/${tier}`}
-                  alt={`WrappedBulls #${tier}`}
-                  className="w-full h-full pixelated"
-                  loading="lazy"
-                />
-              </div>
-              <div className="text-xs text-[var(--bull-dim)]">WrappedBulls</div>
-              <div className="text-sm font-bold group-hover:text-[var(--bull-accent)]">#{tier}</div>
-            </Link>
-          ))}
-        </div>
+        <HerdGrid bulls={cards} />
       )}
     </main>
   );
