@@ -4,6 +4,7 @@ import { selectTraits, deriveSeed } from "@/lib/renderer.mjs";
 import { notFound } from "next/navigation";
 import ShareButtons from "@/app/components/ShareButtons";
 import { getRarityForTier } from "@/lib/rarity";
+import { getProvenance } from "@/lib/provenance";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 30;
@@ -49,6 +50,7 @@ export default async function BullPage({ params }: BullPageContext) {
   const traits = selectTraits(seed) as Record<string, number>;
   const cluster = getCluster();
   const rarity = await getRarityForTier(conn, getProgramId(), tier);
+  const prov = await getProvenance(conn, bull.nftMint.toBase58(), bull.wrappedAt);
 
   const wrappedAt = new Date(bull.wrappedAt * 1000);
   const explorerCluster = cluster === "mainnet-beta" ? "" : `?cluster=${cluster}`;
@@ -71,6 +73,23 @@ export default async function BullPage({ params }: BullPageContext) {
         <div>
           <div className="text-xs uppercase tracking-wider text-[var(--bull-dim)] mb-2">WrappedBulls</div>
           <h1 className="h1 mb-3">#{tier}</h1>
+
+          {prov.serial !== null && (
+            <div className="flex flex-wrap items-center gap-2 mb-4 text-xs">
+              <span className="border-2 border-[var(--bull-ink)] px-2 py-1 font-bold uppercase tracking-wider">
+                Serial #{prov.serial}
+              </span>
+              <span className="border-2 border-[var(--bull-ink)] px-2 py-1 font-bold uppercase tracking-wider">
+                Era {prov.era}
+              </span>
+              {prov.isOG && (
+                <span className="px-2 py-1 font-bold uppercase tracking-wider bg-[var(--bull-ink)] text-[var(--bull-paper)]">
+                  OG · Founding Herd
+                </span>
+              )}
+            </div>
+          )}
+
           <div className="text-[var(--bull-dim)] mb-8 leading-relaxed">
             Holds <span className="text-[var(--bull-accent)] font-bold">1,000,000 $WBULL</span> in a
             vault tied to this NFT's mint. Sell the NFT and the tokens follow it to the buyer.

@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { fetchBullAsset, getConnection } from "@/lib/chain";
 import { selectTraits, deriveSeed } from "@/lib/renderer.mjs";
 import { cacheWrapSWR } from "@/lib/cache";
+import { getProvenance } from "@/lib/provenance";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -106,7 +107,16 @@ export async function GET(req: NextRequest, ctx: RouteContext) {
   const seed: Buffer = deriveSeed(bull.nftMint.toBase58());
   const traits = selectTraits(seed) as Record<string, number>;
 
-  const attributes = [
+  // Provenance: derived from the mint + wrap timestamp, read only. Does not
+  // affect the image. Surfaced as attributes so Magic Eden / Tensor display
+  // and let collectors filter by Serial, Era, and Founding Herd.
+  const prov = await getProvenance(
+    getConnection(),
+    bull.nftMint.toBase58(),
+    bull.wrappedAt,
+  );
+
+  const attributes: Array<{ trait_type: string; value: string | number; display_type?: string }> = [
     { trait_type: "Tier", value: tier },
     { trait_type: "Body", value: TRAIT_LABELS.body[traits.body] },
     { trait_type: "Horn", value: TRAIT_LABELS.horn[traits.horn] },
@@ -116,6 +126,14 @@ export async function GET(req: NextRequest, ctx: RouteContext) {
     { trait_type: "Eyewear", value: TRAIT_LABELS.eyewear[traits.eyewear] },
     { trait_type: "Mouth", value: TRAIT_LABELS.mouth[traits.mouth] },
   ];
+  if (prov.serial !== null) {
+    attributes.push({ trait_type: "Serial", value: prov.serial });
+    attributes.push({ trait_type: "Era", value: prov.era as number });
+    attributes.push({ trait_type: "Founding Herd", value: prov.isOG ? "yes" : "no" });
+  }
+  if (prov.wrappedAt > 0) {
+    attributes.push({ display_type: "date", trait_type: "Wrapped", value: prov.wrappedAt });
+  }
 
   const metadata = {
     name: `WrappedBulls #${tier}`,
