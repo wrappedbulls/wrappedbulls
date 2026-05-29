@@ -9,6 +9,7 @@ const NAV = [
   { href: "/wrap", label: "WRAP" },
   { href: "/unwrap", label: "UNWRAP" },
   { href: "/gallery", label: "GALLERY" },
+  { href: "/deflation", label: "DEFLATION" },
   { href: "/art", label: "ART" },
   { href: "/thesis", label: "THESIS" },
   { href: "/tech", label: "TECH" },

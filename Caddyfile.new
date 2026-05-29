@@ -39,7 +39,7 @@ wrappedbulls.com, www.wrappedbulls.com {
   # for the Next.js client bundle assets. Active health check (/api/health)
   # alone governs failover; passive fail_duration/max_fails are intentionally
   # omitted so a misbehaving client cannot mark a healthy upstream down.
-  @walletRoutes path /wrap /wrap/* /unwrap /unwrap/* /gallery /gallery/* /bull/* /wallet/* /_next/*
+  @walletRoutes path /wrap /wrap/* /unwrap /unwrap/* /gallery /gallery/* /deflation /deflation/* /bull/* /wallet/* /_next/*
   handle @walletRoutes {
     reverse_proxy 127.0.0.1:3001 127.0.0.1:3002 {
       lb_policy first
