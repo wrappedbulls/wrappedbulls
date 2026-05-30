@@ -26,6 +26,14 @@ export default function Footer() {
               [ X ]
             </a>{" "}
             &nbsp;
+            <a
+              href="https://coincommunities.org/communities/gAhvUSC7XamFqt6gr1JwHU2tEZFYQMEQYEsyKBSpump"
+              target="_blank"
+              rel="noopener"
+            >
+              [ COINCOMM ]
+            </a>{" "}
+            &nbsp;
             <a href="https://github.com/wrappedbulls/wrappedbulls" target="_blank" rel="noopener">
               [ GH ]
             </a>{" "}
