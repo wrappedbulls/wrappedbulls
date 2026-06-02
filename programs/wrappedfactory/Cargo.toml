@@ -1,0 +1,29 @@
+[package]
+name = "wrappedfactory"
+version = "0.1.0"
+description = "WrappedFactory: permissionless wrap-layer deploys on top of any pump.fun token. Sibling program to wrappedbulls."
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "wrappedfactory"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+
+[dependencies]
+# Same Anchor + Metaplex versions as the wrappedbulls program. Keeping them
+# in lockstep means the two programs share IDL tooling and can be composed
+# in the same Anchor test environment without dependency conflicts.
+#
+# init-if-needed: enabled for the vault ATA, identical reasoning to wrappedbulls
+# (the canonical-ATA pre-creation grief vector). All other accounts use plain
+# `init` so the reinit surface stays bounded.
+anchor-lang = { version = "1.0.2", features = ["init-if-needed"] }
+anchor-spl = { version = "1.0.2", features = ["metadata", "token_2022"] }
+mpl-token-metadata = "=5.1.2-alpha.2"
