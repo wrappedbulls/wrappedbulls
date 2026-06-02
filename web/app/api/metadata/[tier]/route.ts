@@ -101,7 +101,16 @@ export async function GET(req: NextRequest, ctx: RouteContext) {
   }
 
   const origin = getOrigin(req);
-  const imageUrl = `${origin}/api/render/${tier}`;
+  // Image URL is keyed by nft_mint, NOT tier. The tier-keyed render URL is
+  // unsafe as a marketplace-facing image: when a tier is unwrapped + re-
+  // wrapped, a fresh nft_mint produces a new visual, but the per-tier URL
+  // is stable -- so ME/Tensor/solana-fm CDNs serve permanently-cached
+  // pre-rewrap bytes. Per-mint URL is immutable (mints don't re-roll),
+  // so the CDN bytes are correct forever and a future re-roll naturally
+  // moves to a fresh URL. (Fixed 2026-06-02 after a user reported tier 79
+  // showing the pre-rewrap art on Magic Eden while the site rendered the
+  // post-rewrap art.)
+  const imageUrl = `${origin}/api/render/mint/${bull.nftMint.toBase58()}`;
   const externalUrl = `${origin}/bull/${tier}`;
 
   const seed: Buffer = deriveSeed(bull.nftMint.toBase58());

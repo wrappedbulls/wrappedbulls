@@ -26,10 +26,22 @@ const TRAIT_LABELS = {
 
 export async function generateMetadata({ params }: { params: Promise<{ tier: string }> }) {
   const { tier } = await params;
+  // Resolve the current bull's nft_mint so the OG image URL is per-mint
+  // and immune to social-platform image caches going stale across re-rolls.
+  // Falls back to the tier-keyed URL if the bull isn't currently wrapped
+  // (slot is free) — that endpoint will 404 the same way OG images do.
+  let imageUrl = `/api/render/${tier}`;
+  const t = parseInt(tier, 10);
+  if (Number.isInteger(t) && t >= 1 && t <= 1000) {
+    try {
+      const bull = await fetchBullAsset(getConnection(), t);
+      if (bull) imageUrl = `/api/render/mint/${bull.nftMint.toBase58()}`;
+    } catch { /* OG image silent-fallback to tier URL; harmless */ }
+  }
   return {
     title: `WrappedBulls #${tier}`,
     description: `On-chain hybrid bull NFT holding 1,000,000 $WBULL in a vault tied to the NFT mint.`,
-    openGraph: { images: [`/api/render/${tier}`] },
+    openGraph: { images: [imageUrl] },
   };
 }
 
@@ -63,7 +75,7 @@ export default async function BullPage({ params }: BullPageContext) {
         <div>
           <div className="card p-3">
             <img
-              src={`/api/render/${tier}`}
+              src={`/api/render/mint/${bull.nftMint.toBase58()}`}
               alt={`WrappedBulls #${tier}`}
               className="w-full pixelated rounded-lg"
             />
