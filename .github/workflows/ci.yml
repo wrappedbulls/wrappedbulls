@@ -78,8 +78,13 @@ jobs:
 
       - run: npm ci
 
-      - name: next build (runs prebuild -> sync-config -> tsc -> bundler)
-        run: npx next build
+      - name: npm run build (fires prebuild -> sync-config -> next build)
+        # MUST be `npm run build`, not `npx next build` — only the
+        # former triggers npm's `prebuild` lifecycle hook that runs
+        # `sync-config` to generate web/lib/launch-config.generated.ts
+        # from config/launch.toml. Without it the bundler errors with
+        # "Module not found: @/lib/launch-config.generated".
+        run: npm run build
         env:
           NEXT_PUBLIC_DEBUG_TX: "0"
 
