@@ -29,11 +29,26 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps) {
   // Best effort: we don't fetch chain in generateMetadata for SEO speed,
-  // we just embed the slug. The real title is set inside the page.
+  // we just embed the slug (truncated to keep OG titles clean). openGraph
+  // image is intentionally a static factory banner; per deployment art
+  // requires a chain read which is too expensive for metadata.
+  const safe = params.slug.slice(0, 24);
+  const title = `WRAPPEDBULLS // launch / ${safe}`;
   return {
-    title: `WRAPPEDBULLS // launch / ${params.slug}`,
+    title,
     description:
       "A wrap layer deployed via the WrappedFactory. Wrap, unwrap, gallery, live stats.",
+    openGraph: {
+      title,
+      description: "A wrap layer deployed via the WrappedFactory.",
+      images: [{ url: "/wrappedbulls-banner.png" }],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      images: ["/wrappedbulls-banner.png"],
+    },
   };
 }
 
@@ -45,17 +60,20 @@ export default async function LaunchDeploymentPage({ params }: PageProps) {
 
   // Slug resolution: if the slug parses as a Solana pubkey, look up by
   // token_mint directly. Otherwise treat it as a ticker (case-insensitive)
-  // and scan the bulk reader for the matching deployment. The pubkey path
-  // is one RPC call; the ticker path is one bulk getProgramAccounts.
+  // and scan the bulk reader. Pre-filter ticker candidates so an attacker
+  // can't force a bulk getProgramAccounts call with arbitrary slugs
+  // (/launch/aaa, /launch/bbb...) — only valid-looking tickers reach the
+  // bulk path.
   try {
     tokenMint = new PublicKey(params.slug);
   } catch {
     tokenMint = null;
   }
+  const isTickerShape = /^[A-Za-z0-9]{1,10}$/.test(params.slug);
   try {
     if (tokenMint) {
       collection = await fetchWrappedCollection(conn, tokenMint);
-    } else {
+    } else if (isTickerShape) {
       const candidate = params.slug.toUpperCase();
       const all = await fetchAllWrappedCollections(conn);
       collection = all.find((c) => c.ticker.toUpperCase() === candidate) ?? null;

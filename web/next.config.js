@@ -16,6 +16,29 @@ const nextConfig = {
     // Allow API routes to read solana account data on the server
     // without static rendering trying to pre-render them at build time.
   },
+  // CORS headers for the public embed assets so third-party sites can
+  // load the script + poll the activity feed. Audit L: without this,
+  // any cross-origin fetch from a partner's embedded widget gets
+  // blocked by the browser.
+  async headers() {
+    return [
+      {
+        source: "/embed.js",
+        headers: [
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Access-Control-Allow-Methods", value: "GET, OPTIONS" },
+        ],
+      },
+      {
+        source: "/api/factory/activity",
+        headers: [
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Access-Control-Allow-Methods", value: "GET, OPTIONS" },
+          { key: "Access-Control-Allow-Headers", value: "Content-Type" },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

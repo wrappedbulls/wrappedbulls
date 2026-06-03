@@ -33,8 +33,15 @@ export default function EmbedDemoPage() {
     mountRef.current.appendChild(s);
   }, [ticker, theme]);
 
+  // Compute the embed origin from the actual page origin so the snippet
+  // works correctly on staging / preview / localhost without hardcoding
+  // wrappedbulls.com. Falls back to wrappedbulls.com during SSR (where
+  // window is undefined) since the snippet is mostly copy/pasted in the
+  // browser anyway.
+  const embedOrigin =
+    typeof window !== "undefined" ? window.location.origin : "https://wrappedbulls.com";
   const snippet =
-    `<script\n  src="https://wrappedbulls.com/embed.js"` +
+    `<script\n  src="${embedOrigin}/embed.js"` +
     (ticker ? `\n  data-ticker="${ticker}"` : "") +
     (theme === "dark" ? `\n  data-theme="dark"` : "") +
     `\n  data-limit="10"\n></script>`;

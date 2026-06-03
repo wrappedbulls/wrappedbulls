@@ -24,15 +24,17 @@ import {
   createTransferCheckedInstruction,
 } from "@solana/spl-token";
 
-// Constants mirror the on-chain WrappedFactory program. Keep in lockstep
-// with state.rs. If MAX_SUPPLY ever moves (e.g. realloc upgrade), update
-// here AND in lib/factory.ts.
-const MIN_SUPPLY = 100;
-const MAX_SUPPLY = 2_000;
-const MAX_NAME_LEN = 25;
-const MAX_TICKER_LEN = 10;
-const MAX_URI_LEN = 195;
-const DEPLOY_COST_WBULL = 1_000_000;
+// Import constants from the single source of truth in lib/factory.ts
+// rather than redefining them here. Prevents silent drift when state.rs
+// changes and lib/factory.ts gets updated but the wizard doesn't.
+import {
+  MIN_SUPPLY,
+  MAX_SUPPLY,
+  MAX_NAME_LEN,
+  MAX_TICKER_LEN,
+  MAX_ART_URI_LEN as MAX_URI_LEN,
+  DEPLOY_COST_WBULL_UI as DEPLOY_COST_WBULL,
+} from "@/lib/factory";
 
 type ArtSourceType = "baseUri" | "rendererUrl";
 

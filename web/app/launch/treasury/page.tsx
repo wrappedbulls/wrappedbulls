@@ -39,8 +39,13 @@ export default async function BullTreasuryPage() {
   let factoryWbullMint = null as string | null;
   let rpcError: string | null = null;
   try {
-    treasury = await fetchBullTreasuryState(conn);
-    const cfg = await fetchFactoryConfig(conn);
+    // Parallel: treasury + factory config are independent reads. Halves
+    // page latency vs the prior sequential pattern.
+    const [t, cfg] = await Promise.all([
+      fetchBullTreasuryState(conn),
+      fetchFactoryConfig(conn),
+    ]);
+    treasury = t;
     if (cfg) factoryWbullMint = cfg.wbullMint.toBase58();
   } catch (e) {
     rpcError = (e as Error).message;
