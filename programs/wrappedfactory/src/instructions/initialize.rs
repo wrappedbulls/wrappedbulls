@@ -99,7 +99,8 @@ pub fn handler(ctx: Context<Initialize>, wbull_mint: Pubkey) -> Result<()> {
     cfg.total_deployments = 0;
     cfg.total_wbull_deposited = 0;
     cfg.bump = ctx.bumps.factory_config;
-    cfg.reserved = [0u8; 96];
+    cfg.paused = false;
+    cfg.reserved = [0u8; 95];
 
     // ----- BullTreasuryState -----
     let treasury = &mut ctx.accounts.bull_treasury_state;

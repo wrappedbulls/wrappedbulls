@@ -50,6 +50,10 @@ export interface FactoryConfig {
   totalDeployments:    number;
   totalWbullDeposited: bigint;
   bump:                number;
+  /** Global circuit breaker. When true, the on-chain program rejects
+   *  new wraps, deploys, and treasury claims. Unwrap is never blocked.
+   *  Flipped via set_factory_paused, gated to program upgrade authority. */
+  paused:              boolean;
 }
 
 export interface DepositEntry {
@@ -192,7 +196,12 @@ export async function fetchFactoryConfig(
   const totalWbullDeposited = d.readBigUInt64LE(off);
   off += 8;
   const bump = d.readUInt8(off);
-  return { wbullMint, admin, totalDeployments, totalWbullDeposited, bump };
+  off += 1;
+  // `paused` follows the bump. On pre-pause-upgrade data, the byte at
+  // this offset is the first reserved byte (zeroed at initialize), which
+  // deserializes to false -- safe default for unpatched chain state.
+  const paused = d.readUInt8(off) !== 0;
+  return { wbullMint, admin, totalDeployments, totalWbullDeposited, bump, paused };
 }
 
 export async function fetchBullTreasuryState(

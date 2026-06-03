@@ -74,6 +74,31 @@ interface DeployTxBody {
 // 413; we never buffer the full payload.
 const MAX_BODY_BYTES = 64_000;
 
+// Canary deployer allowlist. Comma-separated base58 pubkeys read from
+// FACTORY_CANARY_ALLOWLIST. When non-empty, only listed wallets can call
+// deploy-tx -- everyone else gets a clean 403 with a "canary" code. When
+// the env var is unset or empty, the allowlist is disabled (post-canary,
+// open to anyone).
+//
+// Purpose: at launch, run the Factory in deployer-only mode for the
+// first 48 hours so we stress-test mainnet behavior under real conditions
+// before opening to public deploys. Lifting the canary is a single env
+// var + restart, no code change. The on-chain program is unchanged --
+// this is a server-side gate; a sophisticated user invoking the program
+// directly via CLI is not blocked, by design (the gate is for UX
+// triage, not security).
+function parseAllowlist(): Set<string> {
+  const raw = process.env.FACTORY_CANARY_ALLOWLIST ?? "";
+  const trimmed = raw.trim();
+  if (!trimmed) return new Set();
+  return new Set(
+    trimmed
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0),
+  );
+}
+
 export async function POST(req: NextRequest) {
   const declaredLength = parseInt(req.headers.get("content-length") || "0", 10);
   if (declaredLength > MAX_BODY_BYTES) {
@@ -103,6 +128,20 @@ export async function POST(req: NextRequest) {
     tokensPerWrap = new BN(body.tokensPerWrap);
   } catch {
     return err("could not parse deployer/tokenMint/tokensPerWrap", "invalid_pubkey");
+  }
+
+  // ------- Canary allowlist gate (server-side, UX-level) -------
+  const allowlist = parseAllowlist();
+  if (allowlist.size > 0 && !allowlist.has(deployer.toBase58())) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error:
+          "Factory deploys are temporarily limited to a canary allowlist while we monitor mainnet behavior. Public deploys open at the end of the canary window.",
+        code: "canary",
+      },
+      { status: 403 },
+    );
   }
 
   // ------- Resolve all PDAs + ATAs -------

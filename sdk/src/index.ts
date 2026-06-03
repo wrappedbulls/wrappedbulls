@@ -326,6 +326,7 @@ export class FactoryClient {
       ? TOKEN_2022_PROGRAM_ID
       : TOKEN_PROGRAM_ID;
 
+    const [factoryConfig]  = factoryConfigPda(this.programId);
     const [collAddr]       = collectionPda(this.programId, opts.tokenMint);
     const [collMintAddr]   = collectionMintPda(this.programId, opts.tokenMint);
     const [collAuth]       = collectionAuthorityPda(this.programId, opts.tokenMint);
@@ -342,7 +343,10 @@ export class FactoryClient {
 
     const data = this.coder.encode("wrap", { tierIndex });
 
+    // factory_config is the first account so the on-chain pause check
+    // fires before any other constraint evaluation.
     const keys = [
+      { pubkey: factoryConfig,               isSigner: false, isWritable: false },
       { pubkey: collAddr,                    isSigner: false, isWritable: true  },
       { pubkey: opts.wrapper,                isSigner: true,  isWritable: true  },
       { pubkey: opts.tokenMint,              isSigner: false, isWritable: false },

@@ -29,12 +29,22 @@ use anchor_spl::metadata::{
     VerifySizedCollectionItem,
 };
 
-use crate::state::{BullAsset, WrappedCollection};
+use crate::state::{BullAsset, FactoryConfig, WrappedCollection};
 use crate::errors::WrappedFactoryError;
 
 #[derive(Accounts)]
 #[instruction(tier_index: u16)]
 pub struct Wrap<'info> {
+    /// The Factory singleton. Read-only; needed so the handler can check
+    /// the global pause flag before any state mutation. Not mutated by
+    /// wrap, so no `mut` -- the PDA seed check is the only constraint we
+    /// need (deriving from the canonical seed prevents account spoofing).
+    #[account(
+        seeds = [b"factory_config"],
+        bump = factory_config.bump,
+    )]
+    pub factory_config: Box<Account<'info, FactoryConfig>>,
+
     /// The deployment's WrappedCollection PDA. Read for token_mint,
     /// tokens_per_wrap, art_source, name, ticker, collection_mint. Mutated
     /// at the end for tier accounting + counter bumps.
@@ -186,6 +196,16 @@ pub struct Wrap<'info> {
 }
 
 pub fn handler(ctx: Context<Wrap>, tier_index: u16) -> Result<()> {
+    // ============================================================
+    // 0. Circuit breaker check (deliberate first step, before any state
+    //    read or mutation, so a paused factory rejects with the cheapest
+    //    possible CU cost).
+    // ============================================================
+    require!(
+        !ctx.accounts.factory_config.paused,
+        WrappedFactoryError::FactoryPaused
+    );
+
     // ============================================================
     // 1. Validate balance and tier
     // ============================================================

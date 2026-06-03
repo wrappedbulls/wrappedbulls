@@ -83,4 +83,9 @@ pub enum WrappedFactoryError {
 
     #[msg("Provided bull treasury vault does not match the expected ATA derivation")]
     WrongTreasuryVault,
+
+    // -------- circuit breaker --------
+
+    #[msg("Factory is paused. New wraps, deploys, and treasury claims are temporarily disabled. Unwraps remain available.")]
+    FactoryPaused,
 }

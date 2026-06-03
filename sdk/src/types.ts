@@ -13,6 +13,10 @@ export interface FactoryConfig {
   totalDeployments:    number;
   totalWbullDeposited: bigint;
   bump:                number;
+  /** Global circuit breaker. When true the program rejects new wraps,
+   *  deploys, and treasury claims; unwrap is never blocked. Flipped via
+   *  set_factory_paused, gated to program upgrade authority. */
+  paused:              boolean;
 }
 
 /** One pending deposit in the treasury's 7-day lock window. */

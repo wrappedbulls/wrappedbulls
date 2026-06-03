@@ -222,6 +222,16 @@ pub struct DeployCollection<'info> {
 
 pub fn handler(ctx: Context<DeployCollection>, args: DeployCollectionArgs) -> Result<()> {
     // ============================================================
+    // 0. Circuit breaker check. Deliberate first step so a paused
+    //    Factory rejects new deploys at minimum CU cost, before any
+    //    string validation or PDA derivation.
+    // ============================================================
+    require!(
+        !ctx.accounts.factory_config.paused,
+        WrappedFactoryError::FactoryPaused
+    );
+
+    // ============================================================
     // 1. Validate all inputs FIRST, before any state changes.
     //    Atomicity guarantees that if any of these guards fire, the
     //    deployer's WBULL is NOT burned -- so a malformed args bundle

@@ -38,7 +38,9 @@ export default function Footer() {
               [ GH ]
             </a>{" "}
             &nbsp;
-            <a href="/thesis">[ THESIS ]</a>
+            <a href="/thesis">[ THESIS ]</a> &nbsp;
+            <a href="/faq">[ FAQ ]</a> &nbsp;
+            <a href="/terms">[ TERMS ]</a>
           </div>
         </div>
       </div>

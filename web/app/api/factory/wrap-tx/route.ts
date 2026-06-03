@@ -42,6 +42,7 @@ import {
   collectionAuthorityPda,
   collectionMintPda,
   collectionPda,
+  factoryConfigPda,
   fetchWrappedCollection,
   getConnection,
   getFactoryProgramId,
@@ -115,6 +116,7 @@ export async function POST(req: NextRequest) {
     : TOKEN_PROGRAM_ID;
 
   // Derive every PDA the wrap ix needs.
+  const [factoryConfigAddr]   = factoryConfigPda();
   const [collectionAddr]      = collectionPda(tokenMintPk);
   const [collectionMintAddr]  = collectionMintPda(tokenMintPk);
   const [collectionAuth]      = collectionAuthorityPda(tokenMintPk);
@@ -166,7 +168,10 @@ export async function POST(req: NextRequest) {
   }
 
   // Account metas in the exact order #[derive(Accounts)] in wrap.rs.
+  // factory_config is the first account so the on-chain pause check
+  // fires before any other constraint evaluation.
   const keys = [
+    { pubkey: factoryConfigAddr,         isSigner: false, isWritable: false },
     { pubkey: collectionAddr,            isSigner: false, isWritable: true  },
     { pubkey: wrapper,                   isSigner: true,  isWritable: true  },
     { pubkey: tokenMintPk,               isSigner: false, isWritable: false },

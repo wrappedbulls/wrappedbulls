@@ -124,4 +124,13 @@ pub mod wrappedfactory {
     pub fn set_verified(ctx: Context<SetVerified>, verified: bool) -> Result<()> {
         instructions::set_verified::handler(ctx, verified)
     }
+
+    /// Global circuit breaker. Sets FactoryConfig.paused to the given
+    /// value. When paused=true, wrap / deploy_collection / claim_treasury
+    /// all reject with FactoryPaused. Unwrap is intentionally not
+    /// guarded -- user-locked tokens must always be drainable. Gated to
+    /// the program upgrade authority. Two-way: pass paused=false to lift.
+    pub fn set_factory_paused(ctx: Context<SetFactoryPaused>, paused: bool) -> Result<()> {
+        instructions::set_factory_paused::handler(ctx, paused)
+    }
 }
