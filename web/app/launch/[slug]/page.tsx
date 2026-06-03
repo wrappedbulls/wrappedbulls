@@ -22,6 +22,7 @@ import {
 } from "@/lib/factory";
 import WrapButton from "@/app/launch/components/WrapButton";
 import UnwrapButton from "@/app/launch/components/UnwrapButton";
+import BuyBridge from "@/app/launch/components/BuyBridge";
 
 interface PageProps { params: { slug: string } }
 
@@ -179,6 +180,15 @@ export default async function LaunchDeploymentPage({ params }: PageProps) {
 
       {/* CTAs -- live, wallet-driven */}
       <section style={{ paddingTop: 24 }}>
+        {/* Buy bridge: only renders when the connected wallet's $TICKER
+            balance is below tokensPerWrap. Renders nothing otherwise so
+            the wrap flow stays unchanged for users who already hold
+            enough of the target token. */}
+        <BuyBridge
+          tokenMint={tokenMintStr}
+          tokensPerWrap={c.tokensPerWrap.toString()}
+          collectionTicker={c.ticker}
+        />
         <div className="flex flex-wrap gap-4 items-start">
           <WrapButton
             tokenMint={tokenMintStr}
