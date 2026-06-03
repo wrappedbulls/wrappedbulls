@@ -6,21 +6,18 @@ The methodology is documented in [`VERIFIABLE_BUILD.md`](VERIFIABLE_BUILD.md). T
 
 ---
 
-> **STATUS: hash below is for the c8cfcbd pre v1.0 build. STALE.** The release/v1.0 branch added the on chain circuit breaker (`set_factory_paused` ix) and other v1.0 hardening; the deployed bytecode hash will change. Regenerate the hash from `release/v1.0` tip immediately before mainnet deploy (see "How to verify this build yourself" below) and update both the "Canonical hash" and "Source pinning" blocks with the new values before running [`FACTORY_LAUNCH_RUNBOOK.md`](FACTORY_LAUNCH_RUNBOOK.md) Step 8.
-
 ## Canonical hash
 
 The `wrappedfactory.so` executable hash (computed via `solana-verify get-executable-hash`, which normalizes BPF trailing zero padding before hashing):
 
 ```
-80b52f335a1c9e2b4301bb7186707313e099a8dc4d5f054b508d48a36b9553c9
+f2ce0ac4f4d70b84e4abb622f31125dc32320ed5aa7723f6b7744546600ef0d2
 ```
-(stale; pre release/v1.0)
 
 The raw SHA256 of the same file (different number because raw sha256 does not normalize padding):
 
 ```
-97c24b0d8be3e67f9164636eb86d31774b2da52988826d30cc14a5eb18f87f0f
+58134a913303b983328a8052e9e4a5c1d15102596de93876cb1a3a3b475eba6a
 ```
 
 Use the `solana-verify get-executable-hash` value for any on chain comparison. Use the raw SHA256 for file integrity checks during transfer.
@@ -30,8 +27,8 @@ Use the `solana-verify get-executable-hash` value for any on chain comparison. U
 | | |
 |---|---|
 | Repo | https://github.com/wrappedbulls/wrappedbulls |
-| Branch | `factory-v1` |
-| Commit (latest at build time) | `c8cfcbd` (rebased onto current main, includes `web/lib/idl-factory.json`) |
+| Branch | `release/v1.0` (tag `v1.0-rc1` and forward) |
+| Commit (latest at build time) | `56b78d4fc46753022a6ecc8c2d4c941625397c5e` (includes on chain pause ix + launch hardening + CI workflow) |
 | Crate | `programs/wrappedfactory` |
 | Cargo.toml version | `0.1.0` |
 | Anchor.toml `declare_id!` | `WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh` |
@@ -40,14 +37,14 @@ Use the `solana-verify get-executable-hash` value for any on chain comparison. U
 
 | | |
 |---|---|
-| Host | DigitalOcean Ubuntu VPS, hosted at the bulls box |
+| Host | DigitalOcean Ubuntu VPS, the bulls box (165.22.167.96) |
 | Rust toolchain | 1.95.0 (pinned via rustup) |
 | Anchor CLI | 1.0.2 |
-| Solana CLI | active release (matches Anchor 1.0.2) |
+| Solana CLI | 3.1.14 (Agave; src:3134055b feat:534737035) |
 | Build command | `anchor build -p wrappedfactory` |
 | Output file | `target/deploy/wrappedfactory.so` |
-| File size | 532,368 bytes |
-| Build date | 2026-06-02 |
+| File size | 542,792 bytes (was 532,368 pre v1.0; pause ix + state.paused field + new instruction added ~10 KB) |
+| Build date | 2026-06-03 |
 
 This is a build environment record, not a reproducible build claim. A reproducible build via `solana-verify build` requires Docker. The plan is:
 
@@ -56,18 +53,17 @@ This is a build environment record, not a reproducible build claim. A reproducib
 
 ## Cross check: on chain devnet program
 
-The Factory was deployed to devnet on 2026-06-02 from the exact `wrappedfactory.so` file referenced above.
+The devnet program at `WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh` currently runs the pre v1.0 bytecode `80b52f33...` (deployed 2026-06-02). The on chain devnet image is STALE relative to release/v1.0; the operator drill at [`scripts/factory_devnet_pause_drill.ts`](../scripts/factory_devnet_pause_drill.ts) requires a fresh devnet redeploy of the v1.0 bytecode before it can exercise the new pause ix. That redeploy is runbook Step 4.5.
 
 | | |
 |---|---|
 | Program ID | `WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh` |
 | Cluster | devnet |
-| Deploy tx | `5y445MxDj1rMN3PeGZKzaBuAE21LPw7sVPJq9eJ5nrMpQUgznvsb4XwVoJRpfBasyQp2MWu8qdqdfJxhjWgTBqVd` |
-| Deploy authority | `9APFjBFh2ipnFnyjisJVUWPuo8d89Fi1SPWMqfbSYWqe` (devnet only deployer; mainnet uses the bulls box keypair) |
-| Program data size on chain | 532,368 bytes |
-| `solana-verify get-program-hash` output | `80b52f335a1c9e2b4301bb7186707313e099a8dc4d5f054b508d48a36b9553c9` |
-
-**Match status: on chain devnet hash == local executable hash.** The .so on disk was deployed to devnet bit perfect.
+| Pre v1.0 deploy tx | `5y445MxDj1rMN3PeGZKzaBuAE21LPw7sVPJq9eJ5nrMpQUgznvsb4XwVoJRpfBasyQp2MWu8qdqdfJxhjWgTBqVd` |
+| Pre v1.0 deploy authority | `9APFjBFh2ipnFnyjisJVUWPuo8d89Fi1SPWMqfbSYWqe` (devnet only) |
+| Pre v1.0 on chain hash | `80b52f335a1c9e2b4301bb7186707313e099a8dc4d5f054b508d48a36b9553c9` |
+| v1.0 local hash | `f2ce0ac4f4d70b84e4abb622f31125dc32320ed5aa7723f6b7744546600ef0d2` |
+| v1.0 devnet redeploy | PENDING (runbook Step 4.5) |
 
 ## How to verify this build yourself
 
@@ -76,7 +72,7 @@ After mainnet launch, you can prove the on chain mainnet program is the exact by
 ```
 git clone https://github.com/wrappedbulls/wrappedbulls
 cd wrappedbulls
-git checkout c8cfcbd
+git checkout 56b78d4fc46753022a6ecc8c2d4c941625397c5e
 
 # Same toolchain as above
 rustup install 1.95.0
@@ -88,7 +84,7 @@ anchor build -p wrappedfactory
 # Confirm hash
 cargo install solana-verify --version 0.4.4
 solana-verify get-executable-hash target/deploy/wrappedfactory.so
-# Expected: 80b52f335a1c9e2b4301bb7186707313e099a8dc4d5f054b508d48a36b9553c9
+# Expected: f2ce0ac4f4d70b84e4abb622f31125dc32320ed5aa7723f6b7744546600ef0d2
 
 # Confirm on chain mainnet matches
 solana-verify get-program-hash WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh --url mainnet-beta
