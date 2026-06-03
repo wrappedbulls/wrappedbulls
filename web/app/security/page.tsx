@@ -200,6 +200,36 @@ export default function SecurityPage() {
         </ul>
       </Section>
 
+      <Section title="Bug bounty">
+        <p className="text-[var(--bull-dim)] mb-3">
+          Open bug bounty against the WrappedFactory program and its
+          supporting infrastructure. Payouts in USDC, severity bands and
+          scope documented in the canonical policy:
+        </p>
+        <Field label="Scope + payouts">
+          <a
+            className="text-[var(--bull-accent)] hover:underline"
+            href="https://github.com/wrappedbulls/wrappedbulls/blob/release/v1.0/docs/BUG_BOUNTY.md"
+            target="_blank" rel="noopener"
+          >
+            docs/BUG_BOUNTY.md
+          </a>
+        </Field>
+        <Field label="Report email">
+          <a
+            className="text-[var(--bull-accent)] hover:underline"
+            href="mailto:degencapital999@gmail.com?subject=%5BBUG%20BOUNTY%5D%20"
+          >
+            degencapital999@gmail.com (subject prefix [BUG BOUNTY])
+          </a>
+        </Field>
+        <Field label="Safe harbor">
+          Good faith research that follows the policy will not result in
+          legal action. See the bounty doc for the full safe harbor
+          language.
+        </Field>
+      </Section>
+
       <Section title="Contact">
         <Field label="X / Twitter">
           <a
