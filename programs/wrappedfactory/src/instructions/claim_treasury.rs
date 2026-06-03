@@ -98,6 +98,16 @@ pub struct ClaimTreasury<'info> {
 }
 
 pub fn handler(ctx: Context<ClaimTreasury>) -> Result<()> {
+    // Circuit breaker. Treasury claims are admin only and pull from a
+    // pool of user-deposited fees; pausing claim during an incident
+    // gives the operator time to investigate before any value leaves
+    // the protocol. Unwraps remain available because they do not touch
+    // the treasury vault.
+    require!(
+        !ctx.accounts.factory_config.paused,
+        WrappedFactoryError::FactoryPaused
+    );
+
     let now = Clock::get()?.unix_timestamp;
     let decimals = ctx.accounts.wbull_mint.decimals;
 

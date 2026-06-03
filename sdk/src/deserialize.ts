@@ -35,7 +35,12 @@ export function deserializeFactoryConfig(data: Buffer): FactoryConfig {
   const totalWbullDeposited = data.readBigUInt64LE(off);
   off += 8;
   const bump = data.readUInt8(off);
-  return { wbullMint, admin, totalDeployments, totalWbullDeposited, bump };
+  off += 1;
+  // `paused` carved from the 96-byte reserved slack at the 2026-06
+  // circuit breaker upgrade. Pre-upgrade chain state reads the first
+  // reserved byte (zero) here, which deserializes to false -- safe.
+  const paused = data.readUInt8(off) !== 0;
+  return { wbullMint, admin, totalDeployments, totalWbullDeposited, bump, paused };
 }
 
 export function deserializeBullTreasuryState(data: Buffer): BullTreasuryState {

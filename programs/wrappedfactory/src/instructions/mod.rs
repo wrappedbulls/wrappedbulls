@@ -16,6 +16,7 @@ pub mod wrap;
 pub mod unwrap;
 pub mod claim_treasury;
 pub mod set_verified;
+pub mod set_factory_paused;
 
 pub use initialize::*;
 pub use deploy_collection::*;
@@ -23,3 +24,4 @@ pub use wrap::*;
 pub use unwrap::*;
 pub use claim_treasury::*;
 pub use set_verified::*;
+pub use set_factory_paused::*;

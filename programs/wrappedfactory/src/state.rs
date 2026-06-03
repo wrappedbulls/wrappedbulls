@@ -89,10 +89,20 @@ pub struct FactoryConfig {
     /// PDA bump.
     pub bump: u8,
 
+    /// Global circuit breaker. When true, the program rejects new wraps,
+    /// new deploy_collections, and treasury claims. Unwraps remain
+    /// permissionless and unaffected: user-locked tokens are always
+    /// drainable regardless of pause state (paused unwrap would be fund
+    /// capture). Flipped via the set_factory_paused ix, gated to the
+    /// program upgrade authority. Default false at initialize.
+    pub paused: bool,
+
     /// Forward-compat slack for fields we have not designed yet (V2 keeper
     /// reward params, governance, etc). Keeps the account size stable so
     /// existing deserializers keep working when we add fields here later.
-    pub reserved: [u8; 96],
+    /// One byte was carved from the original 96 for `paused` above; total
+    /// FactoryConfig::SIZE is unchanged.
+    pub reserved: [u8; 95],
 }
 
 impl FactoryConfig {
@@ -102,7 +112,8 @@ impl FactoryConfig {
         + 4                                        // total_deployments
         + 8                                        // total_wbull_deposited
         + 1                                        // bump
-        + 96;                                      // reserved
+        + 1                                        // paused (NEW; carved from reserved)
+        + 95;                                      // reserved (was 96; net SIZE unchanged)
 }
 
 // =====================================================================
