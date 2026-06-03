@@ -1,8 +1,27 @@
 # WrappedFactory Launch Runbook
 
-**Goal:** go from `factory-v1` branch to mainnet live `deploy_collection` ix without losing the deployer keypair or its cold backup at any point.
+**Goal:** go from `release/v1.0` branch (tag `v1.0-rc1` and forward) to mainnet live `deploy_collection` ix without losing the deployer keypair or its cold backup at any point, and without skipping the v1.0 hardening layer.
 
 This is the Factory's sibling to [`LAUNCH_RUNBOOK.md`](LAUNCH_RUNBOOK.md). The parent wrappedbulls program is already mainnet live; deploying the Factory does NOT touch it.
+
+## v1.0 hardening additions
+
+Compared to earlier drafts of this runbook, v1.0 ships with:
+
+- **On chain circuit breaker** (`set_factory_paused` ix). Operator can pause new wraps, deploys, and treasury claims in one tx. **Unwrap is never pauseable.** See [`INCIDENT_RESPONSE.md`](INCIDENT_RESPONSE.md) for use.
+- **Canary deployer allowlist** server side gate on `/api/factory/deploy-tx`. Env var `FACTORY_CANARY_ALLOWLIST` (comma separated base58 pubkeys). Empty / unset disables. Used to run the first 48h of mainnet in deployer only mode.
+- **Public disclosure pages**: [`/terms`](https://wrappedbulls.com/terms), [`/faq`](https://wrappedbulls.com/faq), [`/launch/health`](https://wrappedbulls.com/launch/health) must be reachable before public open.
+- **Staged comms**: see [`LAUNCH_ANNOUNCE.md`](LAUNCH_ANNOUNCE.md) for the X thread, Discord / Telegram blurb, partner DM template, and 7 pre drafted reply templates. Fired at canary lift, not at program deploy.
+- **Incident playbook**: [`INCIDENT_RESPONSE.md`](INCIDENT_RESPONSE.md). If anything looks wrong during the runbook or in the 48h canary, classify and execute per that doc.
+
+Branch + tag posture:
+
+| Artifact | Where |
+|---|---|
+| Launch branch | `release/v1.0` (locked: no commits except audit fixes from cut date forward) |
+| Tag | `v1.0-rc1` at audit clean hash `3efa5e9`, advanced via `git tag -af v1.0-rc1` after the pause + hardening commits |
+| V1.1 staging | `factory-v1` (contains release/v1.0 merged + BuyBridge + future V1.1 work) |
+| Deploy from | `release/v1.0` tip after all P1-OPS items land |
 
 ## Two programs, one repo, one authority
 
@@ -129,6 +148,29 @@ This lets any client (including ours) fetch the IDL via
 `anchor idl fetch <VANITY> --provider.cluster mainnet`. Anchor's own
 client checks tools depend on this.
 
+### Step 4.5 — Run the devnet pause drill against the new bytecode
+
+Before initializing on mainnet, prove the new pause path actually works on real cluster RPC.
+
+```bash
+cd /root/wrappedbulls
+ANCHOR_PROVIDER_URL=https://api.devnet.solana.com \
+ANCHOR_WALLET=/root/devnet-deployer.json \
+npx ts-node scripts/factory_devnet_pause_drill.ts
+```
+
+Expected: prints `PAUSE DRILL PASSED`. Cycles paused=false → true → false on the devnet FactoryConfig, verifies that `claim_treasury` rejects with `FactoryPaused` while paused.
+
+If the drill fails, do not proceed to Step 5 on mainnet. The pause path is a launch gate, not optional.
+
+Also run the static guard:
+
+```bash
+bash scripts/check_unwrap_unguarded.sh
+```
+
+Expected: `OK: unwrap is correctly unguarded by pause`. If this fails, a pause check has leaked into the unwrap path and would constitute fund capture; do not deploy until the source is corrected.
+
 ### Step 5 — Run `initialize(wbull_mint)`
 
 Create a one-shot script `scripts/factory_initialize_mainnet.ts`:
@@ -166,12 +208,16 @@ solana account -u m \
 
 Each should return a populated account (non-zero data, owned by the Factory program ID).
 
-### Step 7 — Update web app to point at the live Factory
+### Step 7 — Update web app to point at the live Factory + activate canary
 
 ```bash
 # Edit the production env file on the VPS
 vim /opt/wrappedbulls-web/.env.production
-# Add: NEXT_PUBLIC_FACTORY_PROGRAM_ID=<VANITY>
+# Add (or update):
+#   NEXT_PUBLIC_FACTORY_PROGRAM_ID=<VANITY>
+#   FACTORY_CANARY_ALLOWLIST=9ZDrkF9a8bMHPeDhe3oiDDUC1616C3vtTGozBgMxhWtn
+# (The allowlist value above is the wrappedbulls deployer. Lifting the
+#  canary later is a single line edit + restart; see Step 11.)
 
 # Rebuild + blue-green flip via the existing deploy script
 cd /root/wrappedbulls/web
@@ -182,7 +228,10 @@ npm run build
 Verify on the live site:
 - `https://wrappedbulls.com/launch` shows the stat strip with real (zero) Factory deployment counts
 - `https://wrappedbulls.com/launch/treasury` shows the treasury at 0 / 0
+- `https://wrappedbulls.com/launch/health` reports protocol=live, treasury=ok, paused=false
 - `https://wrappedbulls.com/launches` shows "BE THE FIRST DEPLOYMENT"
+- `https://wrappedbulls.com/terms` and `/faq` are reachable
+- Pretend to be a non allowlisted wallet and POST to `/api/factory/deploy-tx`; should get HTTP 403 with `{ code: "canary" }`
 
 ### Step 8 — Verified build (matches deployed bytecode)
 
@@ -220,7 +269,7 @@ Optional future moves (not required at launch, recorded here so the option is do
 - Transfer authority to a hardware wallet: `solana program set-upgrade-authority <VANITY> --new-upgrade-authority <LEDGER_PUBKEY> --keypair /root/.config/solana/id.json --url mainnet-beta`. Adds physical-presence requirement for any future upgrade.
 - Make program immutable: `solana program set-upgrade-authority <VANITY> --new-upgrade-authority null --keypair /root/.config/solana/id.json --url mainnet-beta`. Locks the program forever; also disables `claim_treasury` (treasury becomes permanently locked). Do NOT do this until the treasury is empty and you genuinely want immutability.
 
-### Step 10 — Mainnet smoke test
+### Step 10 — Mainnet smoke test (canary phase begins)
 
 Open `https://wrappedbulls.com/launch/new` in Phantom on mainnet. Walk a real deployment through:
 
@@ -230,14 +279,57 @@ Open `https://wrappedbulls.com/launch/new` in Phantom on mainnet. Walk a real de
 4. Use a simple BaseUri pointing at a test metadata server you control
 5. Confirm + sign
 
-Expected: the deploy succeeds, you land on `/launch/<your-token-mint>`, the dashboard shows your collection.
+Expected: the deploy succeeds (you are allowlisted), you land on `/launch/<your-token-mint>`, the dashboard shows your collection.
 
-If the deploy fails: investigate before launching publicly. Possible causes:
+If the deploy fails: investigate before opening to the public. Possible causes:
 - $WBULL balance < 1M
 - Token mint is on Token-2022 but the wbull_token_program arg pointed at classic SPL
 - A Phantom domain reputation warning blocked the sign
+- Canary allowlist misconfigured and rejected your own wallet (verify the env var)
 
 The program upgrade authority is still the deployer keypair, so any post mortem fix is a `solana program deploy --buffer ...` away.
+
+### Step 10.5 — Wrap + unwrap a real NFT through your own canary deployment
+
+Now that the deployment exists, run the full user lifecycle yourself:
+
+1. From the deployment page, click Wrap with a wallet holding the target token. Sign.
+2. Confirm the new NFT shows up in your wallet (and on Magic Eden / Tensor after their indexers cycle).
+3. Click Unwrap on the NFT. Sign. Confirm the locked tokens return to your wallet.
+
+This is the load bearing end to end validation: vault PDA derivation works on mainnet, Metaplex CPIs work, marketplace indexers see the NFT, unwrap drains the vault. If any step fails, the bug is mainnet specific and must be patched before public open.
+
+### Step 11 — 48h canary period
+
+Leave the protocol with the canary allowlist active for 48 hours. During this window:
+
+- Run `bash scripts/audit_chain.sh` once per 6 hours and confirm GREEN.
+- Watch `/launch/health` and `/launch/treasury` for unexpected state. Status chips must stay green.
+- Re run the smoke test from Step 10.5 once per day with a fresh token mint, to confirm the wrap pipeline did not regress.
+- Monitor X mentions of @wrappedbulls. Anything that looks like a confused user report goes through the [`INCIDENT_RESPONSE.md`](INCIDENT_RESPONSE.md) classification first.
+
+If the canary surfaces anything actionable: pause via `set_factory_paused(true)`, fix, redeploy, lift. Do not lift the canary allowlist until everything caught during this window is resolved.
+
+### Step 12 — Lift the canary + public announce
+
+When the 48h window passes cleanly:
+
+```bash
+# On the VPS, remove or empty the env var
+vim /opt/wrappedbulls-web/.env.production
+#   FACTORY_CANARY_ALLOWLIST=        (or remove the line entirely)
+pm2 restart wrappedbulls-web
+```
+
+Confirm a non allowlisted wallet can now POST to `/api/factory/deploy-tx` without hitting the 403.
+
+Then fire the comms package from [`LAUNCH_ANNOUNCE.md`](LAUNCH_ANNOUNCE.md):
+
+1. Pin the launch tweet (Section A.1).
+2. Post the rest of the thread (Sections A.2 through A.9).
+3. Post the Discord / Telegram blurb (Section B) in any community channels we have presence in.
+4. Send the partner DM (Section D) to the 5 to 10 named targets identified pre launch.
+5. Open the bug bounty link on `/security`.
 
 ## Rollback paths
 

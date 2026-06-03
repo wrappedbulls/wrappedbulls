@@ -6,6 +6,8 @@ The methodology is documented in [`VERIFIABLE_BUILD.md`](VERIFIABLE_BUILD.md). T
 
 ---
 
+> **STATUS: hash below is for the c8cfcbd pre v1.0 build. STALE.** The release/v1.0 branch added the on chain circuit breaker (`set_factory_paused` ix) and other v1.0 hardening; the deployed bytecode hash will change. Regenerate the hash from `release/v1.0` tip immediately before mainnet deploy (see "How to verify this build yourself" below) and update both the "Canonical hash" and "Source pinning" blocks with the new values before running [`FACTORY_LAUNCH_RUNBOOK.md`](FACTORY_LAUNCH_RUNBOOK.md) Step 8.
+
 ## Canonical hash
 
 The `wrappedfactory.so` executable hash (computed via `solana-verify get-executable-hash`, which normalizes BPF trailing zero padding before hashing):
@@ -13,6 +15,7 @@ The `wrappedfactory.so` executable hash (computed via `solana-verify get-executa
 ```
 80b52f335a1c9e2b4301bb7186707313e099a8dc4d5f054b508d48a36b9553c9
 ```
+(stale; pre release/v1.0)
 
 The raw SHA256 of the same file (different number because raw sha256 does not normalize padding):
 
