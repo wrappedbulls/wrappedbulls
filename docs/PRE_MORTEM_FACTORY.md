@@ -88,7 +88,7 @@ Failures during Runbook execution. Reversibility decreases with each step.
 | Impact | Serious if the deployer keypair file leaks during the partial state. Cosmetic if just resumed. |
 | Detection | Operator self detected (the sequence didn't finish). |
 | Response | Resume the sequence. Specifically: a failed `program deploy` leaves a buffer that can be resumed (`solana program deploy --buffer ...`). Initialize and smoke test the deployment as soon as the program lands. |
-| Pre empt | Run the entire sequence on a wired connection, in one sitting. Pre stage all commands in a single shell. Keep the deployer keypair file in `/root/.config/solana/id.json` only, never in pastebins or chat. |
+| Pre empt | Run the entire sequence on a wired connection, in one sitting. Pre stage all commands in a single shell. Keep the deployer keypair file in `/root/deployer-keypair.json` only, never in pastebins or chat. |
 
 ### 2.2 Upgrade authority transferred to wrong destination
 
@@ -116,7 +116,7 @@ Failures during Runbook execution. Reversibility decreases with each step.
 
 | Field | Value |
 |---|---|
-| Description | Deployer wallet (`/root/.config/solana/id.json`) has less than the 3 SOL the runbook requires. Deploy halts after a buffer is allocated but before the program upload completes. |
+| Description | Deployer wallet (`/root/deployer-keypair.json`) has less than the 3 SOL the runbook requires. Deploy halts after a buffer is allocated but before the program upload completes. |
 | Probability | Low if checklist is honored. |
 | Impact | Serious. The buffer holds funds until manually closed; the program is not deployed. |
 | Detection | `solana balance` shows < 3 SOL. Deploy command errors. |
@@ -161,7 +161,7 @@ Already covered in 1.4 (pending queue overflow). Worth re emphasizing the econom
 
 | Field | Value |
 |---|---|
-| Description | `/root/.config/solana/id.json` (or whichever file holds the upgrade authority keypair) is copied off the box, destroyed, or its content is exposed in logs / chat / pastebin. |
+| Description | `/root/deployer-keypair.json` (or whichever file holds the upgrade authority keypair) is copied off the box, destroyed, or its content is exposed in logs / chat / pastebin. |
 | Probability | Low if VPS is properly secured and the operator does not paste the file content anywhere. Higher if multiple people touch the box or the operator works in cafes. |
 | Impact | Catastrophic. Attacker can deploy a malicious upgrade, drain the treasury via `claim_treasury`, or flip `set_verified` to mark scam deployments as verified. The same key controls all three admin paths. |
 | Detection | `solana program show` shows a program data version you did not push, OR `bull_treasury_vault` balance drops via a `claim_treasury` tx you did not sign. |

@@ -24,7 +24,7 @@ but it was never the cause of the mainnet warning.
 
 | Role | Address | Used for |
 |---|---|---|
-| **Deployer / upgrade authority** | `GMrJpP7SaUkfyizsB3b8GeKWgDiqac3g5EaMGnMtkXCj` (bulls-box keypair `/root/.config/solana/id.json`) | Signs `anchor deploy`, `anchor idl init`, `initialize`, `initialize_collection`. Must be funded with mainnet SOL at launch. |
+| **Deployer / upgrade authority** | `9ZDrkF9a8bMHPeDhe3oiDDUC1616C3vtTGozBgMxhWtn` (bulls-box keypair `/root/deployer-keypair.json`) | Signs `anchor deploy`, `anchor idl init`, `initialize`, `initialize_collection`. Must be funded with mainnet SOL at launch. |
 | **Royalty treasury / on-chain creator** | `8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD` | Hardcoded in `wrap_bull.rs` as `ROYALTY_TREASURY`; written into every NFT's on-chain metadata as the creator (share 100, `verified:false` by design). Magic Eden / Tensor route the 5% secondary royalty here. Does NOT sign anything; just receives. |
 
 These are intentionally two different wallets. The treasury is independent
@@ -68,7 +68,7 @@ $WBULL is not launched. The mint address does not exist yet.
 - Devnet program exists and its **Anchor IDL is already published on devnet**
   (`anchor idl fetch ... --provider.cluster devnet` returns the wrappedbulls IDL).
   This proves the IDL-publish mechanism and confirms the upgrade authority
-  keypair on the DO box (`GMrJpP7SaUkfyizsB3b8GeKWgDiqac3g5EaMGnMtkXCj`)
+  keypair on the DO box (`9ZDrkF9a8bMHPeDhe3oiDDUC1616C3vtTGozBgMxhWtn`)
   is correct.
 - Balance + SOL gates are deployed: a wrap/unwrap is never built if the
   wallet lacks the $WBULL / SOL the chain would require.
@@ -126,7 +126,7 @@ version (already synced + built + 12/12 tests pass on devnet as of
      `ROYALTY_TREASURY = 8HoMgnUbDRvPZN1M9jPxXPqE63tRbChGzvdEe3ethzTD`
      and `ROYALTY_BPS = 500` in `programs/wrappedbulls/src/instructions/wrap_bull.rs`.
 1. **Fund the deployer/upgrade-authority wallet** `GMrJpP7Sa...`
-   (`/root/.config/solana/id.json`) with **~9 SOL on mainnet**. Evidence-
+   (`/root/deployer-keypair.json`) with **~9 SOL on mainnet**. Evidence-
    based (verified 2026-05-18, .so = 417,920 bytes): ProgramData is
    allocated at 2× the binary, rent-exempt minimum **5.82 SOL** (permanent),
    PLUS a transient deploy **buffer of ~5.82 SOL** held during upload

@@ -8,7 +8,7 @@ const NFT_1 = new PublicKey("pz9fuh2Qh8ghCjVK84u7vgPPiN6wASUoHHBaoC3brMP");
 const TOKEN_MINT = new PublicKey("7BGVzbJ6kk59T4UTjFHJmkHoMNYHEYpjonSgv2PYC1CM");
 const ATA_PROGRAM = new PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
 const TOKEN_PROGRAM = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
-const WALLET_A = new PublicKey("GMrJpP7SaUkfyizsB3b8GeKWgDiqac3g5EaMGnMtkXCj");
+const WALLET_A = new PublicKey("9ZDrkF9a8bMHPeDhe3oiDDUC1616C3vtTGozBgMxhWtn");
 const WALLET_B = new PublicKey("7cqjj77bCisBVZunEn7DoQYphnTWS1mPMDFeHaZdDnVA");
 
 function ata(owner, mint) {

@@ -9,7 +9,7 @@ mainnet wrap test prior to relaunch under a new token name.
 - **Program ID:** `A2tUttiBhWnPUYzqsT6BVf1L4qEMHxw4UibmhTcZbnNk`
 - **Mainnet upgrade slot:** 421046372 (Token-2022 port live)
 - **Program account data length:** 431,696 bytes
-- **Upgrade authority:** `GMrJpP7SaUkfyizsB3b8GeKWgDiqac3g5EaMGnMtkXCj`
+- **Upgrade authority:** `9ZDrkF9a8bMHPeDhe3oiDDUC1616C3vtTGozBgMxhWtn`
   (bulls-box deployer)
 - **$WBULL mint:** `XfY2XBcgY8QSLtGHnmwYrMT4CQt5mVMj55tXRWHpump`
   (Token-2022 program, 6 decimals)
@@ -114,7 +114,7 @@ browser, real Phantom. not by a mainnet wrap.
 
 ```bash
 ANCHOR_PROVIDER_URL=https://mainnet.helius-rpc.com/?api-key=<KEY> \
-SIM_PAYER=GMrJpP7SaUkfyizsB3b8GeKWgDiqac3g5EaMGnMtkXCj \
+SIM_PAYER=9ZDrkF9a8bMHPeDhe3oiDDUC1616C3vtTGozBgMxhWtn \
 ANCHOR_WALLET=/path/to/any-keypair.json \
 npx ts-node scripts/devnet_simulate_wrap.ts
 ```
