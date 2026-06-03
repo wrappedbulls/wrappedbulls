@@ -32,6 +32,7 @@ import { BorshInstructionCoder, Idl } from "@coral-xyz/anchor";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID,
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 
@@ -101,6 +102,18 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Detect the target token's owner program so ATAs derive correctly.
+  // Most pump.fun tokens are on Token-2022 since the 2026 migration; some
+  // legacy mints may still be classic SPL. Using the wrong program here
+  // makes wrap fail at the first transfer_checked CPI.
+  const targetMintInfo = await conn.getAccountInfo(tokenMintPk);
+  if (!targetMintInfo) {
+    return err("could not read target token mint account", "rpc_error");
+  }
+  const targetTokenProgram = targetMintInfo.owner.equals(TOKEN_2022_PROGRAM_ID)
+    ? TOKEN_2022_PROGRAM_ID
+    : TOKEN_PROGRAM_ID;
+
   // Derive every PDA the wrap ix needs.
   const [collectionAddr]      = collectionPda(tokenMintPk);
   const [collectionMintAddr]  = collectionMintPda(tokenMintPk);
@@ -109,8 +122,8 @@ export async function POST(req: NextRequest) {
   const [nftMintAuthority]    = vaultAuthorityPda(nftMint);
   const [bullAsset]           = bullAssetPda(tokenMintPk, tierIndex);
 
-  const vault = getAssociatedTokenAddressSync(tokenMintPk, nftMintAuthority, true);
-  const wrapperTokenAccount = getAssociatedTokenAddressSync(tokenMintPk, wrapper);
+  const vault = getAssociatedTokenAddressSync(tokenMintPk, nftMintAuthority, true, targetTokenProgram);
+  const wrapperTokenAccount = getAssociatedTokenAddressSync(tokenMintPk, wrapper, false, targetTokenProgram);
   const wrapperNftAccount   = getAssociatedTokenAddressSync(nftMint, wrapper);
 
   // Metaplex PDAs for the new NFT.
@@ -170,7 +183,7 @@ export async function POST(req: NextRequest) {
     { pubkey: collectionMasterEdition,   isSigner: false, isWritable: false },
     { pubkey: collectionAuth,            isSigner: false, isWritable: false },
     { pubkey: TOKEN_PROGRAM_ID,          isSigner: false, isWritable: false },
-    { pubkey: TOKEN_PROGRAM_ID,          isSigner: false, isWritable: false }, // bulls_token_program (Interface accepts classic or Token-2022)
+    { pubkey: targetTokenProgram,        isSigner: false, isWritable: false }, // detected from target mint owner above
     { pubkey: ASSOCIATED_TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
     { pubkey: TOKEN_METADATA_PROGRAM_ID, isSigner: false, isWritable: false },
     { pubkey: SystemProgram.programId,   isSigner: false, isWritable: false },

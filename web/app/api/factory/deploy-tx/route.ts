@@ -25,6 +25,7 @@ import { BorshInstructionCoder, BN, Idl } from "@coral-xyz/anchor";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID,
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 
@@ -69,10 +70,22 @@ interface DeployTxBody {
   collectionUri: string;
 }
 
+// H4: body size cap before parse. Anyone posting > 64 KB gets a clean
+// 413; we never buffer the full payload.
+const MAX_BODY_BYTES = 64_000;
+
 export async function POST(req: NextRequest) {
+  const declaredLength = parseInt(req.headers.get("content-length") || "0", 10);
+  if (declaredLength > MAX_BODY_BYTES) {
+    return err("request body too large", "invalid_body");
+  }
+  const rawText = await req.text();
+  if (rawText.length > MAX_BODY_BYTES) {
+    return err("request body too large", "invalid_body");
+  }
   let body: DeployTxBody;
   try {
-    body = await req.json();
+    body = JSON.parse(rawText);
   } catch {
     return err("body must be JSON", "invalid_body");
   }
@@ -108,14 +121,31 @@ export async function POST(req: NextRequest) {
   const wbullMint = factoryConfig.wbullMint;
   const [factoryConfigAddr] = factoryConfigPda();
   const [treasuryStateAddr] = bullTreasuryStatePda();
+
+  // Detect which token program owns the wbull mint so ATAs derive correctly
+  // and the wbullTokenProgram account is right. Pump.fun migrated to
+  // Token-2022 in 2026; using the wrong program here makes the ATA
+  // derivations diverge from what the on-chain runtime expects and the
+  // deploy tx fails at the first transfer_checked CPI.
+  const wbullMintInfo = await conn.getAccountInfo(wbullMint);
+  if (!wbullMintInfo) {
+    return err("could not read wbull mint account", "rpc_error");
+  }
+  const wbullTokenProgram = wbullMintInfo.owner.equals(TOKEN_2022_PROGRAM_ID)
+    ? TOKEN_2022_PROGRAM_ID
+    : TOKEN_PROGRAM_ID;
+
   const treasuryVault = getAssociatedTokenAddressSync(
     wbullMint,
     treasuryStateAddr,
     true, // allow owner off-curve (PDA)
+    wbullTokenProgram,
   );
   const deployerWbullAccount = getAssociatedTokenAddressSync(
     wbullMint,
     deployer,
+    false,
+    wbullTokenProgram,
   );
 
   const [collection]          = collectionPda(tokenMintPk);
@@ -187,7 +217,7 @@ export async function POST(req: NextRequest) {
     { pubkey: collectionMetadata,        isSigner: false, isWritable: true  },
     { pubkey: collectionMasterEdition,   isSigner: false, isWritable: true  },
     { pubkey: TOKEN_PROGRAM_ID,          isSigner: false, isWritable: false },
-    { pubkey: TOKEN_PROGRAM_ID,          isSigner: false, isWritable: false }, // wbullTokenProgram (classic SPL for now; Token-2022 if pump.fun has migrated)
+    { pubkey: wbullTokenProgram,         isSigner: false, isWritable: false }, // detected from wbull mint owner above
     { pubkey: ASSOCIATED_TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
     { pubkey: TOKEN_METADATA_PROGRAM_ID, isSigner: false, isWritable: false },
     { pubkey: SystemProgram.programId,   isSigner: false, isWritable: false },
@@ -260,11 +290,23 @@ function validate(b: DeployTxBody): ValidationError | null {
   if (!b.ticker || b.ticker.length > MAX_TICKER_LEN || !/^[A-Z0-9]+$/.test(b.ticker))
     return { message: `ticker must be 1..=${MAX_TICKER_LEN} uppercase ascii alnum`, code: "invalid_ticker" };
 
-  if (typeof b.maxSupply !== "number" || b.maxSupply < MIN_SUPPLY || b.maxSupply > MAX_SUPPLY)
-    return { message: `maxSupply must be ${MIN_SUPPLY}..=${MAX_SUPPLY}`, code: "invalid_supply" };
+  if (!Number.isInteger(b.maxSupply) || b.maxSupply < MIN_SUPPLY || b.maxSupply > MAX_SUPPLY)
+    return { message: `maxSupply must be an integer in ${MIN_SUPPLY}..=${MAX_SUPPLY}`, code: "invalid_supply" };
 
-  if (!b.tokensPerWrap || !/^\d+$/.test(b.tokensPerWrap) || BigInt(b.tokensPerWrap) <= 0n)
-    return { message: "tokensPerWrap must be a positive integer string", code: "invalid_tokens_per_wrap" };
+  if (!b.tokensPerWrap || !/^\d+$/.test(b.tokensPerWrap) || b.tokensPerWrap.length > 20)
+    return { message: "tokensPerWrap must be a positive integer string (max 20 digits)", code: "invalid_tokens_per_wrap" };
+  let tokensPerWrapBig: bigint;
+  try {
+    tokensPerWrapBig = BigInt(b.tokensPerWrap);
+  } catch {
+    return { message: "tokensPerWrap is not a valid integer", code: "invalid_tokens_per_wrap" };
+  }
+  if (tokensPerWrapBig <= 0n)
+    return { message: "tokensPerWrap must be > 0", code: "invalid_tokens_per_wrap" };
+  // u64 upper bound. Program would reject larger values at encode time,
+  // but a clean 400 here beats an opaque encode error.
+  if (tokensPerWrapBig > BigInt("18446744073709551615"))
+    return { message: "tokensPerWrap exceeds u64 max", code: "invalid_tokens_per_wrap" };
 
   if (!b.artSource || (b.artSource.kind !== "baseUri" && b.artSource.kind !== "rendererUrl"))
     return { message: "artSource.kind must be 'baseUri' or 'rendererUrl'", code: "invalid_art_uri" };
@@ -278,8 +320,10 @@ function validate(b: DeployTxBody): ValidationError | null {
   return null;
 }
 
+// Printable ASCII only. Excludes control chars (\x00-\x1f, \x7f) which
+// would render as garbage on Magic Eden / Tensor and other consumers.
 function isAscii(s: string): boolean {
-  return /^[\x00-\x7f]*$/.test(s);
+  return /^[\x20-\x7e]*$/.test(s);
 }
 
 function err(message: string, code: string) {

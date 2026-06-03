@@ -16,7 +16,13 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { Transaction } from "@solana/web3.js";
+import { PublicKey, Transaction } from "@solana/web3.js";
+import {
+  TOKEN_2022_PROGRAM_ID,
+  getAssociatedTokenAddressSync,
+  createAssociatedTokenAccountIdempotentInstruction,
+  createTransferCheckedInstruction,
+} from "@solana/spl-token";
 
 // Constants mirror the on-chain WrappedFactory program. Keep in lockstep
 // with state.rs. If MAX_SUPPLY ever moves (e.g. realloc upgrade), update
@@ -30,28 +36,70 @@ const DEPLOY_COST_WBULL = 1_000_000;
 
 type ArtSourceType = "baseUri" | "rendererUrl";
 
+// Art tier: which service level the deployer chose.
+//   diy         partner brings their own art (no upcharge)
+//   algorithmic partner picks an on chain generative preset (+500K $WBULL)
+//   bespoke     partner books our artist (priced + delivered off platform)
+type ArtTier = "diy" | "algorithmic" | "bespoke";
+
+// Available algorithmic presets. Keep in sync with web/lib/art-presets/.
+type AlgorithmicPreset = "pixelated" | "geometric" | "cyberpunk";
+
+const ALGORITHMIC_UPCHARGE_WBULL = 500_000;
+
+// Bespoke art deposit. Same magnitude as the deploy fee. Filters tire
+// kickers, signals real commitment, lands in the art revenue wallet.
+// Balance after the deposit is quoted per project in our reply.
+const BESPOKE_DEPOSIT_WBULL = 1_000_000;
+// 6 decimals on $WBULL: 1,000,000 * 10^6 base units.
+const BESPOKE_DEPOSIT_BASE = BigInt("1000000000000");
+// Where the deposit lands. Same wallet that holds wrappedbulls upgrade
+// authority for now; centralizes ops. Move to a dedicated wallet later
+// if we need cleaner accounting.
+const ART_REVENUE_WALLET = "9ZDrkF9a8bMHPeDhe3oiDDUC1616C3vtTGozBgMxhWtn";
+// $WBULL is on Token 2022 (post pump.fun migration). Mint pubkey read
+// from env so it can swap if pump.fun ever moves us back.
+const WBULL_MINT =
+  process.env.NEXT_PUBLIC_TOKEN_MINT ||
+  "gAhvUSC7XamFqt6gr1JwHU2tEZFYQMEQYEsyKBSpump";
+
+interface BespokeBrief {
+  contactEmail: string;
+  vibe:         string;
+  deadline:     string;
+}
+
 interface WizardData {
   tokenMint:        string;
   name:             string;
   ticker:           string;
   maxSupply:        number;
   tokensPerWrap:    string;
+  artTier:          ArtTier;
+  // DIY only: free form URLs the partner controls.
   artSourceType:    ArtSourceType;
   artSourceUrl:     string;
   collectionUri:    string;
+  // Algorithmic only: chosen preset slug. artSourceUrl is auto computed.
+  algorithmicPreset: AlgorithmicPreset | "";
+  // Bespoke only: brief the artist works from.
+  bespokeBrief:     BespokeBrief;
   acknowledged:     boolean;
 }
 
 const INITIAL_DATA: WizardData = {
-  tokenMint:     "",
-  name:          "",
-  ticker:        "",
-  maxSupply:     500,
-  tokensPerWrap: "",
-  artSourceType: "baseUri",
-  artSourceUrl:  "",
-  collectionUri: "",
-  acknowledged:  false,
+  tokenMint:         "",
+  name:              "",
+  ticker:            "",
+  maxSupply:         500,
+  tokensPerWrap:     "",
+  artTier:           "diy",
+  artSourceType:     "baseUri",
+  artSourceUrl:      "",
+  collectionUri:     "",
+  algorithmicPreset: "",
+  bespokeBrief:      { contactEmail: "", vibe: "", deadline: "" },
+  acknowledged:      false,
 };
 
 // Server response types (mirror the API route shapes). Loosely typed because
@@ -105,6 +153,9 @@ export default function LaunchWizardPage() {
   >("idle");
   const [deployError, setDeployError] = useState<string | null>(null);
   const [txSig, setTxSig] = useState<string | null>(null);
+  // Bespoke success state: the ref ID we hand the partner so they can quote
+  // it on the followup email. Set by the /api/factory/bespoke response.
+  const [bespokeRef, setBespokeRef] = useState<string | null>(null);
 
   const update = <K extends keyof WizardData>(key: K, value: WizardData[K]) =>
     setData((d) => ({ ...d, [key]: value }));
@@ -183,18 +234,39 @@ export default function LaunchWizardPage() {
         return null;
       }
       case 4: {
-        if (!data.artSourceUrl) return "provide the URL where your per-NFT metadata lives";
-        if (data.artSourceUrl.length > MAX_URI_LEN) return `art URL must be ≤ ${MAX_URI_LEN} chars`;
-        if (!/^https?:\/\//.test(data.artSourceUrl)) return "art URL must start with https:// or http://";
-        if (/\s$/.test(data.artSourceUrl)) return "art URL must not end with whitespace";
-        if (!data.collectionUri) return "provide the URL where your collection-level metadata lives";
-        if (data.collectionUri.length > MAX_URI_LEN) return `collection URL must be ≤ ${MAX_URI_LEN} chars`;
-        if (!/^https?:\/\//.test(data.collectionUri)) return "collection URL must start with https:// or http://";
+        if (data.artTier === "diy") {
+          if (!data.artSourceUrl) return "provide the URL where your per-NFT metadata lives";
+          if (data.artSourceUrl.length > MAX_URI_LEN) return `art URL must be ≤ ${MAX_URI_LEN} chars`;
+          if (!/^https?:\/\//.test(data.artSourceUrl)) return "art URL must start with https:// or http://";
+          if (/\s$/.test(data.artSourceUrl)) return "art URL must not end with whitespace";
+          if (!data.collectionUri) return "provide the URL where your collection-level metadata lives";
+          if (data.collectionUri.length > MAX_URI_LEN) return `collection URL must be ≤ ${MAX_URI_LEN} chars`;
+          if (!/^https?:\/\//.test(data.collectionUri)) return "collection URL must start with https:// or http://";
+          return null;
+        }
+        if (data.artTier === "algorithmic") {
+          // Disabled in v1; pick another tier.
+          return "algorithmic tier is coming soon. pick DIY or Bespoke for now";
+        }
+        if (data.artTier === "bespoke") {
+          if (!data.bespokeBrief.contactEmail) return "add a contact email so we can quote you";
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.bespokeBrief.contactEmail)) return "contact email looks invalid";
+          if (!data.bespokeBrief.vibe || data.bespokeBrief.vibe.length < 20) return "describe the vibe in at least 20 characters so the artist has something to work with";
+          return null;
+        }
         return null;
       }
       case 5:
-        if (!wallet.connected) return "connect your wallet to deploy";
-        if (!data.acknowledged) return "tick the acknowledgement checkbox before deploying";
+        if (!wallet.connected) {
+          return data.artTier === "bespoke"
+            ? "connect your wallet so we can tie the brief to a deployer pubkey"
+            : "connect your wallet to deploy";
+        }
+        if (!data.acknowledged) {
+          return data.artTier === "bespoke"
+            ? "tick the acknowledgement checkbox before submitting"
+            : "tick the acknowledgement checkbox before deploying";
+        }
         return null;
     }
   }, [step, data, preflight, checkName, wallet.connected]);
@@ -210,6 +282,86 @@ export default function LaunchWizardPage() {
       return;
     }
     setDeployError(null);
+
+    // Bespoke flow: partner pays a $WBULL deposit to commit to the
+    // queue; we record the deposit signature with the brief. The actual
+    // deploy happens later as DIY with the URI we hand back after art
+    // delivery. Balance after the deposit is quoted per project.
+    if (data.artTier === "bespoke") {
+      try {
+        // 1. Build the deposit tx: $WBULL transfer from deployer to the
+        //    art revenue wallet. Idempotent ATA init in case the
+        //    destination ATA doesn't exist yet.
+        setDeployPhase("building-tx");
+        const wbullMint = new PublicKey(WBULL_MINT);
+        const artRevenueWallet = new PublicKey(ART_REVENUE_WALLET);
+        const deployerAta = getAssociatedTokenAddressSync(
+          wbullMint, wallet.publicKey, false, TOKEN_2022_PROGRAM_ID,
+        );
+        const artRevenueAta = getAssociatedTokenAddressSync(
+          wbullMint, artRevenueWallet, false, TOKEN_2022_PROGRAM_ID,
+        );
+        const tx = new Transaction();
+        tx.add(createAssociatedTokenAccountIdempotentInstruction(
+          wallet.publicKey, artRevenueAta, artRevenueWallet,
+          wbullMint, TOKEN_2022_PROGRAM_ID,
+        ));
+        tx.add(createTransferCheckedInstruction(
+          deployerAta, wbullMint, artRevenueAta, wallet.publicKey,
+          BESPOKE_DEPOSIT_BASE, 6, [], TOKEN_2022_PROGRAM_ID,
+        ));
+
+        // 2. Get blockhash, sign + send via wallet adapter.
+        setDeployPhase("awaiting-signature");
+        const latest = await connection.getLatestBlockhash();
+        tx.recentBlockhash = latest.blockhash;
+        tx.feePayer = wallet.publicKey;
+        const sig = await wallet.sendTransaction(tx, connection, {
+          skipPreflight: false, maxRetries: 3,
+        });
+        setTxSig(sig);
+
+        // 3. Confirm on chain.
+        setDeployPhase("confirming");
+        await connection.confirmTransaction(
+          { signature: sig, blockhash: latest.blockhash, lastValidBlockHeight: latest.lastValidBlockHeight },
+          "confirmed",
+        );
+
+        // 4. Submit the brief, including the deposit signature.
+        const r = await fetch("/api/factory/bespoke", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          cache: "no-store",
+          body: JSON.stringify({
+            deployer:         wallet.publicKey.toBase58(),
+            tokenMint:        data.tokenMint,
+            name:             data.name,
+            ticker:           data.ticker,
+            maxSupply:        data.maxSupply,
+            tokensPerWrap:    data.tokensPerWrap,
+            brief:            data.bespokeBrief,
+            depositSignature: sig,
+            depositAmount:    BESPOKE_DEPOSIT_WBULL,
+          }),
+        });
+        const json = await r.json();
+        if (!json.ok) throw new Error(json.error || "bespoke submit failed");
+        setBespokeRef(json.ref ?? null);
+        setDeployPhase("success");
+      } catch (e) {
+        setDeployError((e as Error).message || "bespoke submit failed");
+        setDeployPhase("error");
+      }
+      return;
+    }
+
+    // Resolve art URLs per tier. v1 ships DIY only (Bespoke handled above,
+    // Algorithmic is feature flagged off). DIY uses what the partner typed.
+    const artSourceKind: "baseUri" | "rendererUrl" = data.artSourceType;
+    const artSourceUri = data.artSourceUrl;
+    const collectionUri = data.collectionUri;
+
     setDeployPhase("building-tx");
     try {
       const r = await fetch("/api/factory/deploy-tx", {
@@ -223,8 +375,9 @@ export default function LaunchWizardPage() {
           ticker:         data.ticker,
           maxSupply:      data.maxSupply,
           tokensPerWrap:  data.tokensPerWrap,
-          artSource:      { kind: data.artSourceType, uri: data.artSourceUrl },
-          collectionUri:  data.collectionUri,
+          artSource:      { kind: artSourceKind, uri: artSourceUri },
+          collectionUri,
+          artTier:        data.artTier,
         }),
       });
       const json = await r.json();
@@ -281,6 +434,7 @@ export default function LaunchWizardPage() {
             deployPhase={deployPhase}
             deployError={deployError}
             txSig={txSig}
+            bespokeRef={bespokeRef}
           />
         )}
 
@@ -309,11 +463,23 @@ export default function LaunchWizardPage() {
               disabled={!!stepError || deployPhase !== "idle"}
               className="btn btn-primary"
             >
-              {deployPhase === "idle"               && `[ DEPLOY ${data.name.toUpperCase() || "WRAPPED…"} ]`}
-              {deployPhase === "building-tx"        && "[ BUILDING TX… ]"}
+              {deployPhase === "idle" && (
+                data.artTier === "bespoke"
+                  ? "[ SUBMIT BRIEF ]"
+                  : `[ DEPLOY ${data.name.toUpperCase() || "WRAPPED…"} ]`
+              )}
+              {deployPhase === "building-tx" && (
+                data.artTier === "bespoke"
+                  ? "[ SUBMITTING BRIEF… ]"
+                  : "[ BUILDING TX… ]"
+              )}
               {deployPhase === "awaiting-signature" && "[ AWAITING WALLET SIGNATURE… ]"}
               {deployPhase === "confirming"         && "[ CONFIRMING ON CHAIN… ]"}
-              {deployPhase === "success"            && "[ ✓ DEPLOYED — REDIRECTING ]"}
+              {deployPhase === "success" && (
+                data.artTier === "bespoke"
+                  ? "[ ✓ BRIEF SUBMITTED ]"
+                  : "[ ✓ DEPLOYED — REDIRECTING ]"
+              )}
               {deployPhase === "error"              && "[ TRY AGAIN ]"}
             </button>
           )}
@@ -495,11 +661,95 @@ function Step3Econ({ data, update }: BaseStepProps) {
 function Step4Art({ data, update }: BaseStepProps) {
   return (
     <div>
-      <StepHeader num="04" title="ART SOURCE" />
-      <p style={{ color: "var(--bull-dim)", marginBottom: 16, fontSize: 13 }}>
-        choose how each wrapped NFT gets its image and metadata. your project
-        hosts this — we just point Metaplex to your URL.
+      <StepHeader num="04" title="ART" />
+      <p style={{ color: "var(--bull-dim)", marginBottom: 20, fontSize: 13 }}>
+        every NFT in your collection needs art. pick how you want to handle that.
       </p>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 24 }}>
+        <ArtTierCard
+          tier="diy"
+          selected={data.artTier === "diy"}
+          onSelect={() => update("artTier", "diy")}
+          title="DIY"
+          price="included"
+          summary="You host the art. Provide a metadata URL we point Metaplex at."
+          fit="Best for projects with existing art or technical teams."
+        />
+        <ArtTierCard
+          tier="algorithmic"
+          selected={false}
+          onSelect={() => { /* disabled in v1 */ }}
+          disabled
+          title="ALGORITHMIC"
+          price="coming soon"
+          summary="On chain derived art, unique per NFT, no design work on your end. We are polishing the presets to launch quality."
+          fit="Best for fast launches that want every NFT to look distinct."
+        />
+        <ArtTierCard
+          tier="bespoke"
+          selected={data.artTier === "bespoke"}
+          onSelect={() => update("artTier", "bespoke")}
+          title="BESPOKE"
+          price="1M $WBULL deposit + quoted balance"
+          summary="Our artist designs your collection by hand. 1M $WBULL deposit at brief submission, refundable if we decline. Balance quoted in our reply."
+          fit="Best for premium launches that want hand crafted identity."
+        />
+      </div>
+
+      {data.artTier === "diy" && <ArtTierDiyConfig data={data} update={update} />}
+      {data.artTier === "bespoke" && <ArtTierBespokeConfig data={data} update={update} />}
+    </div>
+  );
+}
+
+function ArtTierCard({
+  tier: _tier, selected, onSelect, title, price, summary, fit, disabled,
+}: {
+  tier: ArtTier; selected: boolean; onSelect: () => void;
+  title: string; price: string; summary: string; fit: string;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={disabled ? undefined : onSelect}
+      disabled={disabled}
+      style={{
+        textAlign: "left",
+        padding: 16,
+        border: selected ? "3px solid #d4a017" : "2px solid var(--bull-ink)",
+        background: disabled
+          ? "var(--bull-very-soft)"
+          : selected
+          ? "var(--bull-very-soft)"
+          : "var(--bull-paper)",
+        cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? 0.55 : 1,
+        fontFamily: "inherit",
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+        position: "relative",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+        <div style={{ fontWeight: 800, letterSpacing: "0.06em", fontSize: 14 }}>{title}</div>
+        <div style={{ fontSize: 11, color: "var(--bull-dim)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          {price}
+        </div>
+      </div>
+      <div style={{ fontSize: 12, lineHeight: 1.5 }}>{summary}</div>
+      <div style={{ fontSize: 11, color: "var(--bull-dim)", marginTop: "auto", paddingTop: 8, borderTop: "1px dashed var(--bull-soft)" }}>
+        {fit}
+      </div>
+    </button>
+  );
+}
+
+function ArtTierDiyConfig({ data, update }: BaseStepProps) {
+  return (
+    <div style={{ border: "2px solid var(--bull-ink)", padding: 16, marginTop: 8 }}>
       <div style={{ display: "flex", border: "2px solid var(--bull-ink)", marginBottom: 16 }}>
         <button
           type="button"
@@ -554,30 +804,188 @@ function Step4Art({ data, update }: BaseStepProps) {
   );
 }
 
+const ALGORITHMIC_PRESETS: { slug: AlgorithmicPreset; name: string; description: string }[] = [
+  { slug: "pixelated", name: "Pixelated", description: "Pixel grid art derived from each NFT mint. Bold, retro." },
+  { slug: "geometric", name: "Geometric", description: "Layered geometric shapes. Clean, bold, distinct per NFT." },
+  { slug: "cyberpunk", name: "Cyberpunk", description: "Dark canvas with neon lines and a unique glyph per NFT." },
+];
+
+function ArtTierAlgorithmicConfig({ data, update }: BaseStepProps) {
+  return (
+    <div style={{ border: "2px solid var(--bull-ink)", padding: 16, marginTop: 8 }}>
+      <Label hint="every NFT in your collection inherits this aesthetic. each individual NFT is unique within the preset because the renderer seeds off the NFT mint pubkey.">
+        Pick a preset
+      </Label>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginTop: 12 }}>
+        {ALGORITHMIC_PRESETS.map((p) => (
+          <button
+            key={p.slug}
+            type="button"
+            onClick={() => update("algorithmicPreset", p.slug)}
+            style={{
+              textAlign: "left",
+              padding: 12,
+              border: data.algorithmicPreset === p.slug ? "3px solid #d4a017" : "2px solid var(--bull-ink)",
+              background: data.algorithmicPreset === p.slug ? "var(--bull-very-soft)" : "var(--bull-paper)",
+              cursor: "pointer",
+              fontFamily: "inherit",
+            }}
+          >
+            <PresetPreviewGrid preset={p.slug} />
+            <div style={{ fontWeight: 800, fontSize: 13, marginTop: 8 }}>{p.name}</div>
+            <div style={{ fontSize: 11, color: "var(--bull-dim)", marginTop: 4, lineHeight: 1.4 }}>{p.description}</div>
+          </button>
+        ))}
+      </div>
+      {data.algorithmicPreset && (
+        <Status tone="good" extra>
+          ✓ Algorithmic + {data.algorithmicPreset}. Adds {ALGORITHMIC_UPCHARGE_WBULL.toLocaleString()} $WBULL to your deploy cost. Total: {(1_000_000 + ALGORITHMIC_UPCHARGE_WBULL).toLocaleString()} $WBULL.
+        </Status>
+      )}
+    </div>
+  );
+}
+
+// Live preview grid: shows 3 deterministic stub renders so the partner can
+// see the visual signature of a preset before committing. Seeds are arbitrary
+// short strings; in production the seed is the actual NFT mint pubkey.
+function PresetPreviewGrid({ preset }: { preset: AlgorithmicPreset }) {
+  const seeds = ["preview-a", "preview-b", "preview-c"];
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 4 }}>
+      {seeds.map((s) => (
+        <div
+          key={s}
+          style={{
+            aspectRatio: "1 / 1",
+            background: "var(--bull-very-soft)",
+            border: "1px solid var(--bull-soft)",
+            overflow: "hidden",
+          }}
+        >
+          <img
+            src={`/api/render/factory/${preset}/preview/${preset}-${s}`}
+            alt=""
+            style={{ width: "100%", height: "100%", display: "block" }}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ArtTierBespokeConfig({ data, update }: BaseStepProps) {
+  const updateBrief = (k: keyof BespokeBrief, v: string) =>
+    update("bespokeBrief", { ...data.bespokeBrief, [k]: v });
+  return (
+    <div style={{ border: "2px solid var(--bull-ink)", padding: 16, marginTop: 8 }}>
+      <p style={{ fontSize: 12, color: "var(--bull-dim)", marginBottom: 12 }}>
+        Submit a brief and we will quote within 48 hours. A 1,000,000 $WBULL deposit transfers when you submit; refundable if we decline the brief. Deploy happens after the art is delivered, with the URI we hand you.
+      </p>
+      <Field
+        label="contact email"
+        hint="we will reply here with a quote + timeline"
+        value={data.bespokeBrief.contactEmail}
+        placeholder="you@yourproject.com"
+        onChange={(v) => updateBrief("contactEmail", v.trim())}
+      />
+      <div style={{ marginBottom: 16 }}>
+        <Label hint="describe the aesthetic, references, anything the artist needs. minimum 20 characters.">
+          vibe brief
+        </Label>
+        <textarea
+          value={data.bespokeBrief.vibe}
+          onChange={(e) => updateBrief("vibe", e.target.value)}
+          placeholder="mascot character with these traits... pulling from these refs..."
+          rows={5}
+          style={{
+            width: "100%",
+            padding: "10px 12px",
+            marginTop: 6,
+            border: "2px solid var(--bull-ink)",
+            background: "var(--bull-paper)",
+            fontFamily: "inherit",
+            fontSize: 14,
+            resize: "vertical",
+          }}
+        />
+      </div>
+      <Field
+        label="deadline (optional)"
+        hint="when do you want art delivered? rough timeline ok"
+        value={data.bespokeBrief.deadline}
+        placeholder="2 weeks, before mainnet, ASAP, etc"
+        onChange={(v) => updateBrief("deadline", v)}
+      />
+      <Status tone="dim" extra>
+        ℹ️ Step 5 transfers your 1,000,000 $WBULL deposit and submits the brief. You will not be charged the balance until you accept our quote.
+      </Status>
+    </div>
+  );
+}
+
 function Step5Review({
   data,
   update,
   deployPhase,
   deployError,
   txSig,
+  bespokeRef,
 }: BaseStepProps & {
   deployPhase: string;
   deployError: string | null;
   txSig: string | null;
+  bespokeRef: string | null;
 }) {
   const wallet = useWallet();
+  const isBespoke = data.artTier === "bespoke";
+  const headerTitle = isBespoke ? "REVIEW + SUBMIT" : "REVIEW + DEPLOY";
+  const intro = isBespoke
+    ? "Last screen before the brief is submitted. Signing transfers a 1,000,000 $WBULL deposit (refundable if we decline) and records your brief. We reply within 48 hours with a quote for the balance + timeline."
+    : "Last screen before the deploy tx. Read everything. Once you sign, 1M $WBULL goes to the bull treasury under a 7 day lock and the wrap layer is live.";
+
+  // ===================================================================
+  // Bespoke success state. The wizard ends here. No tx, no redirect.
+  // ===================================================================
+  if (isBespoke && deployPhase === "success") {
+    return (
+      <div>
+        <StepHeader num="05" title="BRIEF SUBMITTED" />
+        <div style={{ padding: 20, background: "#e6f4ea", border: "2px solid #0a6b2c", marginBottom: 16 }}>
+          <div style={{ color: "#0a6b2c", fontWeight: 800, fontSize: 14, letterSpacing: "0.06em" }}>
+            ✓ Deposit received + brief recorded
+          </div>
+          <div style={{ fontSize: 13, marginTop: 10, color: "var(--bull-ink)", lineHeight: 1.55 }}>
+            1,000,000 $WBULL deposit landed. We will reply to <strong>{data.bespokeBrief.contactEmail}</strong> within 48 hours with a quote for the balance + timeline. Your brief reference is:
+          </div>
+          {bespokeRef && (
+            <div style={{ fontFamily: "inherit", marginTop: 10, padding: 10, background: "#fff", border: "1px solid #0a6b2c", fontSize: 13 }}>
+              <code>{bespokeRef}</code>
+            </div>
+          )}
+          {txSig && (
+            <div style={{ fontSize: 11, marginTop: 8, color: "var(--bull-dim)" }}>
+              Deposit tx: <code>{truncate(txSig, 24)}</code>
+            </div>
+          )}
+          <div style={{ fontSize: 12, marginTop: 12, color: "var(--bull-dim)" }}>
+            Once the art is delivered, we will hand you a URI and walk you through the actual deploy as a DIY launch using that URI.
+          </div>
+        </div>
+        <Link href="/launches" className="btn btn-secondary">[ ← BACK TO LAUNCHES ]</Link>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <StepHeader num="05" title="REVIEW + DEPLOY" />
-      <p style={{ color: "var(--bull-dim)", marginBottom: 16, fontSize: 13 }}>
-        last screen before the deploy tx. read everything. once you sign,
-        the 1M $WBULL goes to the bull treasury and the wrap layer is live.
-      </p>
+      <StepHeader num="05" title={headerTitle} />
+      <p style={{ color: "var(--bull-dim)", marginBottom: 16, fontSize: 13 }}>{intro}</p>
 
-      {!wallet.connected && (
+      {!wallet.connected && !isBespoke && (
         <div style={{ marginBottom: 16, padding: 12, border: "2px dashed var(--bull-ink)", textAlign: "center" }}>
-          <p style={{ fontSize: 13, marginBottom: 8 }}>connect your wallet to deploy.</p>
-          <p style={{ fontSize: 11, color: "var(--bull-dim)" }}>use the wallet button in the header.</p>
+          <p style={{ fontSize: 13, marginBottom: 8 }}>Connect your wallet to deploy.</p>
+          <p style={{ fontSize: 11, color: "var(--bull-dim)" }}>Use the wallet button in the header.</p>
         </div>
       )}
 
@@ -587,32 +995,65 @@ function Step5Review({
         <KV label="ticker" value={`$${data.ticker}`} />
         <KV label="max supply" value={`${data.maxSupply.toLocaleString()} NFTs`} />
         <KV label="tokens per wrap" value={`${data.tokensPerWrap} base units`} />
-        <KV label="art source" value={`${data.artSourceType === "baseUri" ? "BaseUri" : "RendererUrl"} ${truncate(data.artSourceUrl, 40)}`} />
-        <KV label="collection URI" value={truncate(data.collectionUri, 40)} />
-        <KV label="deployer" value={wallet.publicKey ? truncate(wallet.publicKey.toBase58(), 24) : "—"} mono />
+        <KV label="art tier" value={data.artTier.toUpperCase()} />
+        {!isBespoke && (
+          <>
+            <KV label="art source" value={`${data.artSourceType === "baseUri" ? "BaseUri" : "RendererUrl"} ${truncate(data.artSourceUrl, 40)}`} />
+            <KV label="collection URI" value={truncate(data.collectionUri, 40)} />
+          </>
+        )}
+        {isBespoke && (
+          <>
+            <KV label="contact email" value={data.bespokeBrief.contactEmail} />
+            <KV label="deadline" value={data.bespokeBrief.deadline || "no deadline given"} />
+            <KV label="brief length" value={`${data.bespokeBrief.vibe.length} chars`} />
+          </>
+        )}
+        <KV label={isBespoke ? "submitter" : "deployer"} value={wallet.publicKey ? truncate(wallet.publicKey.toBase58(), 24) : "—"} mono />
       </div>
 
-      <div style={{ marginTop: 24, padding: 20, background: "var(--bull-ink)", color: "var(--bull-paper)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 16 }}>
-          <div>
-            <div style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "#d4a017", marginBottom: 6 }}>
-              deploy cost
-            </div>
-            <div style={{ fontSize: 36, fontWeight: 800, fontVariantNumeric: "tabular-nums" }}>
-              {DEPLOY_COST_WBULL.toLocaleString()} $WBULL
-            </div>
-            <div style={{ fontSize: 11, color: "#aaa", marginTop: 4 }}>
-              into the bull treasury · 7 day lock per deposit
+      {/* Cost block: tier aware. */}
+      {isBespoke ? (
+        <div style={{ marginTop: 24, padding: 20, background: "var(--bull-ink)", color: "var(--bull-paper)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 16 }}>
+            <div>
+              <div style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "#d4a017", marginBottom: 6 }}>
+                deposit (locks you into the queue)
+              </div>
+              <div style={{ fontSize: 36, fontWeight: 800, fontVariantNumeric: "tabular-nums" }}>
+                1,000,000 $WBULL
+              </div>
+              <div style={{ fontSize: 11, color: "#aaa", marginTop: 4 }}>
+                Balance quoted in our reply within 48 hours · refundable if we decline the brief
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div style={{ marginTop: 24, padding: 20, background: "var(--bull-ink)", color: "var(--bull-paper)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 16 }}>
+            <div>
+              <div style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "#d4a017", marginBottom: 6 }}>
+                deploy cost
+              </div>
+              <div style={{ fontSize: 36, fontWeight: 800, fontVariantNumeric: "tabular-nums" }}>
+                {DEPLOY_COST_WBULL.toLocaleString()} $WBULL
+              </div>
+              <div style={{ fontSize: 11, color: "#aaa", marginTop: 4 }}>
+                into the bull treasury · 7 day lock per deposit
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-      <div style={{ marginTop: 16, padding: 12, border: "2px dashed #b35d00", background: "#fff4e6", fontSize: 12, color: "var(--bull-ink)" }}>
-        <strong style={{ color: "#b35d00", textTransform: "uppercase", letterSpacing: "0.08em" }}>irreversible:</strong>{" "}
-        once you sign, the 1M $WBULL is transferred to the bull treasury. economic fields
-        (supply, tokens per wrap) cannot be changed without a fresh deployment.
-      </div>
+      {/* Warning block: tier aware. */}
+      {!isBespoke && (
+        <div style={{ marginTop: 16, padding: 12, border: "2px dashed #b35d00", background: "#fff4e6", fontSize: 12, color: "var(--bull-ink)" }}>
+          <strong style={{ color: "#b35d00", textTransform: "uppercase", letterSpacing: "0.08em" }}>irreversible:</strong>{" "}
+          Once you sign, the 1M $WBULL is transferred to the bull treasury. Economic fields (supply, tokens per wrap) cannot be changed without a fresh deployment.
+        </div>
+      )}
 
       <label style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 16, fontSize: 13, cursor: "pointer" }}>
         <input
@@ -621,13 +1062,15 @@ function Step5Review({
           onChange={(e) => update("acknowledged", e.target.checked)}
           style={{ width: 18, height: 18, accentColor: "var(--bull-ink)" }}
         />
-        i understand. deposit 1M $WBULL into the bull treasury and deploy {data.name || "this wrap layer"}.
+        {isBespoke
+          ? `I understand. Transfer 1,000,000 $WBULL as a queue deposit; we will reply at ${data.bespokeBrief.contactEmail || "the email above"}. Refundable if we decline.`
+          : `I understand. Deposit 1M $WBULL into the bull treasury and deploy ${data.name || "this wrap layer"}.`}
       </label>
 
-      {/* Inline deploy progress + result */}
-      {deployPhase === "success" && txSig && (
+      {/* Inline deploy progress + result. */}
+      {deployPhase === "success" && txSig && !isBespoke && (
         <Status tone="good" extra>
-          ✓ deployed. tx: <code>{truncate(txSig, 24)}</code>. redirecting…
+          ✓ Deployed. tx: <code>{truncate(txSig, 24)}</code>. Redirecting…
         </Status>
       )}
       {deployPhase === "error" && deployError && (

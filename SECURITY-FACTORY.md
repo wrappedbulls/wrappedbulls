@@ -9,7 +9,7 @@ two new surfaces that need their own scrutiny:
    a new wrap layer. The program has to behave correctly when the caller is
    adversarial.
 2. **Bull treasury.** The 1M $WBULL deploy fee accumulates in an on-chain
-   treasury PDA. The program enforces a per-deposit 7-day lock; the multisig
+   treasury PDA. The program enforces a per-deposit 7-day lock; the upgrade authority
    only sees what has already cleared the lock.
 
 This document is the audit-ready companion to [`SECURITY.md`](SECURITY.md),
@@ -27,11 +27,11 @@ Same channel as the parent program. Use GitHub Security Advisories on the
 
 | Surface | Who controls | What they can do |
 |---|---|---|
-| `initialize` instruction | Program upgrade authority (mainnet: Squads multisig) | One-shot. Sets the $WBULL mint and creates singleton PDAs. Cannot be re-run. |
+| `initialize` instruction | Program upgrade authority (mainnet: upgrade authority keypair) | One-shot. Sets the $WBULL mint and creates singleton PDAs. Cannot be re-run. |
 | Per-deployment economic fields (`max_supply`, `tokens_per_wrap`, `art_source`) | The deployer who paid 1M $WBULL | Set ONCE at deploy time. The program does not expose any mutator. Wrong inputs cannot be repaired — a fresh deployment is required. |
 | `wrap` and `unwrap` per deployment | Anyone holding the target token (`wrap`) or the bull NFT (`unwrap`) | Permissionless. The program enforces token-mint match and NFT ownership cryptographically. |
 | `bull_treasury_vault` token balance | Program upgrade authority via `claim_treasury` instruction | Can drain only the `claimable` portion (deposits aged ≥ 7 days). Cannot reach into `pending`. |
-| Program upgrade authority | Same Squads multisig that controls wrappedbulls | Can ship a new program binary; this is the only way to change the deploy cost, the lock window, or any other hard-coded constant. |
+| Program upgrade authority | Same upgrade authority keypair the same keypair posture as wrappedbulls | Can ship a new program binary; this is the only way to change the deploy cost, the lock window, or any other hard-coded constant. |
 
 **Trust minimization summary:** the deployer who paid the fee receives no
 admin power beyond setting the deployment's launch parameters. They cannot
@@ -76,7 +76,7 @@ If you find a way to violate any of them, it is a critical-severity issue.
    is appended to `BullTreasuryState.pending` with `(amount, deposited_at)`.
    `claim_treasury` runs `sweep_expired(now)` which moves entries into
    `claimable` ONLY if `now - entry.deposited_at >= PENDING_LOCK_SECONDS`
-   (where `PENDING_LOCK_SECONDS = 604_800`). The multisig can never drain
+   (where `PENDING_LOCK_SECONDS = 604_800`). The upgrade authority can never drain
    tokens deposited within the last 7 days. Proven negatively by
    `tests/wrappedfactory.ts` test
    *claim_treasury rejects with NothingClaimable when all deposits are < 7d old*.
@@ -90,13 +90,13 @@ If you find a way to violate any of them, it is a critical-severity issue.
    instruction requires `program_data.upgrade_authority_address == Some(authority.key())`
    where `program_data` is verified against `program.programdata_address()`.
    No other path drains the treasury vault. After mainnet handoff to the
-   Squads multisig, claims require multisig consent on chain. Verified in
+   upgrade authority keypair, claims require upgrade authority signature on chain. Verified in
    [`programs/wrappedfactory/src/instructions/claim_treasury.rs`](programs/wrappedfactory/src/instructions/claim_treasury.rs).
 
 6. **`pending` cannot grow without bound.** `BullTreasuryState.pending` is
    capped at `PENDING_CAP = 256` entries. `push_deposit` returns
    `TreasuryPendingFull` if the cap is reached — this is a forcing function
-   for the multisig to call `claim_treasury` (which sweeps expired entries
+   for the upgrade authority.to call `claim_treasury` (which sweeps expired entries
    on the way in) to make room. The cap protects the on-chain account from
    unbounded growth and from rent-extraction griefing. Proven by
    `state::treasury_accounting_tests::push_at_cap_returns_err_until_sweep_makes_room`.
@@ -119,7 +119,7 @@ If you find a way to violate any of them, it is a critical-severity issue.
    is written once during `initialize` and never mutated. Every
    `deploy_collection` constraint-matches the deployer's $WBULL account
    against `factory_config.wbull_mint`. A compromised admin cannot redirect
-   future deploys to a different "fee mint" without a Squads-signed program
+   future deploys to a different "fee mint" without a upgrade authority signed program
    upgrade (which is publicly observable).
 
 9. **Per-NFT invariants inherited from wrappedbulls.** The Factory's
@@ -202,6 +202,26 @@ to add tx-fee griefing. Mitigation: the `/launch/new` wizard surfaces
 the existing-deployment status via the preflight API, so legitimate
 deployers see the conflict before signing.
 
+### Tier-prediction race in wrap
+
+`wrap.rs` requires `pop_tier() == caller_supplied_tier_index`. When two
+wrappers target the same collection in the same slot, both clients
+predict the same next tier from their on chain reads, both submit, one
+wins, the other reverts with `TierMismatch`. The reverting client loses
+only tx fees. No funds lost, no NFT stranded.
+
+Throughput limit: a busy collection can sustain roughly one wrap per
+slot per collection (sustained ~2.5 wraps / sec / collection in
+practice). Higher contention triggers user visible `TierMismatch` errors
+that the wizard surfaces as "tier was taken; please retry" with a fresh
+tier read.
+
+Same pattern is in the mainnet wrappedbulls program and has not produced
+incidents because per collection wrap volume is moderate. Documented as a
+known design trade off, not a bug. Mitigation explored for v1.1: emit
+the resolved tier via Anchor `emit!` so the client can skip the
+`require!` predicate entirely.
+
 ## Out of scope
 
 Same as the parent program plus these Factory-specific exclusions:
@@ -261,8 +281,8 @@ Pre-mainnet items being completed:
 - [ ] **Verified build via `solana-verify`.** Ensures the binary deployed
       to mainnet matches the source in this repo. The same verified-build
       process the parent program uses.
-- [ ] **Squads multisig handoff.** Upgrade authority moves from the
-      deployer keypair to the existing wrappedbulls Squads multisig in
+- [ ] **upgrade authority keypair handoff.** Upgrade authority moves from the
+      deployer keypair to the existing wrappedbulls upgrade authority keypair in
       Week 4. The handoff is one tx, publicly observable.
 - [ ] **Time-travel success-path test** (see above).
 - [ ] **Devnet stress test:** deploy 3-5 fake `WrappedX` via the actual
@@ -290,7 +310,7 @@ Same scale as the parent program; restated here for completeness.
 |---|---|
 | Critical | Drains the bull treasury without 7d delay, drains a per-NFT vault without holding the NFT, or mints a Factory NFT without paying the deploy cost. |
 | High | Bricks a deployer's wrap layer permanently, lets two deployments share the same on-chain state, or sidesteps the 1M $WBULL fee. |
-| Medium | Drift in treasury accounting that does not result in lost funds, ticker/name conflicts the program does not detect, or denial-of-service against `claim_treasury` that the multisig can self-resolve. |
+| Medium | Drift in treasury accounting that does not result in lost funds, ticker/name conflicts the program does not detect, or denial-of-service against `claim_treasury` that the upgrade authority can self-resolve. |
 | Low | UX confusion, missing surface validation that the program correctly rejects but the wizard does not catch early, gas/CU optimization opportunities. |
 
 ## Disclosure preference

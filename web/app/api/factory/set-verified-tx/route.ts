@@ -73,6 +73,33 @@ export async function POST(req: NextRequest) {
     BPF_UPGRADEABLE_LOADER_ID,
   );
 
+  // M6: pre-validate that the supplied authority matches the on chain
+  // upgrade authority. On chain rejects otherwise, but a clean 403 here
+  // beats a wasted sim and an opaque error in the caller.
+  try {
+    const pdInfo = await conn.getAccountInfo(programData, "confirmed");
+    if (!pdInfo) {
+      return err("program data account not found (program not deployed?)", "no_program_data");
+    }
+    // ProgramData layout: 4 tag + 8 slot + 1 option_tag + 32 authority + bytecode
+    if (pdInfo.data.length < 45) {
+      return err("program data account malformed", "no_program_data");
+    }
+    const optionTag = pdInfo.data[12];
+    if (optionTag !== 1) {
+      return err("program is immutable (upgrade authority is null)", "no_upgrade_authority");
+    }
+    const onchainAuth = new PublicKey(pdInfo.data.slice(13, 13 + 32));
+    if (!onchainAuth.equals(authority)) {
+      return err(
+        `supplied authority does not match on-chain upgrade authority ${onchainAuth.toBase58()}`,
+        "wrong_authority",
+      );
+    }
+  } catch (e) {
+    return err((e as Error).message || "could not read program data", "rpc_error");
+  }
+
   const coder = new BorshInstructionCoder(idl as unknown as Idl);
   let data: Buffer;
   try {

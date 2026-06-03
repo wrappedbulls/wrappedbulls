@@ -85,17 +85,46 @@ export default async function LaunchLandingPage() {
       <section className="text-center py-8">
         <h1 className="h1 mb-4">WRAP FACTORY</h1>
         <p className="text-lg" style={{ marginTop: 12 }}>
-          &gt; launch a wrap layer on any pump.fun token in one transaction.
+          &gt; launch a wrap layer on any pump.fun token, with the art you want.
         </p>
         <p className="text-[var(--bull-dim)] text-sm" style={{ marginTop: 8, maxWidth: 720, marginInline: "auto" }}>
-          every Factory deployment funds the bull treasury with 1,000,000 $WBULL.
-          7 day lock per deposit. governance adjustable. no burn -- tokens stay
-          in circulation, where the wrap protocol needs them.
+          bring your own art, or book our human artist for a hand crafted collection.
+          1,000,000 $WBULL into the bull treasury per deployment. 7 day lock.
+          governance adjustable. no burn.
         </p>
         <div className="flex justify-center gap-3 flex-wrap" style={{ marginTop: 24 }}>
           <Link href="/launch/new" className="btn btn-primary">[ LAUNCH YOURS → ]</Link>
           <Link href="/launches" className="btn btn-secondary">[ EXPLORE WRAP LAYERS ]</Link>
           <Link href="/launch/treasury" className="btn btn-secondary">[ BULL TREASURY ]</Link>
+        </div>
+      </section>
+
+      {/* ============================ ART OPTIONS ============================ */}
+      <section style={{ paddingTop: 24 }}>
+        <SectionHead marker="01" title="ART OPTIONS" />
+        <p className="text-sm text-[var(--bull-dim)]" style={{ marginBottom: 16, maxWidth: 720 }}>
+          art is what makes an NFT collection. pick how you want to handle it. you decide during the launch wizard.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <TierInfoCard
+            title="DIY"
+            price="included"
+            summary="You host the art. Point us at your metadata URL. We bake it into Metaplex at deploy time."
+            fit="Best for projects with existing art or technical teams."
+          />
+          <TierInfoCard
+            title="ALGORITHMIC"
+            price="coming soon"
+            summary="On chain derived art, unique per NFT mint. We are polishing the presets to launch quality."
+            fit="Best for fast launches that want every NFT to look distinct."
+            dim
+          />
+          <TierInfoCard
+            title="BESPOKE"
+            price="1M $WBULL deposit + quote"
+            summary="Our artist designs your collection by hand. Deposit locks you into the queue, refundable if we decline."
+            fit="Best for premium launches that want hand crafted identity."
+          />
         </div>
       </section>
 
@@ -145,7 +174,7 @@ export default async function LaunchLandingPage() {
 
       {/* ============================ FEATURED ============================ */}
       <section style={{ paddingTop: 24 }}>
-        <SectionHead marker="01" title="FEATURED WRAP LAYERS" />
+        <SectionHead marker="02" title="FEATURED WRAP LAYERS" />
         {featured.length === 0 ? (
           <FeaturedEmpty initialized={initialized} />
         ) : (
@@ -167,13 +196,13 @@ export default async function LaunchLandingPage() {
 
       {/* ============================ BULL TREASURY ============================ */}
       <section style={{ paddingTop: 48 }}>
-        <SectionHead marker="02" title="BULL TREASURY" />
+        <SectionHead marker="03" title="BULL TREASURY" />
         <BullTreasuryPanel treasury={treasury} now={now} initialized={initialized} />
       </section>
 
       {/* ============================ LAUNCH CTA ============================ */}
       <section style={{ paddingTop: 48 }}>
-        <SectionHead marker="03" title="LAUNCH YOUR OWN" />
+        <SectionHead marker="04" title="LAUNCH YOUR OWN" />
         <div className="card" style={{ padding: 32 }}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-2">
@@ -183,8 +212,9 @@ export default async function LaunchLandingPage() {
               <h2 className="h2" style={{ marginBottom: 12 }}>bring your pump.fun token to the wrap protocol.</h2>
               <p style={{ color: "var(--bull-dim)", marginBottom: 18 }}>
                 your token gets the wrappedbulls engine: atomic wrap and unwrap,
-                verified collection on magic eden and tensor, live deflation dashboard,
-                dedicated /launch/&lt;ticker&gt; page, embeddable activity widget.
+                verified collection on Magic Eden and Tensor, dedicated
+                /launch/&lt;ticker&gt; dashboard, embeddable activity widget,
+                and your choice of DIY or bespoke art.
                 all in one signed transaction.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-6 text-sm" style={{ marginBottom: 20 }}>
@@ -192,7 +222,7 @@ export default async function LaunchLandingPage() {
                 <div>→ verified collection out of the box</div>
                 <div>→ token vault follows the NFT</div>
                 <div>→ dedicated dashboard, white labeled</div>
-                <div>→ buy and lock flywheel ready</div>
+                <div>→ three art tiers to choose from</div>
                 <div>→ embeddable activity widget</div>
               </div>
               <Link href="/launch/new" className="btn btn-primary">[ START YOUR DEPLOYMENT → ]</Link>
@@ -207,7 +237,7 @@ export default async function LaunchLandingPage() {
                 → atomic with deploy<br />
                 → goes to bull treasury<br />
                 → 7 day lock per deposit<br />
-                → multisig controlled<br />
+                → operator controlled<br />
                 → governance can adjust<br />
               </div>
             </div>
@@ -266,6 +296,37 @@ function SectionHead({ marker, title }: { marker: string; title: string }) {
       <div style={{ fontWeight: 800 }}>{marker}</div>
       <div className="h2">{title}</div>
       <div style={{ flex: 1, borderTop: "2px solid var(--bull-ink)", height: 0, transform: "translateY(-6px)" }} />
+    </div>
+  );
+}
+
+function TierInfoCard({
+  title, price, summary, fit, dim,
+}: {
+  title: string; price: string; summary: string; fit: string; dim?: boolean;
+}) {
+  return (
+    <div
+      style={{
+        padding: 16,
+        border: "2px solid var(--bull-ink)",
+        background: dim ? "var(--bull-very-soft)" : "var(--bull-paper)",
+        opacity: dim ? 0.65 : 1,
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+        <div style={{ fontWeight: 800, letterSpacing: "0.06em", fontSize: 14 }}>{title}</div>
+        <div style={{ fontSize: 10, color: "var(--bull-dim)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          {price}
+        </div>
+      </div>
+      <div style={{ fontSize: 12, lineHeight: 1.5 }}>{summary}</div>
+      <div style={{ fontSize: 11, color: "var(--bull-dim)", marginTop: "auto", paddingTop: 8, borderTop: "1px dashed var(--bull-soft)" }}>
+        {fit}
+      </div>
     </div>
   );
 }
@@ -357,7 +418,7 @@ function BullTreasuryPanel({
             {formatBig(claimable)}
           </div>
           <div style={{ fontSize: 12, color: "var(--bull-dim)", marginTop: 8, lineHeight: 1.6 }}>
-            deposits older than 7 days. multisig-controlled.
+            deposits older than 7 days. operator controlled.
             funds audits, grants, partnerships, infrastructure.
           </div>
         </div>

@@ -25,7 +25,7 @@ import {
 export const metadata = {
   title: "WRAPPEDBULLS // bull treasury",
   description:
-    "Live status of the Factory's bull treasury. 7-day per-deposit lock, multisig-controlled, governance adjustable.",
+    "Live status of the Factory's bull treasury. 7-day per-deposit lock, operator controlled, governance adjustable.",
 };
 
 export const dynamic = "force-dynamic";
@@ -72,7 +72,7 @@ export default async function BullTreasuryPage() {
         <h1 className="h1">BULL TREASURY</h1>
         <p className="text-[var(--bull-dim)] mt-3 text-sm" style={{ maxWidth: 720 }}>
           every Factory deployment funds this PDA with 1,000,000 $WBULL. each
-          deposit locks for 7 days before becoming claimable by the multisig.
+          deposit locks for 7 days before becoming claimable by the operator.
           governance can adjust the deploy cost via a program upgrade.
         </p>
       </div>
@@ -138,7 +138,7 @@ export default async function BullTreasuryPage() {
                 <DarkStat
                   label="LIFETIME CLAIMED"
                   value={formatBig(treasury.lifetimeClaimed)}
-                  sub={"sent to multisig destinations"}
+                  sub={"sent to operator destinations"}
                 />
               </div>
             </div>

@@ -21,6 +21,12 @@ import {
   getFactoryProgramId,
 } from "@/lib/factory";
 import { PublicKey } from "@solana/web3.js";
+import { cacheWrapSWR } from "@/lib/cache";
+
+// H1 fix: cache both bulk getProgramAccounts calls. /embed.js polls every
+// 30s per widget; without caching every poll hits Helius. 30s TTL keeps
+// activity feeling live while collapsing concurrent polls.
+const ACTIVITY_CACHE_MS = 30_000;
 
 export const dynamic = "force-dynamic";
 
@@ -59,7 +65,12 @@ export async function GET(req: NextRequest) {
 
   let collections;
   try {
-    collections = await fetchAllWrappedCollections(conn);
+    collections = await cacheWrapSWR(
+      "factory-collections",
+      "all",
+      { ttlMs: ACTIVITY_CACHE_MS },
+      () => fetchAllWrappedCollections(conn),
+    );
   } catch (e) {
     return NextResponse.json(
       { ok: false, error: (e as Error).message, code: "rpc_error" },
@@ -92,10 +103,15 @@ export async function GET(req: NextRequest) {
   // all program accounts twice: we filter getProgramAccounts by the
   // BullAsset size to only get those records. Size = 8 + 32 + 2 + 8 + 1 = 51.
   try {
-    const bullAssets = await conn.getProgramAccounts(programId, {
-      commitment: "confirmed",
-      filters: [{ dataSize: BULL_ASSET_SIZE }],
-    });
+    const bullAssets = await cacheWrapSWR(
+      "factory-bull-assets",
+      "all",
+      { ttlMs: ACTIVITY_CACHE_MS },
+      () => conn.getProgramAccounts(programId, {
+        commitment: "confirmed",
+        filters: [{ dataSize: BULL_ASSET_SIZE }],
+      }),
+    );
     for (const ba of bullAssets) {
       const d = ba.account.data;
       // 8 disc + nft_mint(32) + tier(u16) + wrapped_at(i64) + bump(1)
@@ -109,7 +125,7 @@ export async function GET(req: NextRequest) {
       // collections by checking if the PDA derives from one of them.
       let parent = null;
       for (const c of collections) {
-        const expectedSeed = derive("bull", c.tokenMint, tierIndex);
+        const expectedSeed = derive("bull", c.tokenMint, tierIndex, programId);
         if (expectedSeed.equals(ba.pubkey)) {
           parent = c;
           break;
@@ -157,12 +173,12 @@ const BULL_ASSET_SIZE = 8 + 32 + 2 + 8 + 1;
 // Re-derive a BullAsset PDA for matching against found accounts. Saves
 // us from including the bullAssetPda helper that requires a PublicKey
 // parameter.
-function derive(seedTag: string, tokenMint: PublicKey, tierIndex: number): PublicKey {
+function derive(seedTag: string, tokenMint: PublicKey, tierIndex: number, programId: PublicKey): PublicKey {
   const tierBuf = Buffer.alloc(2);
   tierBuf.writeUInt16LE(tierIndex, 0);
   const [pda] = PublicKey.findProgramAddressSync(
     [Buffer.from(seedTag), tokenMint.toBuffer(), tierBuf],
-    new PublicKey(process.env.NEXT_PUBLIC_FACTORY_PROGRAM_ID || "WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh"),
+    programId,
   );
   return pda;
 }

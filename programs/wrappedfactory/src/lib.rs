@@ -6,7 +6,7 @@
 //   - WrappedFactory is a brand-new program with a fresh ID. Anyone can
 //     call deploy_collection to bring their own pump.fun token under
 //     identical wrap/unwrap mechanics, with permission gated only by the
-//     1,000,000 $WBULL burn that funds the deploy atomically.
+//     1,000,000 $WBULL fee that funds the deploy atomically.
 //
 // Three user-initiated instructions:
 //   - deploy_collection: transfers 1M $WBULL into bull_treasury_vault,
@@ -53,8 +53,8 @@ declare_id!("WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh");
 // is publicly observable.
 // =====================================================================
 
-/// Amount of $WBULL burned atomically by deploy_collection. Base units of
-/// the $WBULL mint (apply mint decimals at burn time). With $WBULL's 6
+/// Amount of $WBULL transferred atomically by deploy_collection to the bull treasury. Base units of
+/// the $WBULL mint (apply mint decimals at deposit time). With $WBULL's 6
 /// decimals on pump.fun this is 1,000,000 * 1e6.
 pub const DEPLOY_BURN_AMOUNT_UI: u64 = 1_000_000;
 
@@ -63,7 +63,7 @@ pub mod wrappedfactory {
     use super::*;
 
     /// One-time Factory setup. Writes the FactoryConfig singleton
-    /// with the canonical $WBULL mint that every deploy_collection burns
+    /// with the canonical $WBULL mint that every deploy_collection transfers
     /// from. Gated to the program's upgrade authority. After this runs,
     /// the $WBULL mint cannot be changed without a new program upgrade.
     pub fn initialize(ctx: Context<Initialize>, wbull_mint: Pubkey) -> Result<()> {
@@ -77,7 +77,7 @@ pub mod wrappedfactory {
     ///   2. Initialize the WrappedCollection PDA (sandboxed by token_mint)
     ///   3. Create the Metaplex Certified Collection NFT for marketplace
     ///      recognition
-    ///   4. Bump FactoryConfig.total_deployments and total_wbull_burned
+    ///   4. Bump FactoryConfig.total_deployments and total_wbull_deposited
     ///
     /// Inputs are validated before any state is written: name length,
     /// ticker length, supply range, art URI length, tokens_per_wrap > 0.

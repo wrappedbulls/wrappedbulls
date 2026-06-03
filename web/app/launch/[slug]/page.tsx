@@ -124,7 +124,7 @@ export default async function LaunchDeploymentPage({ params }: PageProps) {
           <h1 className="h1">{c.name}</h1>
           {c.verified && (
             <span
-              title="Verified by WrappedBulls multisig"
+              title="Verified by WrappedBulls"
               style={{
                 fontSize: 12,
                 padding: "4px 10px",

@@ -1,5 +1,5 @@
 {
-  "address": "Ab7yPbWmgUov7ZCYG4NjZ5354rTKL3A7JEUTHh2HdQ5s",
+  "address": "WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh",
   "metadata": {
     "name": "wrappedfactory",
     "version": "0.1.0",
@@ -181,7 +181,7 @@
           "docs": [
             "This program's account, for ProgramData lookup."
           ],
-          "address": "Ab7yPbWmgUov7ZCYG4NjZ5354rTKL3A7JEUTHh2HdQ5s"
+          "address": "WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh"
         },
         {
           "name": "program_data",
@@ -816,7 +816,7 @@
           "docs": [
             "This program's account, used to locate its ProgramData."
           ],
-          "address": "Ab7yPbWmgUov7ZCYG4NjZ5354rTKL3A7JEUTHh2HdQ5s"
+          "address": "WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh"
         },
         {
           "name": "program_data",
@@ -914,7 +914,7 @@
           "docs": [
             "This program's account, used to locate its ProgramData."
           ],
-          "address": "Ab7yPbWmgUov7ZCYG4NjZ5354rTKL3A7JEUTHh2HdQ5s"
+          "address": "WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh"
         },
         {
           "name": "program_data",

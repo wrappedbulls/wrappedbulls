@@ -25,6 +25,7 @@ import {
 import { BorshInstructionCoder, Idl } from "@coral-xyz/anchor";
 import {
   TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID,
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 
@@ -100,11 +101,21 @@ export async function POST(req: NextRequest) {
   }
   const nftMint = new PublicKey(bullAssetInfo.data.slice(8, 8 + 32));
 
+  // Detect target token's owner program so ATAs derive correctly across
+  // classic SPL and Token-2022 mints. Same fix as wrap-tx + deploy-tx.
+  const targetMintInfo = await conn.getAccountInfo(tokenMintPk);
+  if (!targetMintInfo) {
+    return err("could not read target token mint account", "rpc_error");
+  }
+  const targetTokenProgram = targetMintInfo.owner.equals(TOKEN_2022_PROGRAM_ID)
+    ? TOKEN_2022_PROGRAM_ID
+    : TOKEN_PROGRAM_ID;
+
   // Derive remaining PDAs/ATAs.
   const [collectionAddr] = collectionPda(tokenMintPk);
   const [nftMintAuthority] = vaultAuthorityPda(nftMint);
-  const vault = getAssociatedTokenAddressSync(tokenMintPk, nftMintAuthority, true);
-  const holderTokenAccount = getAssociatedTokenAddressSync(tokenMintPk, holder);
+  const vault = getAssociatedTokenAddressSync(tokenMintPk, nftMintAuthority, true, targetTokenProgram);
+  const holderTokenAccount = getAssociatedTokenAddressSync(tokenMintPk, holder, false, targetTokenProgram);
   const holderNftAccount = getAssociatedTokenAddressSync(nftMint, holder);
 
   const [metadata] = PublicKey.findProgramAddressSync(
@@ -150,7 +161,7 @@ export async function POST(req: NextRequest) {
     { pubkey: collection.collectionMint, isSigner: false, isWritable: false },
     { pubkey: collectionMetadata,        isSigner: false, isWritable: true  },
     { pubkey: TOKEN_PROGRAM_ID,          isSigner: false, isWritable: false },
-    { pubkey: TOKEN_PROGRAM_ID,          isSigner: false, isWritable: false }, // bulls_token_program
+    { pubkey: targetTokenProgram,        isSigner: false, isWritable: false }, // detected from target mint owner above
     { pubkey: TOKEN_METADATA_PROGRAM_ID, isSigner: false, isWritable: false },
     { pubkey: SystemProgram.programId,   isSigner: false, isWritable: false },
   ];

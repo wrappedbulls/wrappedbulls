@@ -1,31 +1,24 @@
 # WrappedFactory Launch Runbook
 
-**Goal:** go from `factory-v1` branch to mainnet-live `deploy_collection` ix
-without losing any of the four irreversible authority handoffs that happen
-between "deploy" and "Squads-multisig-owned."
+**Goal:** go from `factory-v1` branch to mainnet live `deploy_collection` ix without losing the deployer keypair or its cold backup at any point.
 
-This is the Factory's sibling to [`LAUNCH_RUNBOOK.md`](LAUNCH_RUNBOOK.md).
-The parent wrappedbulls program is already mainnet-live; deploying the
-Factory does NOT touch it.
+This is the Factory's sibling to [`LAUNCH_RUNBOOK.md`](LAUNCH_RUNBOOK.md). The parent wrappedbulls program is already mainnet live; deploying the Factory does NOT touch it.
 
-## Two programs, one repo, one Squads
+## Two programs, one repo, one authority
 
 | Program | Status | Program ID | Upgrade authority on mainnet |
 |---|---|---|---|
-| `wrappedbulls` | LIVE | `F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS` | Squads multisig (already handed off) |
-| `wrappedfactory` | PENDING DEPLOY | `<VANITY_PROGRAM_ID>` (lands when grind completes) | Becomes the SAME Squads multisig in step 9 |
+| `wrappedbulls` | LIVE | `F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS` | Single deployer keypair `9ZDrkF9a8bMHPeDhe3oiDDUC1616C3vtTGozBgMxhWtn` |
+| `wrappedfactory` | PENDING DEPLOY | `WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh` | Same single deployer keypair (default), or a fresh keypair if you prefer operational isolation |
 
-Both programs share the same `cargo` workspace, the same `Anchor.toml`,
-and the same Squads multisig for upgrade authority. The Factory deploy
-does NOT modify wrappedbulls in any way.
+Both programs share the same `cargo` workspace and the same `Anchor.toml`. Factory deploy does NOT modify wrappedbulls in any way. Upgrade authority posture is **single hot keypair** (solo operator); see `PRE_MORTEM_FACTORY.md` § Upgrade authority posture for the full risk read.
 
 ## Wallet roles
 
 | Role | Wallet | Used for |
 |---|---|---|
-| **Initial deployer / upgrade authority** | The bulls-box keypair at `/root/.config/solana/id.json` (`GMrJpP7SaUkfyizsB3b8GeKWgDiqac3g5EaMGnMtkXCj` — same as wrappedbulls) | Signs `anchor deploy`, `anchor idl init`, `initialize(wbull_mint)`. Holds upgrade authority until step 9. Must be funded with ~3 SOL mainnet for buffer + rent. |
-| **Bull treasury** | Per-token PDA, NOT a wallet | `bull_treasury_state` PDA holds the accounting + signs `bull_treasury_vault` token transfers via seeds. No human owns this directly. |
-| **Squads multisig (post-handoff)** | The existing wrappedbulls Squads vault address | After step 9, holds upgrade authority. Also gates every `claim_treasury` because that ix is gated to `program_data.upgrade_authority_address`. |
+| **Deployer + upgrade authority + admin** | The bulls box keypair at `/root/.config/solana/id.json` (`9ZDrkF9a8bMHPeDhe3oiDDUC1616C3vtTGozBgMxhWtn`) | Signs `anchor deploy`, `anchor idl init`, `initialize(wbull_mint)`. Holds upgrade authority indefinitely. Also gates `claim_treasury` and `set_verified`. Must be funded with ~3 SOL mainnet for buffer + rent. |
+| **Bull treasury** | Per program PDA, NOT a wallet | `bull_treasury_state` PDA holds the accounting + signs `bull_treasury_vault` token transfers via seeds. No human owns this directly. |
 
 Critical: the Factory does NOT have a separate "royalty treasury" wallet.
 Royalties on Factory-deployed NFTs are zero (the Factory writes
@@ -206,35 +199,30 @@ If they match, you have a reproducible deploy. Submit the verified build to
 `solana-verify upload` so the program shows the green verified-build badge
 on explorers.
 
-### Step 9 — Squads multisig handoff
+### Step 9 — Cold backup the upgrade authority keypair
+
+No authority handoff in the single keypair posture; the deployer keypair stays in place as the upgrade authority. What this step IS, instead: ensure a cold backup of the keypair exists and is readable, separately from the VPS.
 
 ```bash
-solana program set-upgrade-authority \
-  <VANITY> \
-  --new-upgrade-authority <SQUADS_VAULT_PUBKEY> \
-  --keypair /root/.config/solana/id.json \
-  --url mainnet-beta
+# On the VPS, just confirm the file exists + is not zero bytes
+ls -la /root/.config/solana/id.json
+solana-keygen pubkey /root/.config/solana/id.json
+# Expected: 9ZDrkF9a8bMHPeDhe3oiDDUC1616C3vtTGozBgMxhWtn (or whichever pubkey you chose for Factory)
 ```
 
-After this:
-- The deployer keypair can no longer push program upgrades
-- `claim_treasury` can no longer be called by the deployer (because the ix
-  is gated to the current upgrade authority, which is now the Squads vault)
-- Every future change requires multisig consent
+Cold backup off-box (do this on a personal device, NOT in chat/pastebin):
+1. SCP `/root/.config/solana/id.json` to a personal machine
+2. Write it to an offline storage medium (encrypted USB, paper QR via `solana-keygen recover`, etc.)
+3. Test reading the backup once
+4. Delete the on-host SCP copy
 
-Verify:
-```bash
-solana program show <VANITY> --url mainnet-beta
-# Authority: <SQUADS_VAULT_PUBKEY>   <-- must match
-```
-
-This step is intentionally LAST. Do not perform it until smoke tests on
-the live program (Step 10) have passed.
+Optional future moves (not required at launch, recorded here so the option is documented):
+- Transfer authority to a hardware wallet: `solana program set-upgrade-authority <VANITY> --new-upgrade-authority <LEDGER_PUBKEY> --keypair /root/.config/solana/id.json --url mainnet-beta`. Adds physical-presence requirement for any future upgrade.
+- Make program immutable: `solana program set-upgrade-authority <VANITY> --new-upgrade-authority null --keypair /root/.config/solana/id.json --url mainnet-beta`. Locks the program forever; also disables `claim_treasury` (treasury becomes permanently locked). Do NOT do this until the treasury is empty and you genuinely want immutability.
 
 ### Step 10 — Mainnet smoke test
 
-Open `https://wrappedbulls.com/launch/new` in Phantom on mainnet. Walk a
-real deployment through:
+Open `https://wrappedbulls.com/launch/new` in Phantom on mainnet. Walk a real deployment through:
 
 1. Paste a pump.fun token mint (use a small / dead one for the test)
 2. Enter a name + ticker
@@ -242,17 +230,14 @@ real deployment through:
 4. Use a simple BaseUri pointing at a test metadata server you control
 5. Confirm + sign
 
-Expected: the deploy succeeds, you land on `/launch/<your-token-mint>`,
-the dashboard shows your collection.
+Expected: the deploy succeeds, you land on `/launch/<your-token-mint>`, the dashboard shows your collection.
 
-If the deploy fails: do NOT proceed to step 9 (Squads handoff). Investigate
-first. Possible causes:
+If the deploy fails: investigate before launching publicly. Possible causes:
 - $WBULL balance < 1M
 - Token mint is on Token-2022 but the wbull_token_program arg pointed at classic SPL
-- A Phantom domain-reputation warning blocked the sign
+- A Phantom domain reputation warning blocked the sign
 
-After step 9 is done, the deployer wallet has no way to undeploy or fix
-the program without multisig consent.
+The program upgrade authority is still the deployer keypair, so any post mortem fix is a `solana program deploy --buffer ...` away.
 
 ## Rollback paths
 
@@ -281,23 +266,17 @@ The Factory program is live but the website doesn't know about it. The
 existing wrappedbulls site continues to work unaffected. Roll back to the
 prior green build via the standard blue/green deploy script.
 
-### Step 9 (Squads handoff) failed
+### Step 9 (cold backup) skipped or failed
 
-Highly unlikely (single tx, no atomicity surface). Retry. If the deployer
-keypair is somehow lost / compromised between steps 8 and 9, the Factory
-treasury becomes uncontrollable — abandon the deploy, redeploy with a
-fresh program ID, do not initialize against $WBULL.
+You launched without an off box cold backup of the upgrade authority keypair. This is recoverable: do the cold backup immediately, before any other operation. Until the cold backup exists, treat any VPS event (reboot, ssh drift, accidental file delete) as a treasury risk.
 
-### Discovered critical bug post-deploy, post-Squads-handoff
+### Discovered critical bug post launch
 
-This is the worst case. Multisig consent required for any fix. Procedure:
+The upgrade authority keypair still holds upgrade rights, so a fix is operationally fast (single signer):
 
-1. Public disclosure on `@wrappedbulls` X — "pausing Factory deploys
-   while investigating $ISSUE. Existing deployments unaffected."
-2. Squads-signed program upgrade (write fixed binary, propose to multisig,
-   sign, push)
-3. If the bug threatens existing per-deployment vaults: prepare a recovery
-   instruction that the multisig can call via program upgrade
+1. Public disclosure on `@wrappedbulls` X: "pausing Factory deploys while investigating $ISSUE. Existing deployments unaffected."
+2. Sign and push the program upgrade with the deployer keypair (`solana program deploy <fixed.so> --program-id /root/wrappedbulls/target/deploy/wrappedfactory-keypair.json --keypair /root/.config/solana/id.json --url mainnet-beta`).
+3. If the bug threatens existing per deployment vaults: include a recovery instruction in the upgrade and call it before lifting the pause.
 
 ## Post-deploy verification (the first 24 hours)
 
@@ -319,7 +298,7 @@ any pump.fun token can now launch its own wrap layer
 in one transaction.
 
 1,000,000 $WBULL per deployment -> bull treasury,
-locked 7 days, multisig controlled, governance
+locked 7 days, operator controlled, governance
 adjustable.
 
 wrappedbulls.com/launch
@@ -340,7 +319,9 @@ first three wrap layers deployed:
 
 - [`SECURITY-FACTORY.md`](../SECURITY-FACTORY.md) — the security review for this program
 - [`LAUNCH_RUNBOOK.md`](LAUNCH_RUNBOOK.md) — the parent wrappedbulls launch runbook
-- [`AUTHORITY.md`](AUTHORITY.md) — Squads multisig handoff procedure (shared)
+- [`AUTHORITY.md`](AUTHORITY.md) — upgrade authority + treasury role doc (shared)
+- [`PRE_MORTEM_FACTORY.md`](PRE_MORTEM_FACTORY.md) — full failure mode walk through, including the single keypair posture
+- [`VERIFIED_BUILD_FACTORY.md`](VERIFIED_BUILD_FACTORY.md) — canonical hash + reproducibility record
 - [`VERIFIABLE_BUILD.md`](VERIFIABLE_BUILD.md) — solana-verify procedure (shared)
 
 ---

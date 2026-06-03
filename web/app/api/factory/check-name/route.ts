@@ -14,8 +14,15 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { fetchAllWrappedCollections, getConnection } from "@/lib/factory";
+import { cacheWrapSWR } from "@/lib/cache";
 
 export const dynamic = "force-dynamic";
+
+// H1 fix: cache the getProgramAccounts result for 60s. Single flight
+// collapses concurrent requests into one RPC, SWR keeps responses fast
+// even during refresh. Cost: a freshly deployed ticker takes up to 60s
+// to show up as taken. Acceptable for a UX gate.
+const CACHE_TTL_MS = 60_000;
 
 export async function GET(req: NextRequest) {
   const ticker = req.nextUrl.searchParams.get("ticker")?.trim().toUpperCase();
@@ -42,7 +49,12 @@ export async function GET(req: NextRequest) {
   const conn = getConnection();
   let collections;
   try {
-    collections = await fetchAllWrappedCollections(conn);
+    collections = await cacheWrapSWR(
+      "factory-collections",
+      "all",
+      { ttlMs: CACHE_TTL_MS },
+      () => fetchAllWrappedCollections(conn),
+    );
   } catch (e) {
     return NextResponse.json(
       {

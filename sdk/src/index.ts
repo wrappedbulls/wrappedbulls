@@ -29,6 +29,7 @@ import { BN, BorshInstructionCoder, Idl } from "@coral-xyz/anchor";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID,
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 
@@ -214,8 +215,20 @@ export class FactoryClient {
     const wbullMint = cfg.wbullMint;
     const [factoryAddr] = factoryConfigPda(this.programId);
     const [treasuryAddr] = bullTreasuryStatePda(this.programId);
-    const treasuryVault = getAssociatedTokenAddressSync(wbullMint, treasuryAddr, true);
-    const deployerWbull = getAssociatedTokenAddressSync(wbullMint, opts.deployer);
+
+    // Detect wbull mint's owner program. pump.fun migrated to Token-2022;
+    // ATAs and the wbull_token_program account must match the mint's owner
+    // or the deploy fails at the first transfer_checked CPI.
+    const wbullMintInfo = await this.connection.getAccountInfo(wbullMint);
+    if (!wbullMintInfo) {
+      throw new Error("could not read wbull mint account");
+    }
+    const wbullTokenProgram = wbullMintInfo.owner.equals(TOKEN_2022_PROGRAM_ID)
+      ? TOKEN_2022_PROGRAM_ID
+      : TOKEN_PROGRAM_ID;
+
+    const treasuryVault = getAssociatedTokenAddressSync(wbullMint, treasuryAddr, true, wbullTokenProgram);
+    const deployerWbull = getAssociatedTokenAddressSync(wbullMint, opts.deployer, false, wbullTokenProgram);
 
     const [collection] = collectionPda(this.programId, opts.tokenMint);
     const [collMint]   = collectionMintPda(this.programId, opts.tokenMint);
@@ -256,7 +269,7 @@ export class FactoryClient {
       { pubkey: collMetadata,                isSigner: false, isWritable: true  },
       { pubkey: collMasterEd,                isSigner: false, isWritable: true  },
       { pubkey: TOKEN_PROGRAM_ID,            isSigner: false, isWritable: false },
-      { pubkey: TOKEN_PROGRAM_ID,            isSigner: false, isWritable: false }, // wbull_token_program (Interface)
+      { pubkey: wbullTokenProgram,           isSigner: false, isWritable: false }, // detected from wbull mint owner above
       { pubkey: ASSOCIATED_TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
       { pubkey: TOKEN_METADATA_PROGRAM_ID,   isSigner: false, isWritable: false },
       { pubkey: SystemProgram.programId,     isSigner: false, isWritable: false },
@@ -302,14 +315,25 @@ export class FactoryClient {
       throw new Error("this wrap layer is fully wrapped (max supply reached)");
     }
 
+    // Detect target token's owner program (classic SPL vs Token-2022).
+    // Wrong program here makes vault + wrapperToken ATAs derive to addresses
+    // the on-chain runtime doesn't expect, and wrap fails at transfer_checked.
+    const targetMintInfo = await this.connection.getAccountInfo(opts.tokenMint);
+    if (!targetMintInfo) {
+      throw new Error("could not read target token mint account");
+    }
+    const targetTokenProgram = targetMintInfo.owner.equals(TOKEN_2022_PROGRAM_ID)
+      ? TOKEN_2022_PROGRAM_ID
+      : TOKEN_PROGRAM_ID;
+
     const [collAddr]       = collectionPda(this.programId, opts.tokenMint);
     const [collMintAddr]   = collectionMintPda(this.programId, opts.tokenMint);
     const [collAuth]       = collectionAuthorityPda(this.programId, opts.tokenMint);
     const [nftMint]        = nftMintPdaFactory(this.programId, opts.tokenMint, collection.totalWrapped);
     const [nftAuth]        = vaultAuthorityPda(this.programId, nftMint);
     const [bullAsset]      = bullAssetPdaFactory(this.programId, opts.tokenMint, tierIndex);
-    const vault            = getAssociatedTokenAddressSync(opts.tokenMint, nftAuth, true);
-    const wrapperToken     = getAssociatedTokenAddressSync(opts.tokenMint, opts.wrapper);
+    const vault            = getAssociatedTokenAddressSync(opts.tokenMint, nftAuth, true, targetTokenProgram);
+    const wrapperToken     = getAssociatedTokenAddressSync(opts.tokenMint, opts.wrapper, false, targetTokenProgram);
     const wrapperNft       = getAssociatedTokenAddressSync(nftMint, opts.wrapper);
     const [metadata]       = metadataPda(nftMint);
     const [masterEd]       = masterEditionPda(nftMint);
@@ -335,7 +359,7 @@ export class FactoryClient {
       { pubkey: collMasterEd,                isSigner: false, isWritable: false },
       { pubkey: collAuth,                    isSigner: false, isWritable: false },
       { pubkey: TOKEN_PROGRAM_ID,            isSigner: false, isWritable: false },
-      { pubkey: TOKEN_PROGRAM_ID,            isSigner: false, isWritable: false }, // bulls_token_program
+      { pubkey: targetTokenProgram,          isSigner: false, isWritable: false }, // detected from target mint owner above
       { pubkey: ASSOCIATED_TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
       { pubkey: TOKEN_METADATA_PROGRAM_ID,   isSigner: false, isWritable: false },
       { pubkey: SystemProgram.programId,     isSigner: false, isWritable: false },
@@ -370,11 +394,20 @@ export class FactoryClient {
     const bull = await this.getBullAsset(opts.tokenMint, opts.tierIndex);
     if (!bull) throw new Error("no live NFT at that tier (already unwrapped or never wrapped)");
 
+    // Detect target token's owner program. Same Token-2022 fix as wrap.
+    const targetMintInfo = await this.connection.getAccountInfo(opts.tokenMint);
+    if (!targetMintInfo) {
+      throw new Error("could not read target token mint account");
+    }
+    const targetTokenProgram = targetMintInfo.owner.equals(TOKEN_2022_PROGRAM_ID)
+      ? TOKEN_2022_PROGRAM_ID
+      : TOKEN_PROGRAM_ID;
+
     const nftMint = bull.nftMint;
     const [collAddr]   = collectionPda(this.programId, opts.tokenMint);
     const [nftAuth]    = vaultAuthorityPda(this.programId, nftMint);
-    const vault        = getAssociatedTokenAddressSync(opts.tokenMint, nftAuth, true);
-    const holderToken  = getAssociatedTokenAddressSync(opts.tokenMint, opts.holder);
+    const vault        = getAssociatedTokenAddressSync(opts.tokenMint, nftAuth, true, targetTokenProgram);
+    const holderToken  = getAssociatedTokenAddressSync(opts.tokenMint, opts.holder, false, targetTokenProgram);
     const holderNft    = getAssociatedTokenAddressSync(nftMint, opts.holder);
     const [bullAsset]  = bullAssetPdaFactory(this.programId, opts.tokenMint, opts.tierIndex);
     const [metadata]   = metadataPda(nftMint);
@@ -398,7 +431,7 @@ export class FactoryClient {
       { pubkey: collection.collectionMint,   isSigner: false, isWritable: false },
       { pubkey: collMeta,                    isSigner: false, isWritable: true  },
       { pubkey: TOKEN_PROGRAM_ID,            isSigner: false, isWritable: false },
-      { pubkey: TOKEN_PROGRAM_ID,            isSigner: false, isWritable: false }, // bulls_token_program
+      { pubkey: targetTokenProgram,          isSigner: false, isWritable: false }, // detected from target mint owner above
       { pubkey: TOKEN_METADATA_PROGRAM_ID,   isSigner: false, isWritable: false },
       { pubkey: SystemProgram.programId,     isSigner: false, isWritable: false },
     ];

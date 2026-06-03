@@ -18,22 +18,22 @@ pub enum WrappedFactoryError {
     #[msg("Provided $WBULL mint does not match Factory config")]
     WrongWbullMint,
 
-    #[msg("Caller's $WBULL balance is below the 1,000,000 deploy-burn threshold")]
+    #[msg("Caller's $WBULL balance is below the 1,000,000 deploy fee threshold")]
     InsufficientWbullForBurn,
 
-    #[msg("Max supply must be between 100 and 10,000 inclusive")]
+    #[msg("Max supply must be between 100 and 2,000 inclusive")]
     InvalidSupplyRange,
 
     #[msg("Tokens-per-wrap must be greater than zero")]
     InvalidTokensPerWrap,
 
-    #[msg("Wrap layer name must be 1..=32 ASCII characters")]
+    #[msg("Wrap layer name must be 1..=25 ASCII characters")]
     InvalidName,
 
-    #[msg("Wrap layer ticker must be 1..=12 ASCII characters")]
+    #[msg("Wrap layer ticker must be 1..=10 ASCII characters")]
     InvalidTicker,
 
-    #[msg("Art source URI must be 1..=200 ASCII characters and end with a non-whitespace char")]
+    #[msg("Art source URI must be 1..=195 ASCII characters and end with a non-whitespace char")]
     InvalidArtUri,
 
     #[msg("A wrap layer for this token mint already exists (PDA collision)")]

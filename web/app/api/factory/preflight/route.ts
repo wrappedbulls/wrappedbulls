@@ -54,6 +54,7 @@ interface PreflightErr {
     | "missing_mint"
     | "invalid_pubkey"
     | "mint_not_found"
+    | "not_a_mint"
     | "rpc_error";
 }
 
@@ -84,14 +85,30 @@ export async function GET(req: NextRequest) {
     return err("no mint account found at that address", "mint_not_found");
   }
 
-  // Parse mint data. solana-web3 returns either a parsed JSON shape or
-  // raw bytes; we expect parsed because both classic SPL and Token-2022
-  // mints have parsers registered.
+  // M4: whitelist the mint owner program. Without this, a regular wallet
+  // (SystemProgram owned) at a random address could pass preflight as a
+  // "mint", which would then fail confusingly downstream. Accept only
+  // classic SPL or Token-2022.
+  const ownerStr = mintAccount.value.owner.toBase58();
+  const SPL_TOKEN = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
+  const TOKEN_2022 = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb";
+  if (ownerStr !== SPL_TOKEN && ownerStr !== TOKEN_2022) {
+    return err(
+      `this address is not owned by an SPL token program (owner: ${ownerStr})`,
+      "not_a_mint",
+    );
+  }
+
+  // Parse mint data. solana-web3 returns parsed JSON for both classic SPL
+  // and Token-2022 mints since their parsers are registered.
   const parsed = (mintAccount.value.data as any)?.parsed?.info;
-  const decimals: number = typeof parsed?.decimals === "number" ? parsed.decimals : 0;
-  const supply: string = parsed?.supply ?? "0";
-  const mintAuthority: string | null = parsed?.mintAuthority ?? null;
-  const freezeAuthority: string | null = parsed?.freezeAuthority ?? null;
+  if (!parsed || typeof parsed.decimals !== "number") {
+    return err("mint account is not parseable as an SPL or Token-2022 mint", "not_a_mint");
+  }
+  const decimals: number = parsed.decimals;
+  const supply: string = parsed.supply ?? "0";
+  const mintAuthority: string | null = parsed.mintAuthority ?? null;
+  const freezeAuthority: string | null = parsed.freezeAuthority ?? null;
 
   // Check whether the wrap layer already exists for this token.
   const [collPda] = collectionPda(mintPk);

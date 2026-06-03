@@ -136,7 +136,7 @@ export default function EconomyLive({ initial }: Props) {
           Bull Treasury · funded by every Factory deployment
         </div>
 
-        <Row label="CLAIMABLE (multisig sweepable)" value={`${formatUi(w.treasuryClaimable, w.decimals)} $WBULL`} gold />
+        <Row label="CLAIMABLE (operator sweepable)" value={`${formatUi(w.treasuryClaimable, w.decimals)} $WBULL`} gold />
         <Row label="PENDING (7-day lock)"           value={`${formatUi(w.treasuryPending, w.decimals)} $WBULL`} />
         <Row label="LIFETIME DEPOSITED (monotonic)" value={`${formatUi(w.treasuryLifetimeDeposited, w.decimals)} $WBULL`} />
         <Row label="LIFETIME CLAIMED"               value={`${formatUi(w.treasuryLifetimeClaimed, w.decimals)} $WBULL`} />

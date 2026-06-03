@@ -27,7 +27,7 @@ export interface WrapLayerCardProps {
   href: string;              // page link, e.g. "/launch/wbull"
   marketplaceHref?: string;  // optional ME / Tensor deep-link
   isOg?: boolean;            // highlights badge in gold
-  verified?: boolean;        // protocol-multisig blessed (renders ✓ verified chip next to name)
+  verified?: boolean;        // operator blessed (renders ✓ verified chip next to name)
 }
 
 export default function WrapLayerCard(props: WrapLayerCardProps) {
@@ -54,7 +54,7 @@ export default function WrapLayerCard(props: WrapLayerCardProps) {
             {name}
             {verified && (
               <span
-                title="Verified by WrappedBulls multisig"
+                title="Verified by WrappedBulls"
                 style={{
                   fontSize: 10,
                   padding: "2px 6px",
