@@ -56,6 +56,43 @@ check_route() {
   PASS_COUNT=$((PASS_COUNT + 1))
 }
 
+check_route_status_oneof() {
+  # Like check_route but accepts any of several status codes. Used for
+  # endpoints whose status is semantic (e.g. /api/factory/health returns
+  # 200 when factory is live, 503 when uninitialized).
+  local path="$1"
+  local expected_statuses="$2"  # space-separated list, e.g. "200 503"
+  local expected_substring="${3:-}"
+
+  local url="${BASE_URL}${path}"
+  local status
+  status=$(curl -s --max-time "${TIMEOUT_S}" -o /tmp/smoke_body.txt -w '%{http_code}' "$url" || echo "000")
+
+  local ok=0
+  for s in $expected_statuses; do
+    [ "$status" = "$s" ] && ok=1 && break
+  done
+
+  if [ "$ok" -ne 1 ]; then
+    red "FAIL ${path} -> ${status} (expected one of: ${expected_statuses})"
+    FAIL_COUNT=$((FAIL_COUNT + 1))
+    FAIL=1
+    return
+  fi
+
+  if [ -n "$expected_substring" ]; then
+    if ! grep -q "$expected_substring" /tmp/smoke_body.txt; then
+      red "FAIL ${path} -> body missing '${expected_substring}'"
+      FAIL_COUNT=$((FAIL_COUNT + 1))
+      FAIL=1
+      return
+    fi
+  fi
+
+  green "OK   ${path} (status ${status} in [${expected_statuses}])"
+  PASS_COUNT=$((PASS_COUNT + 1))
+}
+
 check_json_field() {
   local path="$1"
   local jq_path="$2"
@@ -97,7 +134,10 @@ check_route "/status"          "200" ""
 
 # ----- Public API endpoints -----
 check_route "/api/factory/activity"   "200" ""
-check_route "/api/factory/health"     "200" "programId"
+# /api/factory/health returns 200 once the on chain Factory is initialized,
+# 503 before that (FactoryConfig PDA does not exist yet). Either is a
+# functioning endpoint; the body check below verifies the shape.
+check_route_status_oneof "/api/factory/health" "200 503" "programId"
 check_route "/api/health"             "200" ""
 
 # ----- Embed asset -----

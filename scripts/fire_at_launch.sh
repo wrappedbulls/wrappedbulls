@@ -6,7 +6,7 @@ set -uo pipefail
 MINT="XfY2XBcgY8QSLtGHnmwYrMT4CQt5mVMj55tXRWHpump"
 PROGRAM="F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS"
 HELIUS="https://mainnet.helius-rpc.com/?api-key=dc600042-d2ea-486d-8044-877884eb777b"
-DEPLOYER_KP="/root/.config/solana/id.json"
+DEPLOYER_KP="/root/deployer-keypair.json"
 WEB_SRC="/root/wrappedbulls-sol/web"
 WEB_LIVE="/opt/wrappedbulls-web"
 WEB_BACKUP="/opt/wrappedbulls-web.prelaunch-backup"

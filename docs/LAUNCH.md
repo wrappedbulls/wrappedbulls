@@ -4,7 +4,7 @@
 > This file contains **dangerous, wrong** instructions:
 > - It tells you to fund/verify `FRZJ…TwQ` as the **deployer**. that wallet
 >   is the **royalty treasury**, NOT the deployer. The real deployer is
->   `GMrJpP7SaUkfyizsB3b8GeKWgDiqac3g5EaMGnMtkXCj` (the bulls-box keypair).
+>   `9ZDrkF9a8bMHPeDhe3oiDDUC1616C3vtTGozBgMxhWtn` (the bulls-box keypair).
 >   Funding FRZJ…TwQ for deploy would strand deploy SOL in the wrong wallet.
 > - It drives launch through `scripts/launch.sh`, which is now **deprecated
 >   and fails closed**. Launch is the **manual** runbook sequence.

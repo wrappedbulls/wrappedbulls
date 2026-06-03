@@ -36,7 +36,7 @@ Both programs share the same `cargo` workspace and the same `Anchor.toml`. Facto
 
 | Role | Wallet | Used for |
 |---|---|---|
-| **Deployer + upgrade authority + admin** | The bulls box keypair at `/root/.config/solana/id.json` (`9ZDrkF9a8bMHPeDhe3oiDDUC1616C3vtTGozBgMxhWtn`) | Signs `anchor deploy`, `anchor idl init`, `initialize(wbull_mint)`. Holds upgrade authority indefinitely. Also gates `claim_treasury` and `set_verified`. Must be funded with ~3 SOL mainnet for buffer + rent. |
+| **Deployer + upgrade authority + admin** | The bulls box keypair at `/root/deployer-keypair.json` (`9ZDrkF9a8bMHPeDhe3oiDDUC1616C3vtTGozBgMxhWtn`) | Signs `anchor deploy`, `anchor idl init`, `initialize(wbull_mint)`. Holds upgrade authority indefinitely. Also gates `claim_treasury` and `set_verified`. Must be funded with ~3 SOL mainnet for buffer + rent. |
 | **Bull treasury** | Per program PDA, NOT a wallet | `bull_treasury_state` PDA holds the accounting + signs `bull_treasury_vault` token transfers via seeds. No human owns this directly. |
 
 Critical: the Factory does NOT have a separate "royalty treasury" wallet.
@@ -72,7 +72,7 @@ or you stop and fix.
 ### Cluster + RPC
 
 - [ ] `solana config get` cluster = mainnet-beta
-- [ ] `solana config get` keypair = `/root/.config/solana/id.json`
+- [ ] `solana config get` keypair = `/root/deployer-keypair.json`
 - [ ] `solana balance` shows ≥ 3 SOL (buffer rent + deploy rent + safety)
 - [ ] `SOLANA_RPC_URL` env var points at the Helius mainnet endpoint (NOT the public one — rate limits will kill the deploy mid-upload)
 - [ ] `solana ping --count 3` succeeds against the configured RPC
@@ -105,7 +105,7 @@ Expected: `.so` ~520 KB, IDL ~57 KB.
 ```bash
 solana program deploy \
   --program-id /root/wrappedbulls/target/deploy/wrappedfactory-keypair.json \
-  --keypair /root/.config/solana/id.json \
+  --keypair /root/deployer-keypair.json \
   --url https://api.mainnet-beta.solana.com \
   /root/wrappedbulls/target/deploy/wrappedfactory.so
 ```
@@ -130,7 +130,7 @@ Expected:
 Program Id: <VANITY>
 Owner: BPFLoaderUpgradeab1e11111111111111111111111
 ProgramData Address: <SOME_PDA>
-Authority: GMrJpP7SaUkfyizsB3b8GeKWgDiqac3g5EaMGnMtkXCj  # bulls-box deployer
+Authority: 9ZDrkF9a8bMHPeDhe3oiDDUC1616C3vtTGozBgMxhWtn  # bulls-box deployer
 ...
 ```
 
@@ -254,20 +254,20 @@ No authority handoff in the single keypair posture; the deployer keypair stays i
 
 ```bash
 # On the VPS, just confirm the file exists + is not zero bytes
-ls -la /root/.config/solana/id.json
-solana-keygen pubkey /root/.config/solana/id.json
+ls -la /root/deployer-keypair.json
+solana-keygen pubkey /root/deployer-keypair.json
 # Expected: 9ZDrkF9a8bMHPeDhe3oiDDUC1616C3vtTGozBgMxhWtn (or whichever pubkey you chose for Factory)
 ```
 
 Cold backup off-box (do this on a personal device, NOT in chat/pastebin):
-1. SCP `/root/.config/solana/id.json` to a personal machine
+1. SCP `/root/deployer-keypair.json` to a personal machine
 2. Write it to an offline storage medium (encrypted USB, paper QR via `solana-keygen recover`, etc.)
 3. Test reading the backup once
 4. Delete the on-host SCP copy
 
 Optional future moves (not required at launch, recorded here so the option is documented):
-- Transfer authority to a hardware wallet: `solana program set-upgrade-authority <VANITY> --new-upgrade-authority <LEDGER_PUBKEY> --keypair /root/.config/solana/id.json --url mainnet-beta`. Adds physical-presence requirement for any future upgrade.
-- Make program immutable: `solana program set-upgrade-authority <VANITY> --new-upgrade-authority null --keypair /root/.config/solana/id.json --url mainnet-beta`. Locks the program forever; also disables `claim_treasury` (treasury becomes permanently locked). Do NOT do this until the treasury is empty and you genuinely want immutability.
+- Transfer authority to a hardware wallet: `solana program set-upgrade-authority <VANITY> --new-upgrade-authority <LEDGER_PUBKEY> --keypair /root/deployer-keypair.json --url mainnet-beta`. Adds physical-presence requirement for any future upgrade.
+- Make program immutable: `solana program set-upgrade-authority <VANITY> --new-upgrade-authority null --keypair /root/deployer-keypair.json --url mainnet-beta`. Locks the program forever; also disables `claim_treasury` (treasury becomes permanently locked). Do NOT do this until the treasury is empty and you genuinely want immutability.
 
 ### Step 10 — Mainnet smoke test (canary phase begins)
 
@@ -337,7 +337,7 @@ Then fire the comms package from [`LAUNCH_ANNOUNCE.md`](LAUNCH_ANNOUNCE.md):
 
 ```bash
 # Resume from the buffer
-solana program deploy --buffer <BUFFER_PUBKEY> --keypair /root/.config/solana/id.json /root/wrappedbulls/target/deploy/wrappedfactory.so
+solana program deploy --buffer <BUFFER_PUBKEY> --keypair /root/deployer-keypair.json /root/wrappedbulls/target/deploy/wrappedfactory.so
 ```
 
 Or abandon and reclaim the buffer rent:
@@ -367,7 +367,7 @@ You launched without an off box cold backup of the upgrade authority keypair. Th
 The upgrade authority keypair still holds upgrade rights, so a fix is operationally fast (single signer):
 
 1. Public disclosure on `@wrappedbulls` X: "pausing Factory deploys while investigating $ISSUE. Existing deployments unaffected."
-2. Sign and push the program upgrade with the deployer keypair (`solana program deploy <fixed.so> --program-id /root/wrappedbulls/target/deploy/wrappedfactory-keypair.json --keypair /root/.config/solana/id.json --url mainnet-beta`).
+2. Sign and push the program upgrade with the deployer keypair (`solana program deploy <fixed.so> --program-id /root/wrappedbulls/target/deploy/wrappedfactory-keypair.json --keypair /root/deployer-keypair.json --url mainnet-beta`).
 3. If the bug threatens existing per deployment vaults: include a recovery instruction in the upgrade and call it before lifting the pause.
 
 ## Post-deploy verification (the first 24 hours)

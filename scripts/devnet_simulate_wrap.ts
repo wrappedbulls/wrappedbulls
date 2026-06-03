@@ -5,7 +5,7 @@
 //   with NO config arg. Prints the same simulationErr/logs the website logs.
 // Usage (env like devnet_wrap_bull.ts):
 //   ANCHOR_PROVIDER_URL=https://api.devnet.solana.com \
-//   ANCHOR_WALLET=/root/.config/solana/id.json npx ts-node scripts/devnet_simulate_wrap.ts
+//   ANCHOR_WALLET=/root/deployer-keypair.json npx ts-node scripts/devnet_simulate_wrap.ts
 
 import * as anchor from "@coral-xyz/anchor";
 import {

@@ -102,7 +102,7 @@ If we ever do hit OOM:
 ## Backup
 
 The bulls box itself isn't strictly stateful. all the state lives on Solana. But:
-- The deployer keypair at `/root/.config/solana/id.json` is irreplaceable. **Cold-back the seed phrase before mainnet deploy.**
+- The deployer keypair at `/root/deployer-keypair.json` is irreplaceable. **Cold-back the seed phrase before mainnet deploy.**
 - Caddy auto-issued certs at `/var/lib/caddy/.local/share/caddy/certificates/`. Caddy will re-fetch them if lost, but you'd be without TLS for ~30 sec to a few min.
 - DigitalOcean snapshots are $0.06/GB-month. enable weekly backups for $1.20/month for the 70GB box. Worth it.
 

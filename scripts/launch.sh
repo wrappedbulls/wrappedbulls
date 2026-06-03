@@ -38,7 +38,7 @@ fi
 #
 # Env vars (override defaults):
 #   DEPLOYER_KEYPAIR  - path to the mainnet deployer JSON keypair
-#                       (default: /root/.config/solana/id.json — the devnet wallet,
+#                       (default: /root/deployer-keypair.json — the devnet wallet,
 #                        which will FAIL the pubkey-match guard on mainnet)
 #   EXPECTED_DEPLOYER - the deployer pubkey we expect (default below)
 
