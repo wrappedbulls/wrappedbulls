@@ -71,10 +71,10 @@ or you stop and fix.
 
 ### Cluster + RPC
 
-- [ ] `solana config get` cluster = mainnet-beta
+- [ ] `solana config get` RPC URL points at the paid Helius mainnet endpoint, NOT `api.mainnet-beta.solana.com`. Public-endpoint rate limits will kill the deploy mid-upload. Set with:
+      `solana config set --url "$SOLANA_RPC_URL"` (read the URL from `/opt/wrappedbulls-web/.env.production`)
 - [ ] `solana config get` keypair = `/root/deployer-keypair.json`
 - [ ] `solana balance` shows ≥ 3 SOL (buffer rent + deploy rent + safety)
-- [ ] `SOLANA_RPC_URL` env var points at the Helius mainnet endpoint (NOT the public one — rate limits will kill the deploy mid-upload)
 - [ ] `solana ping --count 3` succeeds against the configured RPC
 
 ### $WBULL mint
@@ -103,10 +103,13 @@ Expected: `.so` ~520 KB, IDL ~57 KB.
 ### Step 2 — Deploy the program binary
 
 ```bash
+# Uses the RPC URL from `solana config get` (must be the Helius
+# endpoint, per the pre-flight checklist). Do NOT pass --url
+# https://api.mainnet-beta.solana.com here -- the public endpoint
+# rate-limits will halt the upload mid-stream.
 solana program deploy \
   --program-id /root/wrappedbulls/target/deploy/wrappedfactory-keypair.json \
   --keypair /root/deployer-keypair.json \
-  --url https://api.mainnet-beta.solana.com \
   /root/wrappedbulls/target/deploy/wrappedfactory.so
 ```
 
