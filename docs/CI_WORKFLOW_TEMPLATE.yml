@@ -1,5 +1,15 @@
 name: CI
 
+# TEMPLATE FILE. Copy this content into .github/workflows/ci.yml via
+# the GitHub web UI (repo > Actions tab > New workflow > start from
+# scratch > paste this content > Commit). The GitHub web UI uses your
+# browser session which has the `workflow` scope; CLI OAuth tokens
+# typically do not, so this file lives here as a template rather than
+# at .github/workflows/ci.yml.
+#
+# Once the file exists at .github/workflows/ci.yml on the default
+# branch, every push and PR will run the four gate jobs defined below.
+
 # Pre commit + pre merge gates. Catches regressions that would otherwise
 # slip into release/v1.0 between commits. Every check below is cheap
 # enough (sub 5 minutes) that running on every push is practical, and
