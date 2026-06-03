@@ -85,6 +85,84 @@ export default function SecurityPage() {
         </ul>
       </Section>
 
+      <Section title="WrappedFactory program">
+        <Field label="Program ID" mono>
+          WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh
+        </Field>
+        <Field label="Source">
+          <a
+            className="text-[var(--bull-accent)] hover:underline"
+            href="https://github.com/wrappedbulls/wrappedbulls/tree/release/v1.0/programs/wrappedfactory"
+            target="_blank" rel="noopener"
+          >
+            programs/wrappedfactory on release/v1.0
+          </a>
+        </Field>
+        <Field label="Audit document">
+          <a
+            className="text-[var(--bull-accent)] hover:underline"
+            href="https://github.com/wrappedbulls/wrappedbulls/blob/release/v1.0/docs/AUDIT_FACTORY.md"
+            target="_blank" rel="noopener"
+          >
+            docs/AUDIT_FACTORY.md
+          </a>{" "}
+          (internal, all Critical / High / Medium findings closed; no external third party audit)
+        </Field>
+        <Field label="Pre mortem">
+          <a
+            className="text-[var(--bull-accent)] hover:underline"
+            href="https://github.com/wrappedbulls/wrappedbulls/blob/release/v1.0/docs/PRE_MORTEM_FACTORY.md"
+            target="_blank" rel="noopener"
+          >
+            docs/PRE_MORTEM_FACTORY.md
+          </a>
+        </Field>
+        <Field label="Verifiable build">
+          <a
+            className="text-[var(--bull-accent)] hover:underline"
+            href="https://github.com/wrappedbulls/wrappedbulls/blob/release/v1.0/docs/VERIFIED_BUILD_FACTORY.md"
+            target="_blank" rel="noopener"
+          >
+            docs/VERIFIED_BUILD_FACTORY.md
+          </a>
+        </Field>
+      </Section>
+
+      <Section title="Factory upgrade authority + circuit breaker">
+        <p className="text-[var(--bull-dim)] mb-3">
+          The Factory program is currently upgradeable, with authority held
+          by the WrappedBulls operator as a single hot keypair (no Squads
+          multisig). During the soak period (30 to 60 days after mainnet
+          launch), authority remains live so we can patch logic bugs that
+          surface in real conditions. After the soak period, if no critical
+          bugs surface, authority is either moved to a hardware wallet or
+          revoked entirely so the program becomes permanently immutable.
+          See{" "}
+          <Link href="/terms" className="text-[var(--bull-accent)] hover:underline">
+            /terms
+          </Link>{" "}
+          for the full policy.
+        </p>
+        <p className="text-[var(--bull-dim)] mb-3">
+          The program exposes a global circuit breaker via the{" "}
+          <code>set_factory_paused</code> instruction, gated to the program
+          upgrade authority. When paused, the program rejects new wraps, new
+          <code> deploy_collection</code> calls, and{" "}
+          <code>claim_treasury</code> calls.{" "}
+          <span className="text-[var(--bull-ink)] font-bold">
+            Unwrap is never paused.
+          </span>{" "}
+          User locked tokens are always drainable by their NFT holder regardless
+          of pause state; pausing unwrap would constitute fund capture, which
+          the circuit breaker exists to prevent.
+        </p>
+        <p className="text-[var(--bull-dim)]">
+          Pause is a triage tool. We will use it if we observe evidence of an
+          active exploit or a critical Metaplex / Token-2022 regression. We
+          will NOT use it to censor or de platform individual deployments.
+        </p>
+      </Section>
+
       <Section title="On-chain invariants checked by audit script">
         <p className="text-[var(--bull-dim)] mb-3">
           <a
