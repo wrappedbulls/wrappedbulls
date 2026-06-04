@@ -61,6 +61,7 @@ export default async function HomePage() {
               ) : (
                 <>
                   <Link href="/wrap" className="btn btn-primary">Wrap a Bull →</Link>
+                  <Link href="/launch" className="btn btn-secondary">Launch a wrap layer →</Link>
                   <Link href="/tech" className="btn btn-secondary">How it works</Link>
                 </>
               )}
@@ -114,6 +115,41 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* FACTORY pitch. always visible post launch. */}
+      {!preLaunch && (
+        <section className="section">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            <div
+              className="rounded-2xl border-2 border-[var(--bull-accent)] p-8 md:p-12 relative overflow-hidden"
+              style={{ background: "var(--bull-very-soft)" }}
+            >
+              <div
+                className="inline-block px-3 py-1 rounded-full text-xs font-bold mb-4"
+                style={{ background: "var(--bull-accent)", color: "var(--bull-paper)", letterSpacing: "0.08em" }}
+              >
+                NEW · LIVE ON MAINNET
+              </div>
+              <h2 className="h2 mb-4" style={{ maxWidth: 720 }}>
+                The wrap mechanic is now a primitive.
+              </h2>
+              <p className="text-lg mb-6 text-[var(--bull-dim)]" style={{ maxWidth: 720, lineHeight: 1.6 }}>
+                Any pump.fun token can deploy its own wrap layer in one
+                transaction. Same vault math, same immutability, custom
+                identity. Permissionless. 1,000,000 $WBULL to launch.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Link href="/launch" className="btn btn-primary">Launch a wrap layer →</Link>
+                <Link href="/launches" className="btn btn-secondary">See deployments</Link>
+                <Link href="/faq" className="btn btn-secondary">FAQ</Link>
+              </div>
+              <div className="mt-6 text-xs text-[var(--bull-dim)]" style={{ fontFamily: "monospace" }}>
+                factory: WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* STATS / FEED. only when live */}
       {!preLaunch && (

@@ -18,7 +18,7 @@ wrappedfactory = "WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh"
 
 [provider]
 cluster = "localnet"
-wallet = "~/.config/solana/id.json"
+wallet = "/root/deployer-keypair.json"
 
 [scripts]
 test = "npm run test"
