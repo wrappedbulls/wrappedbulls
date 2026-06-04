@@ -10,6 +10,35 @@ Pre staged comms for the WrappedFactory mainnet launch. All copy is drafted, sco
 
 ---
 
+## Mainnet artifacts (single source of truth for the announcement)
+
+These are the on chain receipts that the announcement tweets cite. Paste them into the X thread, Discord blurb, partner DMs, and explorer / Solscan links.
+
+| Artifact | Value |
+|---|---|
+| Factory program ID | `WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh` |
+| Program data PDA | `Ebq5bBNW1nUg41mUEM9zEBsZ8Hr8P9jHyieMWENqu8BQ` |
+| Upgrade authority | `9ZDrkF9a8bMHPeDhe3oiDDUC1616C3vtTGozBgMxhWtn` |
+| Deploy tx | `64sMRKm1rGjoyXpspCMKVixfF7Y4DGnBfsKsrHr1DnPZnWXjMT2yXBxNfECEAA3Q2sj9fdHJuy5kYeGYHsyMDJ5V` |
+| IDL metadata account | `4b74kxVEtr1wf9DpSncsNPpQKAKfFPDXQ2yb2Jsrac6b` |
+| Initialize tx | `4EJNUQtqM8kTb1Mjy2V2ZmDcQSELsdiynLjVvbv8ZGdL9umArkueqvmSfhD1SZEtjSN9woG8DYRL6cqohnAZQTSx` |
+| FactoryConfig PDA (singleton) | `3xJpf9ZtXT157khTkXHXBwfKdFafjEnPdadkaMV9Fw2t` |
+| BullTreasuryState PDA (singleton) | `Hx1fLGE8RrtKdB21FFW1QeDFbAM6oA3WjV8RaGHbT4RL` |
+| Bull treasury vault (WBULL ATA) | `Hpox3NqYcRVcrKDA62f3BXzDnCgJskk7kh3QaeJwYHT7` |
+| Mainnet $WBULL mint | `gAhvUSC7XamFqt6gr1JwHU2tEZFYQMEQYEsyKBSpump` |
+| Verifiable build hash | `f2ce0ac4f4d70b84e4abb622f31125dc32320ed5aa7723f6b7744546600ef0d2` |
+| Source commit | `release/v1.0` tip (see GitHub) |
+| Mainnet deployed in slot | (filled in at deploy time via `solana program show`) |
+
+### Solscan quick links (paste into tweets)
+
+- Program: https://solscan.io/account/WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh
+- Deploy tx: https://solscan.io/tx/64sMRKm1rGjoyXpspCMKVixfF7Y4DGnBfsKsrHr1DnPZnWXjMT2yXBxNfECEAA3Q2sj9fdHJuy5kYeGYHsyMDJ5V
+- Initialize tx: https://solscan.io/tx/4EJNUQtqM8kTb1Mjy2V2ZmDcQSELsdiynLjVvbv8ZGdL9umArkueqvmSfhD1SZEtjSN9woG8DYRL6cqohnAZQTSx
+- Treasury vault: https://solscan.io/account/Hpox3NqYcRVcrKDA62f3BXzDnCgJskk7kh3QaeJwYHT7
+
+---
+
 ## A. X launch thread (fires the moment canary lifts)
 
 Post as a thread on @wrappedbulls. Each numbered block is one tweet (max 280 chars each).
@@ -43,9 +72,15 @@ Post as a thread on @wrappedbulls. Each numbered block is one tweet (max 280 cha
 
 ### 4/
 
-> The Factory program is open source, internally audited (no external audit), and verifiable bytecode against the public commit. Verifiable build manifest is in the repo.
+> Receipts. Open source, internally audited (no external audit), verifiable bytecode.
 >
 > Program: WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh
+>
+> Deploy: solscan.io/tx/64sMRKm1
+>
+> Initialize: solscan.io/tx/4EJNUQtqM8kT
+>
+> Build hash: f2ce0ac4f4d7...
 >
 > github.com/wrappedbulls/wrappedbulls
 
@@ -117,6 +152,9 @@ Health dashboard: wrappedbulls.com/launch/health
 Risk + ToS: wrappedbulls.com/terms
 
 Program: WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh
+Deploy tx: 64sMRKm1rGjoyXpspCMKVixfF7Y4DGnBfsKsrHr1DnPZnWXjMT2yXBxNfECEAA3Q2sj9fdHJuy5kYeGYHsyMDJ5V
+Initialize tx: 4EJNUQtqM8kTb1Mjy2V2ZmDcQSELsdiynLjVvbv8ZGdL9umArkueqvmSfhD1SZEtjSN9woG8DYRL6cqohnAZQTSx
+Build hash: f2ce0ac4f4d70b84e4abb622f31125dc32320ed5aa7723f6b7744546600ef0d2
 Source: github.com/wrappedbulls/wrappedbulls
 
 Internally audited, on chain circuit breaker, 7 day treasury lock. No external audit; full risk disclosure on /terms. Permissionless means scam deploys exist; verified badge is the canonical signal.
