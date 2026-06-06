@@ -10,7 +10,8 @@
 // art_source.uri, and the program appends "<tier>" to it for each NFT.
 
 import { NextRequest, NextResponse } from "next/server";
-import { deriveSeed, getTheme } from "@/lib/algo_art";
+import { getTheme } from "@/lib/algo_art";
+import { deriveSeed } from "@/lib/algo_art/seed";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";

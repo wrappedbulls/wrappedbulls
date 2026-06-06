@@ -44,10 +44,15 @@ type ArtSourceType = "baseUri" | "rendererUrl";
 //   bespoke     partner books our artist (priced + delivered off platform)
 type ArtTier = "diy" | "algorithmic" | "bespoke";
 
-// Available algorithmic presets. Keep in sync with web/lib/art-presets/.
-type AlgorithmicPreset = "pixelated" | "geometric" | "cyberpunk";
+// Algorithmic preset = theme slug from the registry. Wizard reads the
+// live list of available themes from lib/algo_art so adding a theme
+// just means importing it in the registry; this file does not change.
+import { THEME_LIST, WIZARD_PREVIEW_MINT } from "@/lib/algo_art";
+type AlgorithmicPreset = string;
 
-const ALGORITHMIC_UPCHARGE_WBULL = 500_000;
+// V1: algorithmic ships at the same 1M $WBULL as DIY. Future revisions
+// may add a premium tier delta if specific themes warrant it.
+const ALGORITHMIC_UPCHARGE_WBULL = 0;
 
 // Bespoke art deposit. Same magnitude as the deploy fee. Filters tire
 // kickers, signals real commitment, lands in the art revenue wallet.
@@ -247,8 +252,9 @@ export default function LaunchWizardPage() {
           return null;
         }
         if (data.artTier === "algorithmic") {
-          // Disabled in v1; pick another tier.
-          return "algorithmic tier is coming soon. pick DIY or Bespoke for now";
+          if (!data.algorithmicPreset) return "pick a theme so your wrap layer has a visual identity";
+          if (!THEME_LIST.some((t) => t.slug === data.algorithmicPreset)) return "selected theme is no longer available; pick another";
+          return null;
         }
         if (data.artTier === "bespoke") {
           if (!data.bespokeBrief.contactEmail) return "add a contact email so we can quote you";
@@ -680,13 +686,12 @@ function Step4Art({ data, update }: BaseStepProps) {
         />
         <ArtTierCard
           tier="algorithmic"
-          selected={false}
-          onSelect={() => { /* disabled in v1 */ }}
-          disabled
+          selected={data.artTier === "algorithmic"}
+          onSelect={() => update("artTier", "algorithmic")}
           title="ALGORITHMIC"
-          price="coming soon"
-          summary="On chain derived art, unique per NFT, no design work on your end. We are polishing the presets to launch quality."
-          fit="Best for fast launches that want every NFT to look distinct."
+          price="1,000,000 $WBULL"
+          summary="On chain seeded art, unique per NFT, no design work on your end. Pick a theme; every NFT in your collection inherits its visual signature."
+          fit="Best for fast launches that want every NFT to look distinct without commissioning custom art."
         />
         <ArtTierCard
           tier="bespoke"
@@ -700,6 +705,7 @@ function Step4Art({ data, update }: BaseStepProps) {
       </div>
 
       {data.artTier === "diy" && <ArtTierDiyConfig data={data} update={update} />}
+      {data.artTier === "algorithmic" && <ArtTierAlgorithmicConfig data={data} update={update} />}
       {data.artTier === "bespoke" && <ArtTierBespokeConfig data={data} update={update} />}
     </div>
   );
@@ -806,58 +812,56 @@ function ArtTierDiyConfig({ data, update }: BaseStepProps) {
   );
 }
 
-const ALGORITHMIC_PRESETS: { slug: AlgorithmicPreset; name: string; description: string }[] = [
-  { slug: "pixelated", name: "Pixelated", description: "Pixel grid art derived from each NFT mint. Bold, retro." },
-  { slug: "geometric", name: "Geometric", description: "Layered geometric shapes. Clean, bold, distinct per NFT." },
-  { slug: "cyberpunk", name: "Cyberpunk", description: "Dark canvas with neon lines and a unique glyph per NFT." },
-];
-
 function ArtTierAlgorithmicConfig({ data, update }: BaseStepProps) {
   return (
     <div style={{ border: "2px solid var(--bull-ink)", padding: 16, marginTop: 8 }}>
-      <Label hint="every NFT in your collection inherits this aesthetic. each individual NFT is unique within the preset because the renderer seeds off the NFT mint pubkey.">
-        Pick a preset
+      <Label hint="every NFT in your collection inherits this theme. each individual NFT is unique within the theme because the renderer seeds off the collection mint + tier index.">
+        Pick a theme
       </Label>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginTop: 12 }}>
-        {ALGORITHMIC_PRESETS.map((p) => (
+        {THEME_LIST.map((t) => (
           <button
-            key={p.slug}
+            key={t.slug}
             type="button"
-            onClick={() => update("algorithmicPreset", p.slug)}
+            onClick={() => update("algorithmicPreset", t.slug)}
             style={{
               textAlign: "left",
               padding: 12,
-              border: data.algorithmicPreset === p.slug ? "3px solid #d4a017" : "2px solid var(--bull-ink)",
-              background: data.algorithmicPreset === p.slug ? "var(--bull-very-soft)" : "var(--bull-paper)",
+              border: data.algorithmicPreset === t.slug ? "3px solid #d4a017" : "2px solid var(--bull-ink)",
+              background: data.algorithmicPreset === t.slug ? "var(--bull-very-soft)" : "var(--bull-paper)",
               cursor: "pointer",
               fontFamily: "inherit",
             }}
           >
-            <PresetPreviewGrid preset={p.slug} />
-            <div style={{ fontWeight: 800, fontSize: 13, marginTop: 8 }}>{p.name}</div>
-            <div style={{ fontSize: 11, color: "var(--bull-dim)", marginTop: 4, lineHeight: 1.4 }}>{p.description}</div>
+            <ThemePreviewGrid themeSlug={t.slug} previewTiers={t.preview} />
+            <div style={{ fontWeight: 800, fontSize: 13, marginTop: 8 }}>{t.name}</div>
+            <div style={{ fontSize: 11, color: "var(--bull-dim)", marginTop: 4, lineHeight: 1.4 }}>{t.description}</div>
           </button>
         ))}
       </div>
       {data.algorithmicPreset && (
         <Status tone="good" extra>
-          ✓ Algorithmic + {data.algorithmicPreset}. Adds {ALGORITHMIC_UPCHARGE_WBULL.toLocaleString()} $WBULL to your deploy cost. Total: {(1_000_000 + ALGORITHMIC_UPCHARGE_WBULL).toLocaleString()} $WBULL.
+          ✓ Algorithmic + {data.algorithmicPreset}. Same 1,000,000 $WBULL deploy cost as DIY. Every NFT seeds from your collection mint, so wrapping itself is deterministic and free of off chain dependencies.
         </Status>
       )}
     </div>
   );
 }
 
-// Live preview grid: shows 3 deterministic stub renders so the partner can
-// see the visual signature of a preset before committing. Seeds are arbitrary
-// short strings; in production the seed is the actual NFT mint pubkey.
-function PresetPreviewGrid({ preset }: { preset: AlgorithmicPreset }) {
-  const seeds = ["preview-a", "preview-b", "preview-c"];
+// Live preview grid: three sample tiers rendered through the actual
+// production render endpoint. The collection_mint is a fixed wizard
+// placeholder so previews look the same in every browser; the
+// individual tier indices come from the theme's curated preview list,
+// which is the theme author's way of saying "these tier numbers show
+// off my variance well".
+function ThemePreviewGrid({ themeSlug, previewTiers }: { themeSlug: string; previewTiers: number[] }) {
+  // Use the first 3 preview tiers as thumbnails; more would crowd the card.
+  const tiers = previewTiers.slice(0, 3);
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 4 }}>
-      {seeds.map((s) => (
+      {tiers.map((tier) => (
         <div
-          key={s}
+          key={tier}
           style={{
             aspectRatio: "1 / 1",
             background: "var(--bull-very-soft)",
@@ -866,9 +870,10 @@ function PresetPreviewGrid({ preset }: { preset: AlgorithmicPreset }) {
           }}
         >
           <img
-            src={`/api/render/factory/${preset}/preview/${preset}-${s}`}
-            alt=""
+            src={`/api/render/algorithmic/${themeSlug}/${WIZARD_PREVIEW_MINT}/${tier}?size=256`}
+            alt={`${themeSlug} tier ${tier} preview`}
             style={{ width: "100%", height: "100%", display: "block" }}
+            loading="lazy"
           />
         </div>
       ))}

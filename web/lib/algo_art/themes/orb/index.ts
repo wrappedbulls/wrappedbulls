@@ -11,7 +11,8 @@
 // custom art, and the variance keeps a collection feeling distinct
 // without ever falling into procedural-art ugliness.
 
-import { PRNG, type Theme } from "../../index";
+import { PRNG } from "../../prng";
+import type { Theme } from "../../types";
 
 // =====================================================================
 // Palette. 12 base hues, each with a curated companion stack. Every
