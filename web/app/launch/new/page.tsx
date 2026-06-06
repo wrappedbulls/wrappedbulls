@@ -27,6 +27,7 @@ import {
 // Import constants from the single source of truth in lib/factory.ts
 // rather than redefining them here. Prevents silent drift when state.rs
 // changes and lib/factory.ts gets updated but the wizard doesn't.
+import { collectionMintPda } from "@/lib/factory";
 import {
   MIN_SUPPLY,
   MAX_SUPPLY,
@@ -364,11 +365,39 @@ export default function LaunchWizardPage() {
       return;
     }
 
-    // Resolve art URLs per tier. v1 ships DIY only (Bespoke handled above,
-    // Algorithmic is feature flagged off). DIY uses what the partner typed.
-    const artSourceKind: "baseUri" | "rendererUrl" = data.artSourceType;
-    const artSourceUri = data.artSourceUrl;
-    const collectionUri = data.collectionUri;
+    // Resolve art URLs per tier.
+    //   diy         the deployer typed the URLs themselves
+    //   algorithmic compute the wrappedbulls.com endpoint pair from the
+    //               chosen theme + the deterministic collection_mint PDA
+    //   bespoke     handled above (early return)
+    let artSourceKind: "baseUri" | "rendererUrl";
+    let artSourceUri: string;
+    let collectionUri: string;
+    if (data.artTier === "algorithmic") {
+      let tokenMintPk: PublicKey;
+      try {
+        tokenMintPk = new PublicKey(data.tokenMint);
+      } catch {
+        setDeployError("bad token mint pubkey");
+        setDeployPhase("error");
+        return;
+      }
+      const [collectionMint] = collectionMintPda(tokenMintPk);
+      const cm = collectionMint.toBase58();
+      // The on chain program appends "<tier>" to the baseUri for each
+      // NFT it mints, so the per NFT URL becomes the metadata route.
+      const origin =
+        typeof window !== "undefined" && window.location?.origin
+          ? window.location.origin
+          : "https://wrappedbulls.com";
+      artSourceKind = "baseUri";
+      artSourceUri = `${origin}/api/metadata/algorithmic/${data.algorithmicPreset}/${cm}/`;
+      collectionUri = `${origin}/api/metadata/algorithmic/${data.algorithmicPreset}/${cm}/collection`;
+    } else {
+      artSourceKind = data.artSourceType;
+      artSourceUri = data.artSourceUrl;
+      collectionUri = data.collectionUri;
+    }
 
     setDeployPhase("building-tx");
     try {
