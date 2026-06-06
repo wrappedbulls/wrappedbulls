@@ -19,16 +19,19 @@ interface RouteParams {
   params: { theme: string; collectionMint: string; tier: string };
 }
 
-// Origin used for the image URL in the JSON. Read from env so dev /
-// staging / preview environments can override. Defaults to the live
-// production origin.
+// Origin used for the image URL in the JSON. Behind Caddy's
+// reverse proxy, req.nextUrl.host is the upstream TCP host
+// (localhost:3001), NOT the public hostname. Prefer the explicit
+// override env var, then the X-Forwarded-Host header that Caddy
+// sets, then the Host header. Force https for any non-loopback host.
 function publicOrigin(req: NextRequest): string {
   const envOrigin = process.env.NEXT_PUBLIC_APP_ORIGIN;
   if (envOrigin) return envOrigin.replace(/\/$/, "");
-  // Fall back to the request host (so dev curls work) and force https
-  // for any non-localhost host.
-  const host = req.nextUrl.host;
-  const proto = host.startsWith("localhost") || host.startsWith("127.0.0.1") ? "http" : "https";
+  const xfHost = req.headers.get("x-forwarded-host");
+  const host = (xfHost && xfHost.split(",")[0].trim()) || req.headers.get("host") || req.nextUrl.host;
+  const proto =
+    req.headers.get("x-forwarded-proto") ||
+    (host.startsWith("localhost") || host.startsWith("127.0.0.1") ? "http" : "https");
   return `${proto}://${host}`;
 }
 
