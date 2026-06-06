@@ -26,7 +26,7 @@ export default function SecurityPage() {
           F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS
         </Field>
         <Field label="Network">
-          Solana - currently devnet for testing, mainnet at launch
+          Solana mainnet
         </Field>
         <Field label="Token mint">
           Set per-deployment in the BullBank PDA. View on chain via the
@@ -218,9 +218,9 @@ export default function SecurityPage() {
         <Field label="Report email">
           <a
             className="text-[var(--bull-accent)] hover:underline"
-            href="mailto:degencapital999@gmail.com?subject=%5BBUG%20BOUNTY%5D%20"
+            href="mailto:wrappedbulls@hotmail.com?subject=%5BBUG%20BOUNTY%5D%20"
           >
-            degencapital999@gmail.com (subject prefix [BUG BOUNTY])
+            wrappedbulls@hotmail.com (subject prefix [BUG BOUNTY])
           </a>
         </Field>
         <Field label="Safe harbor">

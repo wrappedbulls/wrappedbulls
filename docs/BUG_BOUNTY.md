@@ -80,7 +80,7 @@ Payouts are in USDC, sent to a wallet of the reporter's choice on Solana. Funded
 
 ## How to report
 
-Email: `degencapital999@gmail.com`
+Email: `wrappedbulls@hotmail.com`
 Subject prefix: `[BUG BOUNTY]`
 
 We do not run a public Discord or Telegram inbox for security reports. Email is the canonical channel because it gives the operator time to evaluate and act before the issue is public.
