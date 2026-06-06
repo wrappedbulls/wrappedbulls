@@ -58,19 +58,17 @@ pub struct StakingPool {
     /// stake / unstake.
     pub lifetime_rewards_claimed: u64,
 
-    /// PDA bump.
+    /// PDA bump. Also used as the signing bump for the stake_vault
+    /// and reward_vault CPI transfers since this PDA doubles as the
+    /// vault authority. Same pattern wrappedfactory uses for
+    /// bull_treasury_state.
     pub bump: u8,
 
-    /// Bump for the pool_authority PDA. Recorded once at init so the
-    /// CPI transfer signer seeds do not need a runtime
-    /// findProgramAddress.
-    pub authority_bump: u8,
-
     /// Forward-compat slack. Carve future fields from here to keep
-    /// SIZE stable across upgrades. 96 bytes leaves room for V2
+    /// SIZE stable across upgrades. 97 bytes leaves room for V2
     /// features like cooldown periods, boost multipliers, sister
     /// pools, etc.
-    pub reserved: [u8; 96],
+    pub reserved: [u8; 97],
 }
 
 impl StakingPool {
@@ -83,8 +81,7 @@ impl StakingPool {
         + 8                           // lifetime_rewards_deposited
         + 8                           // lifetime_rewards_claimed
         + 1                           // bump
-        + 1                           // authority_bump
-        + 96;                         // reserved
+        + 97;                         // reserved (was 96 + authority_bump; merged)
 }
 
 // =====================================================================
