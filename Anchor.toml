@@ -7,19 +7,17 @@ skip-lint = false
 [programs.devnet]
 wrappedbulls = "F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS"
 wrappedfactory = "WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh"
-wrappedstaking = "BU11s1akingProgram1111111111111111111111111"
+wrappedstaking = "StAKeuh5kDJXpJRD72ELe3MGUc319uCZbMS82LNB7BW"
 
 [programs.localnet]
 wrappedbulls = "F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS"
 wrappedfactory = "WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh"
-wrappedstaking = "BU11s1akingProgram1111111111111111111111111"
+wrappedstaking = "StAKeuh5kDJXpJRD72ELe3MGUc319uCZbMS82LNB7BW"
 
 [programs.mainnet]
 wrappedbulls = "F7qXskG73efUwbDo2B97tZgpPAqX7zHMApXbPUimcFdS"
 wrappedfactory = "WrapqdUUpAiYXdETYLHBaNr4Tc5RWMXBVRwHcJ4QUVh"
-# wrappedstaking: vanity address grinding deferred to pre-mainnet
-# deploy. V1 dev cycle uses the placeholder ID below.
-wrappedstaking = "BU11s1akingProgram1111111111111111111111111"
+wrappedstaking = "StAKeuh5kDJXpJRD72ELe3MGUc319uCZbMS82LNB7BW"
 
 [provider]
 cluster = "localnet"

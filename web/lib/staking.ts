@@ -19,7 +19,7 @@ import {
 
 const PROGRAM_ID = new PublicKey(
   process.env.NEXT_PUBLIC_STAKING_PROGRAM_ID ||
-    "BU11s1akingProgram1111111111111111111111111",
+    "StAKeuh5kDJXpJRD72ELe3MGUc319uCZbMS82LNB7BW",
 );
 
 const RPC_URL =
