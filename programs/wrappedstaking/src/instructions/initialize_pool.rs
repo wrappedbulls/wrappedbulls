@@ -32,7 +32,9 @@ pub struct InitializePool<'info> {
     /// works transparently (mainnet $WBULL is Token-2022).
     pub stake_mint: Box<InterfaceAccount<'info, MintIf>>,
 
-    /// ATA owned by pool. Holds the cumulative staked balance.
+    /// ATA(stake_mint, pool). Holds the cumulative staked balance.
+    /// Pool PDA signs CPI transfers out of this account via the
+    /// pool.bump seed.
     #[account(
         init,
         payer = authority,
@@ -42,14 +44,23 @@ pub struct InitializePool<'info> {
     )]
     pub stake_vault: Box<InterfaceAccount<'info, TokenAccountIf>>,
 
-    /// ATA owned by pool. Holds rewards deposited via deposit_rewards
-    /// waiting for stakers to claim.
+    /// Token account at PDA [b"reward_vault"] owned by pool. Holds
+    /// rewards deposited via deposit_rewards waiting for stakers
+    /// to claim.
+    ///
+    /// NOT an ATA: an ATA is uniquely determined by (mint, owner),
+    /// and stake_vault already occupies ATA(stake_mint, pool). The
+    /// two vaults must be distinct accounts so we keep stake_vault
+    /// as the conventional ATA and put reward_vault at a custom
+    /// seeded address.
     #[account(
         init,
         payer = authority,
-        associated_token::mint = stake_mint,
-        associated_token::authority = pool,
-        associated_token::token_program = stake_token_program,
+        seeds = [b"reward_vault"],
+        bump,
+        token::mint = stake_mint,
+        token::authority = pool,
+        token::token_program = stake_token_program,
     )]
     pub reward_vault: Box<InterfaceAccount<'info, TokenAccountIf>>,
 
