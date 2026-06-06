@@ -1,0 +1,28 @@
+[package]
+name = "wrappedstaking"
+version = "0.1.0"
+description = "WrappedBulls staking: single-pool yield staking for $WBULL holders. Distributes Factory deploy fee revenue as continuous rewards."
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "wrappedstaking"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+
+[dependencies]
+# Pinned to the same Anchor + Metaplex versions as the rest of the
+# workspace (wrappedbulls, wrappedfactory). Keeps IDL tooling
+# consistent and lets the same Anchor test environment exercise all
+# three programs together.
+#
+# init-if-needed for the stake_vault + reward_vault ATAs: same
+# canonical-ATA pre-creation grief vector as the Factory.
+anchor-lang = { version = "1.0.2", features = ["init-if-needed"] }
+anchor-spl = { version = "1.0.2", features = ["token_2022"] }
