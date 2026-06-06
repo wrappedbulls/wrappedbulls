@@ -16,6 +16,7 @@ import {
 } from "@/lib/program";
 import { useLaunchState } from "@/lib/use-launch-state";
 import RpcErrorCard from "@/app/components/RpcErrorCard";
+import BuyBridge from "@/app/launch/components/BuyBridge";
 
 // Launch state is now a RUNTIME fact, fetched from /api/launch-state on
 // mount (see web/lib/launch-state.ts for why. the old build-time
@@ -229,6 +230,18 @@ export default function WrapPage() {
               <div className="text-xs text-[var(--bull-dim)] mt-1">at 1M each</div>
             </div>
           </div>
+
+          {/* Buy bridge: surfaces a Jupiter SOL -> WBULL swap card when
+              the connected wallet holds less than 1,000,000 $WBULL.
+              Self-hides when balance is sufficient. tokenMint guard
+              prevents render before bank state is loaded. */}
+          {tokenMint && (
+            <BuyBridge
+              tokenMint={tokenMint}
+              tokensPerWrap={TOKENS_PER_BULL_BASE.toString()}
+              collectionTicker="WBULL"
+            />
+          )}
 
           <div className="card mb-6">
             <div className="text-xs uppercase text-[var(--bull-dim)] tracking-wider mb-3">Next bull</div>
