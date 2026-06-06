@@ -410,12 +410,40 @@ first three wrap layers deployed:
 3,000,000 $WBULL now in the bull treasury.
 ```
 
+## Staking yield distribution
+
+Each time the operator calls `claim_treasury`, 50% of the swept amount must be routed to the wrappedstaking program's `reward_vault`. This is the operational, off chain leg of the design in `STAKING_DESIGN.md`.
+
+Sequence the operator runs after every successful sweep:
+
+```
+# 1. Claim from the Factory. Funds land in operator ATA.
+npx ts-node scripts/factory_claim_treasury.ts   # whatever your sweep entrypoint is
+
+# 2. Dry run the distribution so you see the planned numbers.
+ANCHOR_PROVIDER_URL=https://api.mainnet-beta.solana.com \
+ANCHOR_WALLET=/root/operator-keypair.json \
+DRY_RUN=1 \
+npx ts-node scripts/distribute_staking_yield.ts
+
+# 3. Live: send 50% of the delta into the staking reward vault.
+ANCHOR_PROVIDER_URL=https://api.mainnet-beta.solana.com \
+ANCHOR_WALLET=/root/operator-keypair.json \
+DRY_RUN=0 \
+npx ts-node scripts/distribute_staking_yield.ts
+```
+
+`distribute_staking_yield.ts` is idempotent. It stores the operator's $WBULL balance in `data/staking_yield_state.json` after a successful deposit and on the next run treats `current_balance - last_known_balance` as new revenue. Re running with no new claim is a clean no op.
+
+The split ratio is configurable via `STAKING_SPLIT_PCT` (default 50). If we ever change the split, update both this runbook and `STAKING_DESIGN.md` in the same commit; never let them disagree.
+
 ## See also
 
 - [`SECURITY-FACTORY.md`](../SECURITY-FACTORY.md) — the security review for this program
 - [`LAUNCH_RUNBOOK.md`](LAUNCH_RUNBOOK.md) — the parent wrappedbulls launch runbook
 - [`AUTHORITY.md`](AUTHORITY.md) — upgrade authority + treasury role doc (shared)
 - [`PRE_MORTEM_FACTORY.md`](PRE_MORTEM_FACTORY.md) — full failure mode walk through, including the single keypair posture
+- [`STAKING_DESIGN.md`](STAKING_DESIGN.md) — the staking tokenomics this runbook's yield distribution step enforces
 - [`VERIFIED_BUILD_FACTORY.md`](VERIFIED_BUILD_FACTORY.md) — canonical hash + reproducibility record
 - [`VERIFIABLE_BUILD.md`](VERIFIABLE_BUILD.md) — solana-verify procedure (shared)
 
