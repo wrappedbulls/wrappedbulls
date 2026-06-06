@@ -11,6 +11,7 @@ const NAV = [
   { href: "/gallery", label: "GALLERY" },
   { href: "/deflation", label: "DEFLATION" },
   { href: "/launch", label: "LAUNCH" },
+  { href: "/stake", label: "STAKE" },
   { href: "/art", label: "ART" },
   { href: "/thesis", label: "THESIS" },
   { href: "/tech", label: "TECH" },
