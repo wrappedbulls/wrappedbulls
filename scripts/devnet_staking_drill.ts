@@ -75,7 +75,7 @@ async function main() {
   anchor.setProvider(provider);
 
   const idl = require("../target/idl/wrappedstaking.json");
-  const program = new Program(idl, provider) as Program<any>;
+  const program: any = new Program(idl, provider);
   const wallet = provider.wallet as anchor.Wallet;
   const me = wallet.publicKey;
 
